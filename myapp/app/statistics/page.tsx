@@ -1,4 +1,5 @@
-import { Header, Footer } from '@/components/layout'
+import { Header } from '@/components/ui/Header'
+import { Footer } from '@/components/ui/Footer'
 
 export default function StatisticsPage() {
   return (

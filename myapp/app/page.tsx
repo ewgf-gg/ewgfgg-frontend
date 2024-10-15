@@ -1,71 +1,59 @@
-'use client'
+"use client"
 
-import { Search, Loader2 } from 'lucide-react'
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { atom, useAtom } from 'jotai'
-import { Progress } from "@/components/ui/progress"
-import Link from 'next/link'
-import { useState } from 'react'
-
-// Atoms for general statistics
-const totalReplaysAtom = atom(1234567)
-const totalPlayersAtom = atom(98765)
-const mostPopularCharacterAtom = atom('Lee Chaolan')
-
-// Atom for rank distribution
-const rankDistributionAtom = atom([
-  { rank: 'God of Destruction', percentage: 1 },
-  { rank: 'Tekken God', percentage: 2 },
-  { rank: 'Tekken Supreme', percentage: 3 },
-  { rank: 'Bushin', percentage: 5 },
-  { rank: 'Fujin', percentage: 10 },
-  { rank: 'Raijin', percentage: 15 },
-  { rank: '1st Dan', percentage: 20 },
-  { rank: 'Garyu', percentage: 25 },
-  { rank: 'Destroyer', percentage: 19 },
-])
+import { Search } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAtom } from 'jotai';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { Header } from '@/components/ui/Header';
+import { Footer } from '@/components/ui/Footer';
+import { AnimatedStatCard } from '@/components/AnimatedStatCard';
+import { AnimatedCard } from '@/components/AnimatedCard';
+import { AnimatedProgress } from '@/components/AnimatedProgress';
+import {
+  totalReplaysAtom,
+  totalPlayersAtom,
+  mostPopularCharacterAtom,
+  rankDistributionAtom
+} from '@/atoms/tekkenStatsAtoms';
 
 export default function HomePage() {
-  const [totalReplays] = useAtom(totalReplaysAtom)
-  const [totalPlayers] = useAtom(totalPlayersAtom)
-  const [mostPopularCharacter] = useAtom(mostPopularCharacterAtom)
-  const [rankDistribution] = useAtom(rankDistributionAtom)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [totalReplays] = useAtom(totalReplaysAtom);
+  const [totalPlayers] = useAtom(totalPlayersAtom);
+  const [mostPopularCharacter] = useAtom(mostPopularCharacterAtom);
+  const [rankDistribution] = useAtom(rankDistributionAtom);
+  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Simulate error for demonstration (remove in production)
-      if (searchQuery.toLowerCase() === 'error') {
-        throw new Error('Player not found')
-      }
-
-      // Handle successful search here
-      console.log('Search completed for:', searchQuery)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
-    } finally {
-      setIsLoading(false)
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/player/${encodeURIComponent(searchQuery.trim())}`);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <h1 className="text-5xl font-bold text-center mb-12">Tekken Stats Aggregator</h1>
+        <motion.h1 
+          className="text-5xl font-bold text-center mb-12"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Tekken Stats Aggregator
+        </motion.h1>
         
-        <div className="max-w-xl mx-auto mb-16">
+        <motion.div 
+          className="max-w-xl mx-auto mb-16"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <form onSubmit={handleSearch} className="flex items-center">
             <Input 
               type="text" 
@@ -73,93 +61,43 @@ export default function HomePage() {
               className="flex-grow mr-2 bg-gray-700 text-white border-gray-600 focus:border-blue-500"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              disabled={isLoading}
             />
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Search className="h-4 w-4 mr-2" />
-              )}
-              {isLoading ? 'Searching...' : 'Search'}
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+              <Search className="h-4 w-4 mr-2" />
+              Search
             </Button>
           </form>
-          {error && <p className="mt-2 text-red-500">{error}</p>}
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          <StatCard title="Total Replays" value={totalReplays.toLocaleString()} />
-          <StatCard title="Total Players" value={totalPlayers.toLocaleString()} />
-          <StatCard title="Most Popular Character" value={mostPopularCharacter} />
+          <AnimatedStatCard title="Total Replays" value={totalReplays.toLocaleString()} delay={0.4} />
+          <AnimatedStatCard title="Total Players" value={totalPlayers.toLocaleString()} delay={0.6} />
+          <AnimatedStatCard title="Most Popular Character" value={mostPopularCharacter} delay={0.8} />
         </div>
 
-        <Card className="bg-gray-800 border-gray-700">
+        <AnimatedCard delay={1}>
           <CardHeader>
             <CardTitle className="text-2xl font-bold">Rank Distribution</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {rankDistribution.map((rank) => (
+              {rankDistribution.map((rank, index) => (
                 <div key={rank.rank} className="flex items-center">
                   <span className="w-32 text-sm">{rank.rank}</span>
-                  <Progress 
+                  <AnimatedProgress 
                     value={rank.percentage} 
                     className="flex-grow mr-4 bg-gray-700" 
                     indicatorClassName="bg-blue-500"
+                    delay={1.2 + index * 0.1}
                   />
                   <span className="text-sm font-medium w-12 text-right">{rank.percentage}%</span>
                 </div>
               ))}
             </div>
           </CardContent>
-        </Card>
+        </AnimatedCard>
       </main>
       <Footer />
     </div>
-  )
-}
-
-function Header() {
-  return (
-    <header className="bg-gray-800 shadow-md">
-      <nav className="container mx-auto px-4 py-4">
-        <ul className="flex justify-center space-x-8">
-          <li>
-            <Link href="/" className="text-white hover:text-blue-400 transition-colors">
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link href="/statistics" className="text-white hover:text-blue-400 transition-colors">
-              All Statistics
-            </Link>
-          </li>
-        </ul>
-      </nav>
-    </header>
-  )
-}
-
-function Footer() {
-  return (
-    <footer className="bg-gray-800 shadow-md mt-8">
-      <div className="container mx-auto px-4 py-4 text-center text-white">
-        <p>This website is a fan-made project and is not affiliated or endorsed by Bandai Namco Inc. or any of its subsidiaries.</p>
-        <p className="mt-2">Suggestions? Join our <a href="#" className="text-blue-400 hover:underline">Discord</a>!</p>
-      </div>
-    </footer>
-  )
-}
-
-function StatCard({ title, value }: { title: string, value: string }) {
-  return (
-    <Card className="bg-gray-800 border-gray-700">
-      <CardHeader>
-        <CardTitle className="text-lg font-medium text-gray-300">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-3xl font-bold">{value}</p>
-      </CardContent>
-    </Card>
-  )
+  );
 }
