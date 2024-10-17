@@ -16,7 +16,7 @@ const EWGFLoadingAnimation = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentStep((prev) => (prev + 1) % (inputs.length + 1));
-    }, 190);
+    }, 170);
 
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
