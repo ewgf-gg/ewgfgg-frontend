@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-const EWGFLoadingAnimation = () => {
+interface EWGFLoadingAnimationProps {
+  className?: string;
+}
+
+const EWGFLoadingAnimation: React.FC<EWGFLoadingAnimationProps> = ({ className }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
-  
+ 
   const inputs = [
     '/tekken-inputs/f.png',
     '/tekken-inputs/n.png',
@@ -33,7 +37,7 @@ const EWGFLoadingAnimation = () => {
   const imageSize = Math.min(windowWidth / 16, 50);
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className={`flex flex-col items-center justify-center ${className || ''}`}>
       <div className="flex items-center justify-center h-16 mb-2">
         {inputs.slice(0, currentStep).map((input, index) => (
           <Image

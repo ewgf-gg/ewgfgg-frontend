@@ -18,7 +18,7 @@ export function AnimatedProgress({ value, className, indicatorClassName, delay }
   return (
     <div className={`relative h-4 w-full overflow-hidden rounded-full ${className}`}>
       <motion.div
-        className={`h-full ${indicatorClassName}`}
+        {...{className: `h-full ${indicatorClassName}`}}
         initial={{ width: 0 }}
         animate={controls}
       />

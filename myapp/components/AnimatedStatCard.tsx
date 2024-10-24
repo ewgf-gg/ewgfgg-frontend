@@ -1,27 +1,36 @@
+// components/AnimatedStatCard.tsx
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface AnimatedStatCardProps {
   title: string;
-  value: string;
-  delay: number;
+  value: string | number;
+  delay?: number;
+  className?: string;
 }
 
-export function AnimatedStatCard({ title, value, delay }: AnimatedStatCardProps) {
+export const AnimatedStatCard: React.FC<AnimatedStatCardProps> = ({ 
+  title, 
+  value, 
+  delay = 0,
+  className = "" 
+}) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
     >
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className={className}>
         <CardHeader>
-          <CardTitle className="text-lg font-medium text-gray-300">{title}</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            {title}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-3xl font-bold">{value}</p>
+          <div className="text-2xl font-bold">{value}</div>
         </CardContent>
       </Card>
     </motion.div>
   );
-}
+};
