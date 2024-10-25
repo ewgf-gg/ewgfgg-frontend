@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-
+//tekkenStatsAtoms.ts
 interface RankColor {
   rank: string;
   color: string;
@@ -19,6 +19,41 @@ export type GameRankDistribution = {
     [mode in DistributionMode]: RankDistribution[];
   };
 }
+
+
+export const rankOrderMap: { [key: number]: string } = {
+  0: 'Beginner',
+  1: '1st Dan',
+  2: '2nd Dan',
+  3: 'Fighter',
+  4: 'Strategist',
+  5: 'Combatant',
+  6: 'Brawler',
+  7: 'Ranger',
+  8: 'Cavalry',
+  9: 'Warrior',
+  10: 'Assailant',
+  11: 'Dominator',
+  12: 'Vanquisher',
+  13: 'Destroyer',
+  14: 'Eliminator',
+  15: 'Garyu',
+  16: 'Shinryu',
+  17: 'Tenryu',
+  18: 'Mighty Ruler',
+  19: 'Flame Ruler',
+  20: 'Battle Ruler',
+  21: 'Fujin',
+  22: 'Raijin',
+  23: 'Kishin',
+  24: 'Bushin',
+  25: 'Tekken King',
+  26: 'Tekken Emperor',
+  27: 'Tekken God',
+  28: 'Tekken God Supreme',
+  29: 'God of Destruction'
+};
+
 
 export const rankColorsAtom = atom<RankColor[]>([
   { rank: 'Beginner', color: '#99582A' },
@@ -53,148 +88,18 @@ export const rankColorsAtom = atom<RankColor[]>([
   { rank: 'God of Destruction', color: '#9e0059' }
 ]);
 
-export const rankDistributionAtom = atom<GameRankDistribution>({
-  '10801': {
-    overall: [
-      { rank: 'Beginner', percentage: 3.15 },
-      { rank: '1st Dan', percentage: 2.90 },
-      { rank: '2nd Dan', percentage: 2.45 },
-      { rank: 'Fighter', percentage: 2.85 },
-      { rank: 'Strategist', percentage: 2.68 },
-      { rank: 'Combatant', percentage: 2.88 },
-      { rank: 'Brawler', percentage: 3.26 },
-      { rank: 'Ranger', percentage: 2.95 },
-      { rank: 'Cavalry', percentage: 3.17 },
-      { rank: 'Warrior', percentage: 4.63 },
-      { rank: 'Assailant', percentage: 4.01 },
-      { rank: 'Dominator', percentage: 4.18 },
-      { rank: 'Vanquisher', percentage: 5.36 },
-      { rank: 'Destroyer', percentage: 4.86 },
-      { rank: 'Eliminator', percentage: 5.64 },
-      { rank: 'Garyu', percentage: 9.46 },
-      { rank: 'Shinryu', percentage: 6.87 },
-      { rank: 'Tenryu', percentage: 6.55 },
-      { rank: 'Mighty Ruler', percentage: 5.34 },
-      { rank: 'Flame Ruler', percentage: 4.33 },
-      { rank: 'Battle Ruler', percentage: 5.32 },
-      { rank: 'Fujin', percentage: 4.69 },
-      { rank: 'Raijin', percentage: 3.43 },
-      { rank: 'Kishin', percentage: 2.46 },
-      { rank: 'Bushin', percentage: 1.95 },
-      { rank: 'Tekken King', percentage: 1.08 },
-      { rank: 'Tekken Emperor', percentage: 0.70 },
-      { rank: 'Tekken God', percentage: 0.48 },
-      { rank: 'Tekken God Supreme', percentage: 0.25 },
-      { rank: 'God of Destruction', percentage: 0.12 }
-    ],
-    standard: [
-      // Keeping existing data for 10801 standard mode
-      { rank: 'Beginner', percentage: 2.06 },
-      { rank: '1st Dan', percentage: 1.80 },
-      { rank: '2nd Dan', percentage: 1.50 },
-      { rank: 'Fighter', percentage: 1.95 },
-      { rank: 'Strategist', percentage: 1.78 },
-      { rank: 'Combatant', percentage: 1.78 },
-      { rank: 'Brawler', percentage: 2.36 },
-      { rank: 'Ranger', percentage: 1.85 },
-      { rank: 'Cavalry', percentage: 2.17 },
-      { rank: 'Warrior', percentage: 3.63 },
-      { rank: 'Assailant', percentage: 3.01 },
-      { rank: 'Dominator', percentage: 3.18 },
-      { rank: 'Vanquisher', percentage: 4.36 },
-      { rank: 'Destroyer', percentage: 3.86 },
-      { rank: 'Eliminator', percentage: 4.64 },
-      { rank: 'Garyu', percentage: 8.46 },
-      { rank: 'Shinryu', percentage: 5.87 },
-      { rank: 'Tenryu', percentage: 5.55 },
-      { rank: 'Mighty Ruler', percentage: 6.34 },
-      { rank: 'Flame Ruler', percentage: 5.33 },
-      { rank: 'Battle Ruler', percentage: 6.32 },
-      { rank: 'Fujin', percentage: 6.69 },
-      { rank: 'Raijin', percentage: 4.43 },
-      { rank: 'Kishin', percentage: 3.46 },
-      { rank: 'Bushin', percentage: 2.95 },
-      { rank: 'Tekken King', percentage: 2.08 },
-      { rank: 'Tekken Emperor', percentage: 1.20 },
-      { rank: 'Tekken God', percentage: 0.68 },
-      { rank: 'Tekken God Supreme', percentage: 0.39 },
-      { rank: 'God of Destruction', percentage: 0.22 }
-    ]
-  },
-  '10701': {
-    overall: [
-      { rank: 'Beginner', percentage: 18.50 },
-      { rank: '1st Dan', percentage: 15.20 },
-      { rank: '2nd Dan', percentage: 12.80 },
-      { rank: 'Fighter', percentage: 10.50 },
-      { rank: 'Strategist', percentage: 8.80 },
-      { rank: 'Combatant', percentage: 7.20 },
-      { rank: 'Brawler', percentage: 5.90 },
-      { rank: 'Ranger', percentage: 4.80 },
-      { rank: 'Cavalry', percentage: 3.90 },
-      { rank: 'Warrior', percentage: 2.90 },
-      { rank: 'Assailant', percentage: 2.30 },
-      { rank: 'Dominator', percentage: 1.80 },
-      { rank: 'Vanquisher', percentage: 1.40 },
-      { rank: 'Destroyer', percentage: 1.10 },
-      { rank: 'Eliminator', percentage: 0.85 },
-      { rank: 'Garyu', percentage: 0.65 },
-      { rank: 'Shinryu', percentage: 0.45 },
-      { rank: 'Tenryu', percentage: 0.35 },
-      { rank: 'Mighty Ruler', percentage: 0.25 },
-      { rank: 'Flame Ruler', percentage: 0.20 },
-      { rank: 'Battle Ruler', percentage: 0.15 },
-      { rank: 'Fujin', percentage: 0.12 },
-      { rank: 'Raijin', percentage: 0.09 },
-      { rank: 'Kishin', percentage: 0.07 },
-      { rank: 'Bushin', percentage: 0.05 },
-      { rank: 'Tekken King', percentage: 0.04 },
-      { rank: 'Tekken Emperor', percentage: 0.02 },
-      { rank: 'Tekken God', percentage: 0.01 },
-      { rank: 'Tekken God Supreme', percentage: 0.005 },
-      { rank: 'God of Destruction', percentage: 0.002 }
-    ],
-    standard: [
-      { rank: 'Beginner', percentage: 16.20 },
-      { rank: '1st Dan', percentage: 13.50 },
-      { rank: '2nd Dan', percentage: 11.20 },
-      { rank: 'Fighter', percentage: 9.30 },
-      { rank: 'Strategist', percentage: 7.80 },
-      { rank: 'Combatant', percentage: 6.50 },
-      { rank: 'Brawler', percentage: 5.40 },
-      { rank: 'Ranger', percentage: 4.50 },
-      { rank: 'Cavalry', percentage: 3.80 },
-      { rank: 'Warrior', percentage: 3.20 },
-      { rank: 'Assailant', percentage: 2.90 },
-      { rank: 'Dominator', percentage: 2.60 },
-      { rank: 'Vanquisher', percentage: 2.30 },
-      { rank: 'Destroyer', percentage: 2.00 },
-      { rank: 'Eliminator', percentage: 1.70 },
-      { rank: 'Garyu', percentage: 1.40 },
-      { rank: 'Shinryu', percentage: 1.20 },
-      { rank: 'Tenryu', percentage: 1.00 },
-      { rank: 'Mighty Ruler', percentage: 0.80 },
-      { rank: 'Flame Ruler', percentage: 0.65 },
-      { rank: 'Battle Ruler', percentage: 0.50 },
-      { rank: 'Fujin', percentage: 0.40 },
-      { rank: 'Raijin', percentage: 0.30 },
-      { rank: 'Kishin', percentage: 0.25 },
-      { rank: 'Bushin', percentage: 0.20 },
-      { rank: 'Tekken King', percentage: 0.15 },
-      { rank: 'Tekken Emperor', percentage: 0.10 },
-      { rank: 'Tekken God', percentage: 0.08 },
-      { rank: 'Tekken God Supreme', percentage: 0.05 },
-      { rank: 'God of Destruction', percentage: 0.02 }
-    ]
-  }
-});
-
-export const totalReplaysAtom = atom(1234567);
-export const totalPlayersAtom = atom(98765);
-export const mostPopularCharacterAtom = atom('Lee Chaolan');
-export const searchQueryAtom = atom('');
+export const totalReplaysAtom = atom<number>(0);
+export const totalPlayersAtom = atom<number>(0);
+export const gameVersionsAtom = atom<string[]>([]);
+export const currentVersionAtom = atom<string>('');
+export const currentModeAtom = atom<'overall' | 'standard'>('overall');
 export const isLoadingAtom = atom(false);
 export const errorMessageAtom = atom('');
+export const mostPopularCharacterAtom = atom('Lee Chaolan');
+export const searchQueryAtom = atom('');
+
+// Updated rank distribution atom with transformation logic
+export const rankDistributionAtom = atom<GameRankDistribution>({} as GameRankDistribution);
 
 
 // Function to get color from rankColorsAtom

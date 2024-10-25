@@ -1,6 +1,5 @@
 "use client"
-
-import { Provider } from 'jotai'
+import { useStatisticsData } from '@/hooks/useStatisticsData';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -16,6 +15,7 @@ import {
 } from '@/atoms/tekkenStatsAtoms';
 
 export default function HomePage() {
+  useStatisticsData(); // Added this hook
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   const [errorMessage, setErrorMessage] = useAtom(errorMessageAtom);
@@ -47,7 +47,7 @@ export default function HomePage() {
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <motion.h1
-          {...{className: "text-5xl font-bold text-center mb-12"}}
+          className="text-5xl font-bold text-center mb-12"
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -61,8 +61,16 @@ export default function HomePage() {
           isLoading={isLoading}
           errorMessage={errorMessage}
         />
-        <StatsGrid/>
-        <RankDistributionChart/>
+        {isLoading ? (
+          <div className="flex justify-center items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          </div>
+        ) : (
+          <>
+            <StatsGrid />
+            <RankDistributionChart />
+          </>
+        )}
       </main>
       <Footer />
     </div>
