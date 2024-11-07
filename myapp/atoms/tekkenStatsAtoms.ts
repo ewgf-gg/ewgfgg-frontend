@@ -21,13 +21,13 @@ export type GameRankDistribution = {
 }
 
 export interface CharacterWinrates {
-  high: { [character: string]: number };
-  low: { [character: string]: number };
+  highRank: { [character: string]: number };
+  lowRank: { [character: string]: number };
 }
 
 const initialWinrates: CharacterWinrates = {
-  high: {},
-  low: {}
+  highRank: {},
+  lowRank: {}
 };
 
 

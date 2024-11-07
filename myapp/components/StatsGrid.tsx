@@ -71,8 +71,8 @@ const PopularityChart: React.FC<StatChartProps> = ({ title, description, delay =
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="high">High Rank</SelectItem>
-                <SelectItem value="low">Low Rank</SelectItem>
+                <SelectItem value="high">Tekken King+</SelectItem>
+                <SelectItem value="low">Garyu-Bushin</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -115,20 +115,31 @@ const PopularityChart: React.FC<StatChartProps> = ({ title, description, delay =
 };
 
 const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 }) => {
-  const [rank, setRank] = React.useState("high");
+  const [rank, setRank] = React.useState("highRank");
   const [characterWinrates] = useAtom(characterWinratesAtom);
-  
-  // Transform the data to show deviation from 50%
+
   const getAdjustedData = () => {
-    // Get the correct rank data
     const rankData = characterWinrates[rank as keyof typeof characterWinrates] || {};
     
-    return Object.entries(rankData).map(([character, winrate]) => ({
-      character,
-      adjustedWinrate: winrate - 50,
-      originalWinrate: winrate
-    }));
+    return Object.entries(rankData)
+      .map(([character, winrate]) => ({
+        character,
+        winrate,
+        originalWinrate: winrate
+      }))
+      .sort((a, b) => b.originalWinrate - a.originalWinrate);
   };
+
+  const data = getAdjustedData();
+  
+  // Calculate the domain dynamically
+  const minWinrate = Math.floor(Math.min(...data.map(d => d.winrate)));
+  const maxWinrate = Math.ceil(Math.max(...data.map(d => d.winrate)));
+  
+  // Add some padding to the domain (5% on each side)
+  const domainPadding = (maxWinrate - minWinrate) * 0.05;
+  const domainMin = Math.max(0, minWinrate - domainPadding);
+  const domainMax = Math.min(100, maxWinrate + domainPadding);
 
   return (
     <motion.div
@@ -146,14 +157,16 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
                 <SelectValue placeholder="Select rank" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="high">High Rank</SelectItem>
-                <SelectItem value="low">Low Rank</SelectItem>
+                <SelectItem value="highRank">Tekken King+</SelectItem>
+                <SelectItem value="lowRank">Bushin-</SelectItem>
               </SelectContent>
             </Select>
           </div>
           {description && (
             <CardDescription>
-              {rank === "high" ? "Top 5 win rates in ranks TGS+" : "Top 5 win rates in ranks below TGS"}
+              {rank === "highRank" 
+                ? "Top 5 in Tekken King and above" 
+                : "Top 5 in Bushin and under"}
             </CardDescription>
           )}
         </CardHeader>
@@ -162,7 +175,7 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
             <BarChart
               width={400}
               height={200}
-              data={getAdjustedData()}
+              data={data}
               layout="vertical"
               margin={{ left: 80, right: 48, top: 0, bottom: 0 }}
             >
@@ -172,19 +185,20 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
                 axisLine={false}
                 tickLine={false}
               />
-              <XAxis 
-                type="number" 
-                hide={false}
-                domain={[0, 10]} // Adjust this based on your actual data range
-                tickFormatter={(value) => `${value + 50}%`}
+              <XAxis
+                type="number"
+                domain={[domainMin, domainMax]}
+                tickFormatter={(value) => `${value.toFixed(1)}%`}
+                ticks={Array.from(
+                  { length: 5 },
+                  (_, i) => domainMin + (domainMax - domainMin) * (i / 4)
+                )}
               />
-              <Tooltip 
-                formatter={(value: number, name: string, props: any) => {
-                  return [`${props.payload.originalWinrate.toFixed(2)}%`, 'Winrate'];
-                }}
+              <Tooltip
+                formatter={(value: number) => [`${value.toFixed(2)}%`, 'Winrate']}
               />
               <Bar
-                dataKey="adjustedWinrate"
+                dataKey="winrate"
                 fill="hsl(var(--primary))"
                 radius={[0, 4, 4, 0]}
               >

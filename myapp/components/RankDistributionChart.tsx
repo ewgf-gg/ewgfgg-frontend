@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { AnimatedCard } from '@/components/AnimatedCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -23,6 +23,16 @@ export const RankDistributionChart: React.FC = () => {
   const [selectedVersion, setSelectedVersion] = useState<GameVersion>('10901');
   const [selectedMode, setSelectedMode] = useState<DistributionMode>('standard');
 
+  // Get the latest version
+  const latestVersion = [...gameVersions].sort((a, b) => parseInt(b) - parseInt(a))[0];
+
+  // Set the initial version to latest on component mount
+  useEffect(() => {
+    if (latestVersion) {
+      setSelectedVersion(latestVersion as GameVersion);
+    }
+  }, [latestVersion]);
+
   // Only proceed if we have data for the selected version
   const distributionData = rankDistribution[selectedVersion]?.[selectedMode] || [];
 
@@ -36,14 +46,11 @@ export const RankDistributionChart: React.FC = () => {
   });
 
   const getVersionLabel = (version: string) => {
-    switch (version) {
-      case '10801':
-        return 'Tekken 8 (Latest)';
-      case '10701':
-        return 'Tekken 8 (Previous)';
-      default:
-        return `Version ${version}`;
+    // If this is the latest version, append "(Latest)"
+    if (version === latestVersion) {
+      return `Version ${version} (Latest)`;
     }
+    return `Version ${version}`;
   };
 
   return (

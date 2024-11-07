@@ -27,7 +27,7 @@ export default function HomePage() {
     if (searchQuery.trim()) {
       setIsLoading(true);
       try {
-        const response = await fetch(`http://localhost:8080/api/player-stats/${encodeURIComponent(searchQuery.trim())}`);
+        const response = await fetch(`http://localhost:8080/player-stats/${encodeURIComponent(searchQuery.trim())}`);
         if (response.ok) {
           router.push(`/player/${encodeURIComponent(searchQuery.trim())}`);
         } else {
@@ -63,7 +63,6 @@ export default function HomePage() {
         />
         {isLoading ? (
           <div className="flex justify-center items-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
           </div>
         ) : (
           <>
