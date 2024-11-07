@@ -1,5 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useAtom } from "jotai";
+import { characterWinratesAtom, isLoadingAtom, errorMessageAtom } from '@/atoms/tekkenStatsAtoms';
 import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, ReferenceLine } from "recharts";
 import {
   Select,
@@ -15,6 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useStatisticsData } from '@/hooks/useStatisticsData';
 
 // Mock data (same as before)
 const characterPopularityData = {
@@ -34,22 +37,7 @@ const characterPopularityData = {
   ],
 };
 
-const winrateData = {
-  high: [
-    { character: "Devil Jin", winrate: 56.5 },
-    { character: "Bryan", winrate: 55.2 },
-    { character: "Kazuya", winrate: 54.8 },
-    { character: "Jin", winrate: 53.9 },
-    { character: "Nina", winrate: 53.1 },
-  ],
-  low: [
-    { character: "Law", winrate: 58.2 },
-    { character: "King", winrate: 57.5 },
-    { character: "Paul", winrate: 56.8 },
-    { character: "Xiaoyu", winrate: 55.4 },
-    { character: "Hwoarang", winrate: 54.9 },
-  ],
-};
+
 
 const winrateChangesData = [
   { character: "Lee", change: 4.2, trend: "increase" },
@@ -128,13 +116,17 @@ const PopularityChart: React.FC<StatChartProps> = ({ title, description, delay =
 
 const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 }) => {
   const [rank, setRank] = React.useState("high");
-
+  const [characterWinrates] = useAtom(characterWinratesAtom);
+  
   // Transform the data to show deviation from 50%
-  const getAdjustedData = (data: typeof winrateData.high) => {
-    return data.map(item => ({
-      ...item,
-      adjustedWinrate: item.winrate - 50,
-      originalWinrate: item.winrate // Keep original for tooltip
+  const getAdjustedData = () => {
+    // Get the correct rank data
+    const rankData = characterWinrates[rank as keyof typeof characterWinrates] || {};
+    
+    return Object.entries(rankData).map(([character, winrate]) => ({
+      character,
+      adjustedWinrate: winrate - 50,
+      originalWinrate: winrate
     }));
   };
 
@@ -151,7 +143,7 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
             <CardTitle className="text-lg">{title}</CardTitle>
             <Select value={rank} onValueChange={setRank}>
               <SelectTrigger className="w-32">
-                <SelectValue />
+                <SelectValue placeholder="Select rank" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="high">High Rank</SelectItem>
@@ -159,14 +151,18 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
               </SelectContent>
             </Select>
           </div>
-          {description && <CardDescription>{description}</CardDescription>}
+          {description && (
+            <CardDescription>
+              {rank === "high" ? "Top 5 win rates in ranks TGS+" : "Top 5 win rates in ranks below TGS"}
+            </CardDescription>
+          )}
         </CardHeader>
         <CardContent>
           <div className="w-full h-[200px]">
             <BarChart
               width={400}
               height={200}
-              data={getAdjustedData(winrateData[rank as keyof typeof winrateData])}
+              data={getAdjustedData()}
               layout="vertical"
               margin={{ left: 80, right: 48, top: 0, bottom: 0 }}
             >
@@ -179,12 +175,12 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
               <XAxis 
                 type="number" 
                 hide={false}
-                domain={[0, 10]} // Adjust this based on your data range
+                domain={[0, 10]} // Adjust this based on your actual data range
                 tickFormatter={(value) => `${value + 50}%`}
               />
               <Tooltip 
                 formatter={(value: number, name: string, props: any) => {
-                  return [`${props.payload.originalWinrate}%`, 'Winrate'];
+                  return [`${props.payload.originalWinrate.toFixed(2)}%`, 'Winrate'];
                 }}
               />
               <Bar
@@ -195,7 +191,7 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
                 <LabelList
                   dataKey="originalWinrate"
                   position="right"
-                  formatter={(value: number) => `${value}%`}
+                  formatter={(value: number) => `${value.toFixed(2)}%`}
                 />
               </Bar>
             </BarChart>
@@ -267,6 +263,7 @@ const WinrateChangesChart: React.FC<StatChartProps> = ({ title, description, del
 
 
 export const StatsGrid: React.FC = () => {
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
       <PopularityChart

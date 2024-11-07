@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { AnimatedCard } from '@/components/AnimatedCard';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LabelList, ResponsiveContainer, Cell } from 'recharts';
 import { 
   rankColorsAtom, 
   rankDistributionAtom,
   currentModeAtom,
-  gameVersionsAtom 
+  gameVersionsAtom,
+  totalPlayersAtom,
+  totalReplaysAtom
 } from '@/atoms/tekkenStatsAtoms';
 import type { DistributionMode, GameVersion } from '@/atoms/tekkenStatsAtoms';
 
@@ -16,8 +18,10 @@ export const RankDistributionChart: React.FC = () => {
   const [rankDistribution] = useAtom(rankDistributionAtom);
   const [rankColors] = useAtom(rankColorsAtom);
   const [gameVersions] = useAtom(gameVersionsAtom);
-  const [selectedVersion, setSelectedVersion] = useState<GameVersion>('10801');
-  const [selectedMode, setSelectedMode] = useState<DistributionMode>('overall');
+  const [totalPlayers] = useAtom(totalPlayersAtom);
+  const [totalReplays] = useAtom(totalReplaysAtom);
+  const [selectedVersion, setSelectedVersion] = useState<GameVersion>('10901');
+  const [selectedMode, setSelectedMode] = useState<DistributionMode>('standard');
 
   // Only proceed if we have data for the selected version
   const distributionData = rankDistribution[selectedVersion]?.[selectedMode] || [];
@@ -26,7 +30,7 @@ export const RankDistributionChart: React.FC = () => {
     const colorEntry = rankColors.find((rc) => rc.rank === rank.rank);
     return {
       rank: rank.rank,
-      percentage: Number(rank.percentage.toFixed(2)), // Ensure consistent decimal places
+      percentage: Number(rank.percentage.toFixed(2)),
       fill: colorEntry?.color || '#3182ce',
     };
   });
@@ -52,20 +56,20 @@ export const RankDistributionChart: React.FC = () => {
               <CardDescription>Showing rank distribution among players</CardDescription>
             </div>
             <div className="flex gap-4">
-            <Select value={selectedVersion} onValueChange={(v) => setSelectedVersion(v as GameVersion)}>
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="Select game version" />
-  </SelectTrigger>
-  <SelectContent>
-    {[...gameVersions] // Create a copy to avoid mutating original array
-      .sort((b, a) => parseInt(a) - parseInt(b)) // Sort in ascending order
-      .map((version) => (
-        <SelectItem key={version} value={version}>
-          {getVersionLabel(version)}
-        </SelectItem>
-      ))}
-  </SelectContent>
-</Select>
+              <Select value={selectedVersion} onValueChange={(v) => setSelectedVersion(v as GameVersion)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select game version" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[...gameVersions]
+                    .sort((b, a) => parseInt(a) - parseInt(b))
+                    .map((version) => (
+                      <SelectItem key={version} value={version}>
+                        {getVersionLabel(version)}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
               <Select value={selectedMode} onValueChange={(v) => setSelectedMode(v as DistributionMode)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select mode" />
@@ -125,7 +129,21 @@ export const RankDistributionChart: React.FC = () => {
             </ResponsiveContainer>
           )}
         </CardContent>
+        <CardFooter className="flex justify-between text-sm text-muted-foreground border-t pt-4">
+          <div className="flex gap-8">
+            <div>
+              <span className="font-medium">Total Players:</span>{' '}
+              {totalPlayers.toLocaleString()}
+            </div>
+            <div>
+              <span className="font-medium">Total Replays Analyzed:</span>{' '}
+              {totalReplays.toLocaleString()}
+            </div>
+          </div>
+        </CardFooter>
       </Card>
     </AnimatedCard>
   );
 };
+
+export default RankDistributionChart;

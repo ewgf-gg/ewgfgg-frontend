@@ -11,7 +11,7 @@ interface RankDistribution {
 }
 
 export type DistributionMode = 'overall' | 'standard';
-export type GameVersion = '10801' | '10701';
+export type GameVersion = '10901' | '10701';
 
 
 export type GameRankDistribution = {
@@ -19,6 +19,16 @@ export type GameRankDistribution = {
     [mode in DistributionMode]: RankDistribution[];
   };
 }
+
+export interface CharacterWinrates {
+  high: { [character: string]: number };
+  low: { [character: string]: number };
+}
+
+const initialWinrates: CharacterWinrates = {
+  high: {},
+  low: {}
+};
 
 
 export const rankOrderMap: { [key: number]: string } = {
@@ -53,6 +63,7 @@ export const rankOrderMap: { [key: number]: string } = {
   28: 'Tekken God Supreme',
   29: 'God of Destruction'
 };
+
 
 
 export const rankColorsAtom = atom<RankColor[]>([
@@ -95,8 +106,9 @@ export const currentVersionAtom = atom<string>('');
 export const currentModeAtom = atom<'overall' | 'standard'>('overall');
 export const isLoadingAtom = atom(false);
 export const errorMessageAtom = atom('');
-export const mostPopularCharacterAtom = atom('Lee Chaolan');
 export const searchQueryAtom = atom('');
+export const characterWinratesAtom = atom<CharacterWinrates>(initialWinrates);
+
 
 // Updated rank distribution atom with transformation logic
 export const rankDistributionAtom = atom<GameRankDistribution>({} as GameRankDistribution);
