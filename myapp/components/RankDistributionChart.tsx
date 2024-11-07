@@ -48,9 +48,9 @@ export const RankDistributionChart: React.FC = () => {
   const getVersionLabel = (version: string) => {
     // If this is the latest version, append "(Latest)"
     if (version === latestVersion) {
-      return `Version ${version} (Latest)`;
+      return `Ver. ${version} (Latest)`;
     }
-    return `Version ${version}`;
+    return `Ver. ${version}`;
   };
 
   return (
@@ -83,7 +83,7 @@ export const RankDistributionChart: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="overall">Overall</SelectItem>
-                  <SelectItem value="standard">Standard</SelectItem>
+                  <SelectItem value="standard">Mains Only</SelectItem>
                 </SelectContent>
               </Select>
             </div>

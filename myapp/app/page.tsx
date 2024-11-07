@@ -52,7 +52,6 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          Tekken Stats Aggregator
         </motion.h1>
         <SearchForm
           searchQuery={searchQuery}

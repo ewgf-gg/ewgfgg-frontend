@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useAtom } from "jotai";
-import { characterWinratesAtom, isLoadingAtom, errorMessageAtom } from '@/atoms/tekkenStatsAtoms';
+import { characterWinratesAtom, characterPopularityAtom, isLoadingAtom, errorMessageAtom } from '@/atoms/tekkenStatsAtoms';
 import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, ReferenceLine } from "recharts";
 import {
   Select,
@@ -19,23 +19,6 @@ import {
 } from "@/components/ui/card";
 import { useStatisticsData } from '@/hooks/useStatisticsData';
 
-// Mock data (same as before)
-const characterPopularityData = {
-  high: [
-    { character: "Jin", count: 2500 },
-    { character: "Kazuya", count: 2200 },
-    { character: "Bryan", count: 1800 },
-    { character: "Law", count: 1600 },
-    { character: "Paul", count: 1400 },
-  ],
-  low: [
-    { character: "Law", count: 3000 },
-    { character: "Paul", count: 2800 },
-    { character: "Jin", count: 2000 },
-    { character: "Hwoarang", count: 1900 },
-    { character: "King", count: 1700 },
-  ],
-};
 
 
 
@@ -53,7 +36,22 @@ interface StatChartProps {
 }
 
 const PopularityChart: React.FC<StatChartProps> = ({ title, description, delay = 0 }) => {
-  const [rank, setRank] = React.useState("high");
+  const [rank, setRank] = React.useState("highRank");
+  const [characterPopularity] = useAtom(characterPopularityAtom);
+
+  const getAdjustedData = () => {
+    const rankData = characterPopularity[rank as keyof typeof characterPopularity] || {};
+    
+    return Object.entries(rankData)
+      .map(([character, totalBattles]) => ({
+        character,
+        count: totalBattles,
+        originalCount: totalBattles
+      }))
+      .sort((a, b) => b.originalCount - a.originalCount);
+  };
+
+  const data = getAdjustedData();
 
   return (
     <motion.div
@@ -68,22 +66,31 @@ const PopularityChart: React.FC<StatChartProps> = ({ title, description, delay =
             <CardTitle className="text-lg">{title}</CardTitle>
             <Select value={rank} onValueChange={setRank}>
               <SelectTrigger className="w-32">
-                <SelectValue />
+                <SelectValue placeholder="Select rank" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="high">Tekken King+</SelectItem>
-                <SelectItem value="low">Garyu-Bushin</SelectItem>
+                <SelectItem value="highRank">Tekken King+</SelectItem>
+                <SelectItem value="mediumRank">Garyu→Bushin</SelectItem>
+                <SelectItem value="lowRank">Eliminator-</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          {description && <CardDescription>{description}</CardDescription>}
+          {description && (
+            <CardDescription>
+              {rank === "highRank" 
+                ? "Top 5 in Tekken King and above" 
+                : rank === "mediumRank"
+                ? "Top 5 from Garyu → Bushin"
+                : "Top 5 in Eliminator and below"}
+            </CardDescription>
+          )}
         </CardHeader>
         <CardContent>
           <div className="w-full h-[200px]">
             <BarChart
               width={400}
               height={200}
-              data={characterPopularityData[rank as keyof typeof characterPopularityData]}
+              data={data}
               layout="vertical"
               margin={{ left: 80, right: 48, top: 0, bottom: 0 }}
             >
@@ -94,14 +101,16 @@ const PopularityChart: React.FC<StatChartProps> = ({ title, description, delay =
                 tickLine={false}
               />
               <XAxis type="number" hide />
-              <Tooltip />
+              <Tooltip
+                formatter={(value: number) => [value.toLocaleString(), 'Total Battles']}
+              />
               <Bar
                 dataKey="count"
                 fill="hsl(var(--primary))"
                 radius={[0, 4, 4, 0]}
               >
                 <LabelList
-                  dataKey="count"
+                  dataKey="originalCount"
                   position="right"
                   formatter={(value: number) => value.toLocaleString()}
                 />
@@ -113,7 +122,6 @@ const PopularityChart: React.FC<StatChartProps> = ({ title, description, delay =
     </motion.div>
   );
 };
-
 const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 }) => {
   const [rank, setRank] = React.useState("highRank");
   const [characterWinrates] = useAtom(characterWinratesAtom);
@@ -158,15 +166,20 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="highRank">Tekken King+</SelectItem>
-                <SelectItem value="lowRank">Bushin-</SelectItem>
+                <SelectItem value="mediumRank">Garyu→Bushin</SelectItem>
+                <SelectItem value="lowRank">Eliminator-</SelectItem>
               </SelectContent>
             </Select>
           </div>
           {description && (
             <CardDescription>
+              <CardDescription>
               {rank === "highRank" 
                 ? "Top 5 in Tekken King and above" 
-                : "Top 5 in Bushin and under"}
+                : rank === "mediumRank"
+                ? "Top 5 from Garyu → Bushin"
+                : "Top 5 in Eliminator and below"}
+            </CardDescription>
             </CardDescription>
           )}
         </CardHeader>

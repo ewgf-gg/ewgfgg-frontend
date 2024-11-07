@@ -22,11 +22,25 @@ export type GameRankDistribution = {
 
 export interface CharacterWinrates {
   highRank: { [character: string]: number };
+  mediumRank: { [character: string]: number};
   lowRank: { [character: string]: number };
 }
 
 const initialWinrates: CharacterWinrates = {
   highRank: {},
+  mediumRank: {},
+  lowRank: {}
+};
+
+export interface CharacterPopularity{
+  highRank: { [character: string]: number };
+  mediumRank: { [character: string]: number};
+  lowRank: { [character: string]: number };
+}
+
+const initialPopularity: CharacterWinrates = {
+  highRank: {},
+  mediumRank: {},
   lowRank: {}
 };
 
@@ -108,6 +122,7 @@ export const isLoadingAtom = atom(false);
 export const errorMessageAtom = atom('');
 export const searchQueryAtom = atom('');
 export const characterWinratesAtom = atom<CharacterWinrates>(initialWinrates);
+export const characterPopularityAtom = atom<CharacterPopularity>(initialPopularity);
 
 
 // Updated rank distribution atom with transformation logic

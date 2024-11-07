@@ -10,7 +10,9 @@ import {
     errorMessageAtom,
     characterWinratesAtom,  // Add this import
     GameRankDistribution,
-    CharacterWinrates
+    CharacterWinrates,
+    characterPopularityAtom,
+    CharacterPopularity
 } from '@/atoms/tekkenStatsAtoms';
 
 export function useStatisticsData() {
@@ -21,6 +23,7 @@ export function useStatisticsData() {
     const [, setCharacterWinrates] = useAtom(characterWinratesAtom); 
     const [, setIsLoading] = useAtom(isLoadingAtom);
     const [, setErrorMessage] = useAtom(errorMessageAtom);
+    const [, setCharacterPopularity] = useAtom(characterPopularityAtom);
 
     const transformRankDistribution = (data: { [key: string]: number }, mode: 'overall' | 'standard') => {
         return Object.entries(data).map(([key, value]) => ({
@@ -44,6 +47,10 @@ export function useStatisticsData() {
                 const winratesResponse = await fetch('http://localhost:8080/statistics/top-winrates');
                 const winratesData: CharacterWinrates = await winratesResponse.json();
                 setCharacterWinrates(winratesData);
+
+                const popularityResponse = await fetch('http://localhost:8080/statistics/top-popularity');
+                const popularityData: CharacterPopularity = await popularityResponse.json();
+                setCharacterPopularity(popularityData);
 
                 // Fetch game versions
                 const versionsResponse = await fetch('http://localhost:8080/statistics/gameVersions');
