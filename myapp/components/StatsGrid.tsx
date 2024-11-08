@@ -1,8 +1,10 @@
-import React from 'react';
+import {useState, useEffect} from 'react';
+import React from 'react'
 import { motion } from 'framer-motion';
 import { useAtom } from "jotai";
-import { characterWinratesAtom, characterPopularityAtom, isLoadingAtom, errorMessageAtom } from '@/atoms/tekkenStatsAtoms';
+import { characterWinratesAtom, characterPopularityAtom, characterIconMap, isLoadingAtom, errorMessageAtom } from '@/atoms/tekkenStatsAtoms';
 import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, ReferenceLine } from "recharts";
+
 import {
   Select,
   SelectContent,
@@ -17,9 +19,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useStatisticsData } from '@/hooks/useStatisticsData';
-
-
 
 
 const winrateChangesData = [
@@ -35,7 +34,55 @@ interface StatChartProps {
   delay?: number;
 }
 
+
+const CustomYAxisTick: React.FC<any> = ({ x, y, payload }) => {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <foreignObject x="-140" y="-20" width="140" height="40">
+        <div className="flex items-center gap-2 h-full">
+          <img
+            src={characterIconMap[payload.value]}
+            alt={payload.value}
+            className="w-8 h-10"
+            style={{ overflow: 'visible'  }}
+          />
+          <span className="text-sm whitespace-nowrap">{payload.value}</span>
+        </div>
+      </foreignObject>
+    </g>
+  );
+};
+
+
+const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background border rounded-lg p-2 shadow-lg">
+        <div className="flex items-center gap-2">
+          <img
+            src={characterIconMap[label]}
+            alt={label}
+            className="w-6 h-6"
+          />
+          <span className="font-medium">{label}</span>
+        </div>
+        <div className="text-sm">
+          {payload[0].name}: {payload[0].value.toLocaleString()}
+          {payload[0].name === 'Winrate' ? '%' : ''}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 const PopularityChart: React.FC<StatChartProps> = ({ title, description, delay = 0 }) => {
+  const [isInitialRender, setIsInitialRender] = useState(true);
+  useEffect(() => {
+    if (isInitialRender) {
+      setIsInitialRender(false);
+    }
+  }, []);
+
   const [rank, setRank] = React.useState("highRank");
   const [characterPopularity] = useAtom(characterPopularityAtom);
 
@@ -92,22 +139,26 @@ const PopularityChart: React.FC<StatChartProps> = ({ title, description, delay =
               height={200}
               data={data}
               layout="vertical"
-              margin={{ left: 80, right: 48, top: 0, bottom: 0 }}
+              margin={{ left: 100, right: 58, top: 8, bottom: 8 }}
             >
               <YAxis
                 dataKey="character"
                 type="category"
                 axisLine={false}
                 tickLine={false}
+                tick={<CustomYAxisTick />}
+                width={60}
               />
               <XAxis type="number" hide />
-              <Tooltip
-                formatter={(value: number) => [value.toLocaleString(), 'Total Battles']}
-              />
+              <Tooltip content={<CustomTooltip />} />
               <Bar
                 dataKey="count"
                 fill="hsl(var(--primary))"
                 radius={[0, 4, 4, 0]}
+                isAnimationActive={true}
+                animationBegin={isInitialRender ? 500 : 100}
+                animationDuration={1000}
+                animationEasing="ease"
               >
                 <LabelList
                   dataKey="originalCount"
@@ -122,9 +173,18 @@ const PopularityChart: React.FC<StatChartProps> = ({ title, description, delay =
     </motion.div>
   );
 };
+
 const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 }) => {
   const [rank, setRank] = React.useState("highRank");
   const [characterWinrates] = useAtom(characterWinratesAtom);
+  const [isInitialRender, setIsInitialRender] = useState(true);
+
+  useEffect(() => {
+    if (isInitialRender) {
+      setIsInitialRender(false);
+    }
+  }, []);
+
 
   const getAdjustedData = () => {
     const rankData = characterWinrates[rank as keyof typeof characterWinrates] || {};
@@ -135,16 +195,14 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
         winrate,
         originalWinrate: winrate
       }))
-      .sort((a, b) => b.originalWinrate - a.originalWinrate);
+      .sort((a, b) => b.originalWinrate - a.originalWinrate)
   };
 
   const data = getAdjustedData();
   
-  // Calculate the domain dynamically
   const minWinrate = Math.floor(Math.min(...data.map(d => d.winrate)));
   const maxWinrate = Math.ceil(Math.max(...data.map(d => d.winrate)));
   
-  // Add some padding to the domain (5% on each side)
   const domainPadding = (maxWinrate - minWinrate) * 0.05;
   const domainMin = Math.max(0, minWinrate - domainPadding);
   const domainMax = Math.min(100, maxWinrate + domainPadding);
@@ -173,13 +231,11 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
           </div>
           {description && (
             <CardDescription>
-              <CardDescription>
               {rank === "highRank" 
                 ? "Top 5 in Tekken King and above" 
                 : rank === "mediumRank"
                 ? "Top 5 from Garyu → Bushin"
                 : "Top 5 in Eliminator and below"}
-            </CardDescription>
             </CardDescription>
           )}
         </CardHeader>
@@ -190,13 +246,15 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
               height={200}
               data={data}
               layout="vertical"
-              margin={{ left: 80, right: 48, top: 0, bottom: 0 }}
+              margin={{ left: 100, right: 58, top: 2, bottom: -12 }}
             >
               <YAxis
                 dataKey="character"
                 type="category"
                 axisLine={false}
                 tickLine={false}
+                tick={<CustomYAxisTick />}
+                width={60}
               />
               <XAxis
                 type="number"
@@ -207,13 +265,15 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
                   (_, i) => domainMin + (domainMax - domainMin) * (i / 4)
                 )}
               />
-              <Tooltip
-                formatter={(value: number) => [`${value.toFixed(2)}%`, 'Winrate']}
-              />
+              <Tooltip content={<CustomTooltip />} />
               <Bar
                 dataKey="winrate"
                 fill="hsl(var(--primary))"
                 radius={[0, 4, 4, 0]}
+                isAnimationActive={true}
+                animationBegin={isInitialRender ? 750 : 100}
+                animationDuration={1000}
+                animationEasing="ease"
               >
                 <LabelList
                   dataKey="originalWinrate"
@@ -229,7 +289,15 @@ const WinrateChart: React.FC<StatChartProps> = ({ title, description, delay = 0 
   );
 };
 
+
 const WinrateChangesChart: React.FC<StatChartProps> = ({ title, description, delay = 0 }) => {
+  const [isInitialRender, setIsInitialRender] = useState(true);
+  useEffect(() => {
+    if (isInitialRender) {
+      setIsInitialRender(false);
+    }
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -270,6 +338,10 @@ const WinrateChangesChart: React.FC<StatChartProps> = ({ title, description, del
               <Bar
                 dataKey="change"
                 radius={[0, 4, 4, 0]}
+                isAnimationActive={true}
+                animationBegin={isInitialRender ? 900 : 100}
+                animationDuration={1000}
+                animationEasing="ease"
               >
                 {winrateChangesData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.change >= 0 ? '#22c55e' : '#ef4444'} />

@@ -1,3 +1,4 @@
+// app/components/RankDistributionChart.tsx
 import { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { AnimatedCard } from '@/components/AnimatedCard';
@@ -10,7 +11,8 @@ import {
   currentModeAtom,
   gameVersionsAtom,
   totalPlayersAtom,
-  totalReplaysAtom
+  totalReplaysAtom,
+  rankIconMap
 } from '@/atoms/tekkenStatsAtoms';
 import type { DistributionMode, GameVersion } from '@/atoms/tekkenStatsAtoms';
 
@@ -22,6 +24,7 @@ export const RankDistributionChart: React.FC = () => {
   const [totalReplays] = useAtom(totalReplaysAtom);
   const [selectedVersion, setSelectedVersion] = useState<GameVersion>('10901');
   const [selectedMode, setSelectedMode] = useState<DistributionMode>('standard');
+  const [isInitialRender, setIsInitialRender] = useState(true);
 
   // Get the latest version
   const latestVersion = [...gameVersions].sort((a, b) => parseInt(b) - parseInt(a))[0];
@@ -32,6 +35,12 @@ export const RankDistributionChart: React.FC = () => {
       setSelectedVersion(latestVersion as GameVersion);
     }
   }, [latestVersion]);
+
+  useEffect(() => {
+    if (isInitialRender) {
+      setIsInitialRender(false);
+    }
+  }, []);
 
   // Only proceed if we have data for the selected version
   const distributionData = rankDistribution[selectedVersion]?.[selectedMode] || [];
@@ -52,6 +61,52 @@ export const RankDistributionChart: React.FC = () => {
     }
     return `Ver. ${version}`;
   };
+
+  const CustomXAxisTick: React.FC<any> = ({ x, y, payload }) => {
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <foreignObject 
+          x="-20" 
+          y="0" 
+          width="40" 
+          height="40" 
+          transform="rotate(-45 0 20)"
+          style={{ overflow: 'visible' }}
+        >
+          <div className="flex items-center justify-center">
+            <img
+              src={rankIconMap[payload.value]}
+              alt={payload.value}
+              className="w-30 h-8" // Increased size
+              style={{ 
+                transformOrigin: 'center'
+              }}
+            />
+          </div>
+        </foreignObject>
+      </g>
+    );
+  };
+  
+const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background border rounded-lg p-2 shadow-lg">
+        <div className="flex items-center gap-2">
+          <img
+            src={rankIconMap[label]}
+            alt={label}
+            className="w-20 h-10"
+          />
+          <span className="font-medium">{label}</span>
+        </div>
+        <div className="text-sm">{`${payload[0].value.toFixed(2)}%`} of the playerbase is here</div>
+      </div>
+    );
+  }
+  return null;
+};
+
 
   return (
     <AnimatedCard delay={1}>
@@ -98,7 +153,7 @@ export const RankDistributionChart: React.FC = () => {
             <ResponsiveContainer width="100%" height={400}>
               <BarChart
                 data={chartData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
               >
                 <CartesianGrid vertical={false} />
                 <XAxis
@@ -106,20 +161,16 @@ export const RankDistributionChart: React.FC = () => {
                   tickLine={true}
                   axisLine={false}
                   interval={0}
-                  angle={-45}
-                  textAnchor="end"
-                  height={117}
+                  height={40}
+                  tick={<CustomXAxisTick />}
                 />
                 <YAxis hide />
-                <Tooltip 
-                  cursor={{ fill: 'transparent' }} 
-                  formatter={(value: number) => `${value.toFixed(2)}%`}
-                />
+                <Tooltip content={<CustomTooltip />} />
                 <Bar
                   dataKey="percentage"
                   radius={[8, 8, 0, 0]}
                   isAnimationActive={true}
-                  animationBegin={100}
+                  animationBegin={isInitialRender ? 1000 : 100}
                   animationDuration={1000}
                   animationEasing="ease"
                 >
@@ -152,5 +203,4 @@ export const RankDistributionChart: React.FC = () => {
     </AnimatedCard>
   );
 };
-
 export default RankDistributionChart;
