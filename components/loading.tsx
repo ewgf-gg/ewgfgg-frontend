@@ -1,7 +1,7 @@
 'use client'
 import EWGFLoadingAnimation from '@/components/EWGFLoadingAnimation';
 import { Header } from '@/components/ui/Header';
-import { Footer } from '@/components/ui/Footer';
+import  Footer  from '@/components/ui/Footer';
 
 export default function Loading() {
     return (

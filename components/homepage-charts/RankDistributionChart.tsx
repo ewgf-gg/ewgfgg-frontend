@@ -29,6 +29,7 @@ export const RankDistributionChart: React.FC = () => {
   // Get the latest version
   const latestVersion = [...gameVersions].sort((a, b) => parseInt(b) - parseInt(a))[0];
 
+
   // Set the initial version to latest on component mount
   useEffect(() => {
     if (latestVersion) {
@@ -170,7 +171,7 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
                   dataKey="percentage"
                   radius={[8, 8, 0, 0]}
                   isAnimationActive={true}
-                  animationBegin={isInitialRender ? 1000 : 100}
+                  animationBegin={isInitialRender ? 2000 : 100}
                   animationDuration={1000}
                   animationEasing="ease"
                 >

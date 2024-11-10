@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header } from '@/components/ui/Header';
-import { Footer } from '@/components/ui/Footer';
+import  Footer  from '@/components/ui/Footer';
 import { PlayerProfile } from '@/components/PlayerProfile';
 import EWGFLoadingAnimation from '@/components/EWGFLoadingAnimation';
 

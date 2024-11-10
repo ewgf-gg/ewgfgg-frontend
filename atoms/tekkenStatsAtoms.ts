@@ -22,6 +22,49 @@ export type GameRankDistribution = {
   };
 }
 
+
+export interface ChartProps {
+  title: string;
+  description?: string;
+  delay?: number;
+  rank: string;
+  onRankChange: (value: string) => void;
+}
+
+export interface ChartData {
+  character: string;
+  value: number;
+  originalValue: number;
+}
+
+export interface WinrateChangeData extends ChartData {
+  trend: 'increase' | 'decrease';
+}
+
+export type RankOption = {
+  value: string;
+  label: string;
+  description: string;
+};
+
+export const RANK_OPTIONS: RankOption[] = [
+  { 
+    value: "highRank", 
+    label: "Tekken King+",
+    description: "in Tekken King and above"
+  },
+  { 
+    value: "mediumRank", 
+    label: "Garyu→Bushin",
+    description: "from Garyu → Bushin"
+  },
+  { 
+    value: "lowRank", 
+    label: "Eliminator-",
+    description: "in Eliminator and below"
+  }
+];
+
 export interface CharacterWinrates {
   highRank: { [character: string]: number };
   mediumRank: { [character: string]: number};
@@ -45,6 +88,27 @@ const initialPopularity: CharacterWinrates = {
   mediumRank: {},
   lowRank: {}
 };
+
+
+export interface WinrateChange {
+  characterId: string;
+  change: number;
+  trend: 'increase' | 'decrease';
+  rankCategory: string;
+}
+
+export interface RankWinrateChanges {
+  highRank: WinrateChange[];
+  mediumRank: WinrateChange[];
+  lowRank: WinrateChange[];
+}
+
+const initialWinrateChanges: RankWinrateChanges = {
+  highRank: [],
+  mediumRank: [],
+  lowRank: []
+};
+
 
 
 export const rankOrderMap: { [key: number]: string } = {
@@ -169,6 +233,8 @@ export const characterIconMap: { [key: string]: string } = {
   'Lars': '/static/character-icons/LarsT8.png',
   'Law': '/static/character-icons/LawT8.png',
   'Lee': '/static/character-icons/LeeT8.png',
+  'Leroy': '/static/character-icons/LeroyT8.png',
+  'Azucena': '/static/character-icons/AzucenaT8.png',
   'Leo': '/static/character-icons/LeoT8.png',
   'Lili': '/static/character-icons/LiliT8.png',
   'Nina': '/static/character-icons/NinaT8.png',
@@ -193,6 +259,7 @@ export const errorMessageAtom = atom('');
 export const searchQueryAtom = atom('');
 export const characterWinratesAtom = atom<CharacterWinrates>(initialWinrates);
 export const characterPopularityAtom = atom<CharacterPopularity>(initialPopularity);
+export const winrateChangesAtom = atom<RankWinrateChanges>(initialWinrateChanges);
 
 
 // Updated rank distribution atom with transformation logic

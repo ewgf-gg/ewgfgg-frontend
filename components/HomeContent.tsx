@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { Header } from '@/components/ui/Header';
-import { Footer } from '@/components/ui/Footer';
+import  Footer  from '@/components/ui/Footer';
 import { StatsGrid } from '@/components/StatsGrid';
-import { RankDistributionChart } from '@/components/RankDistributionChart';
+import { RankDistributionChart } from '@/components/homepage-charts/RankDistributionChart';
 import EWGFLoadingAnimation from '@/components/EWGFLoadingAnimation';
 import {
   isLoadingAtom,
@@ -15,25 +15,46 @@ import {
   rankDistributionAtom,
   characterWinratesAtom,
   characterPopularityAtom,
-  GameRankDistribution
+  GameRankDistribution,
+  winrateChangesAtom
 } from '@/atoms/tekkenStatsAtoms';
 
 interface InitialData {
-  totalReplays: number;
-  totalPlayers: number;
-  characterWinrates: {
-    highRank: { [character: string]: number };
-    mediumRank: { [character: string]: number };
-    lowRank: { [character: string]: number };
-  };
-  characterPopularity: {
-    highRank: { [character: string]: number };
-    mediumRank: { [character: string]: number };
-    lowRank: { [character: string]: number };
-  };
-  gameVersions: string[];
-  rankDistribution: GameRankDistribution;
-}
+    totalReplays: number;
+    totalPlayers: number;
+    characterWinrates: {
+      highRank: { [character: string]: number };
+      mediumRank: { [character: string]: number };
+      lowRank: { [character: string]: number };
+    };
+    characterPopularity: {
+      highRank: { [character: string]: number };
+      mediumRank: { [character: string]: number };
+      lowRank: { [character: string]: number };
+    };
+    gameVersions: string[];
+    rankDistribution: GameRankDistribution;
+    winrateChanges: {
+      highRank: Array<{
+        characterId: string;
+        change: number;
+        trend: 'increase' | 'decrease';
+        rankCategory: string;
+      }>;
+      mediumRank: Array<{
+        characterId: string;
+        change: number;
+        trend: 'increase' | 'decrease';
+        rankCategory: string;
+      }>;
+      lowRank: Array<{
+        characterId: string;
+        change: number;
+        trend: 'increase' | 'decrease';
+        rankCategory: string;
+      }>;
+    };
+  }
 
 interface HomeContentProps {
   initialData: InitialData;
@@ -47,6 +68,7 @@ export default function HomeContent({ initialData }: HomeContentProps) {
   const [, setRankDistribution] = useAtom(rankDistributionAtom);
   const [, setCharacterWinrates] = useAtom(characterWinratesAtom);
   const [, setCharacterPopularity] = useAtom(characterPopularityAtom);
+  const [, setWinrateChanges] = useAtom(winrateChangesAtom);
 
   useEffect(() => {
     const initializeState = async () => {
@@ -59,6 +81,7 @@ export default function HomeContent({ initialData }: HomeContentProps) {
         setRankDistribution(initialData.rankDistribution);
         setCharacterWinrates(initialData.characterWinrates);
         setCharacterPopularity(initialData.characterPopularity);
+        setWinrateChanges(initialData.winrateChanges);
       } catch (error) {
         console.error('Error initializing state:', error);
       } finally {
