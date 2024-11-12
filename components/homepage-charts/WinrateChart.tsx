@@ -2,11 +2,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip } from 'recharts';
-import { characterWinratesAtom } from '@/atoms/tekkenStatsAtoms';
+import { characterWinratesAtom } from '@/app/state/atoms/tekkenStatsAtoms';
 import { ChartCard } from '../shared/ChartCard';
 import { CustomYAxisTick } from '../shared/CustomYAxisTick';
 import { CustomTooltip } from '../shared/CustomTooltip';
-import { ChartProps } from '@/atoms/tekkenStatsAtoms';
+import { ChartProps } from '@/app/state/types/tekkenTypes';
 
 export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState(true);

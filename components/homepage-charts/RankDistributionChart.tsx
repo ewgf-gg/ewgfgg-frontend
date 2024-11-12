@@ -8,13 +8,12 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LabelList, Respons
 import { 
   rankColorsAtom, 
   rankDistributionAtom,
-  currentModeAtom,
   gameVersionsAtom,
   totalPlayersAtom,
-  totalReplaysAtom,
-  rankIconMap
-} from '@/atoms/tekkenStatsAtoms';
-import type { DistributionMode, GameVersion } from '@/atoms/tekkenStatsAtoms';
+  totalReplaysAtom
+} from '@/app/state/atoms/tekkenStatsAtoms';
+
+import { DistributionMode, GameVersion, rankIconMap } from '@/app/state/types/tekkenTypes';
 
 export const RankDistributionChart: React.FC = () => {
   const [rankDistribution] = useAtom(rankDistributionAtom);

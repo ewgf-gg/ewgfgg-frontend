@@ -1,13 +1,10 @@
-// First, let's create a custom hook for the animated counter
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
-import { totalReplaysAtom, totalPlayersAtom } from '@/atoms/tekkenStatsAtoms';
+import { totalReplaysAtom, totalPlayersAtom } from '@/app/state/atoms/tekkenStatsAtoms';
+import { SearchBar } from '@/components/SearchBar';
 
+// First, let's keep the custom hook for the animated counter
 const useAnimatedCounter = (endValue: number, duration: number = 1000) => {
   const [count, setCount] = useState(0);
 
@@ -54,20 +51,11 @@ const formatNumber = (num: number): string => {
 };
 
 export function Header() {
-  const [searchQuery, setSearchQuery] = useState('');
   const [totalReplays] = useAtom(totalReplaysAtom);
   const [totalPlayers] = useAtom(totalPlayersAtom);
-  const router = useRouter();
 
   const animatedPlayers = useAnimatedCounter(totalPlayers, 2000);
   const animatedReplays = useAnimatedCounter(totalReplays, 2000);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/player/${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
 
   return (
     <>
@@ -99,20 +87,9 @@ export function Header() {
               </div>
             </div>
 
-            {/* Centered search bar */}
+            {/* Centered search bar - now using the custom SearchBar component */}
             <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-xl">
-              <form onSubmit={handleSearch} className="flex items-center">
-                <div className="relative w-full">
-                  <Input
-                    type="text"
-                    placeholder="Search player... (Player name / TEKKEN-ID)"
-                    className="w-full h-10 pl-10 pr-4 text-sm bg-gray-700/50 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 rounded-lg transition-all hover:bg-gray-700/70"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                </div>
-              </form>
+              <SearchBar />
             </div>
 
             {/* Enhanced right-aligned stats with animation */}

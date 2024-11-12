@@ -1,4 +1,4 @@
-import { characterIconMap } from '@/atoms/tekkenStatsAtoms';
+import { characterIconMap } from '@/app/state/types/tekkenTypes';
 
 export const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
   if (active && payload && payload.length) {

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import { WinLossGraph } from './WinLossGraph';
+import { rankIconMap } from '@/app/state/types/tekkenTypes';
 
 interface PlayerStats {
   username: string;
@@ -24,7 +25,11 @@ export const PlayerProfile: React.FC<{ stats: PlayerStats }> = ({ stats }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-muted-foreground">Rank</p>
-              <p className="text-lg font-semibold">{stats.rank}</p>
+              <img 
+    src={rankIconMap[stats.rank]} 
+    alt={`${stats.rank} rank icon`}
+    className="w-15 h-10 object-contain"
+  />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Win Rate</p>

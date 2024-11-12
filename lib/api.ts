@@ -1,7 +1,10 @@
 import { 
     GameRankDistribution, 
-    rankOrderMap 
-  } from '@/atoms/tekkenStatsAtoms';
+    rankOrderMap,
+    InitialData,
+    PlayerSearchResult
+
+  } from '@/app/state/types/tekkenTypes';
   
   // Add the transform function at the top of the file
   const transformRankDistribution = (data: { [key: string]: number }) => {
@@ -29,38 +32,6 @@ import {
     return response.json();
   }
   
-  // Add type for the return value
-  interface InitialData {
-    totalReplays: number;
-    totalPlayers: number;
-    characterWinrates: {
-      highRank: { [character: string]: number };
-      mediumRank: { [character: string]: number };
-      lowRank: { [character: string]: number };
-    };
-    characterPopularity: {
-      highRank: { [character: string]: number };
-      mediumRank: { [character: string]: number };
-      lowRank: { [character: string]: number };
-    };
-    gameVersions: string[];
-    rankDistribution: GameRankDistribution;
-    winrateChanges: RankWinrateChanges;
-  }
-
-  interface WinrateChange {
-    characterId: string;
-    change: number;
-    trend: 'increase' | 'decrease';
-    rankCategory: string;
-}
-interface RankWinrateChanges {
-    highRank: WinrateChange[];
-    mediumRank: WinrateChange[];
-    lowRank: WinrateChange[];
-}
-
-
 
 export const getInitialData = async (): Promise<InitialData> => {
     try {
@@ -110,3 +81,14 @@ export const getInitialData = async (): Promise<InitialData> => {
         throw new Error('Failed to fetch initial data');
     }
 };
+
+export async function searchPlayersServer(query: string): Promise<PlayerSearchResult[]> {
+  if (!query || query.length < 2) return [];
+
+  try {
+    return await fetchWithAuth(`/player-stats/search?query=${encodeURIComponent(query)}`);
+  } catch (error) {
+    console.error('Failed to search players:', error);
+    return [];
+  }
+}

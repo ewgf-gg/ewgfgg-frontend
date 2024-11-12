@@ -1,14 +1,8 @@
 import { Input } from "@/components/ui/input";
 import { motion } from 'framer-motion';
 import EWGFLoadingBarAnimation from '@/components/EWGFLoadingAnimation';
+import { SearchFormProps } from "@/app/state/types/tekkenTypes";
 
-interface SearchFormProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  handleSearch: (e: React.FormEvent) => Promise<void>;
-  isLoading: boolean;
-  errorMessage: string;
-}
 
 export const SearchForm: React.FC<SearchFormProps> = ({
   searchQuery,

@@ -5,7 +5,7 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select";
-  import { RANK_OPTIONS } from '@/atoms/tekkenStatsAtoms';
+  import { RANK_OPTIONS } from '@/app/state/types/tekkenTypes';
   
   interface RankSelectorProps {
     value: string;

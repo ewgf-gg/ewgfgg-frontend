@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { RankSelector } from './RankSelector';
-import { ChartProps, RANK_OPTIONS } from '@/atoms/tekkenStatsAtoms';
+import { ChartProps, RANK_OPTIONS } from '@/app/state/types/tekkenTypes';
 
 interface ChartCardProps extends ChartProps {
   children: React.ReactNode;

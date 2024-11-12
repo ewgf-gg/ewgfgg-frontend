@@ -1,4 +1,4 @@
-import { characterIconMap } from '@/atoms/tekkenStatsAtoms';
+import { characterIconMap } from '@/app/state/types/tekkenTypes';
 
 export const CustomYAxisTick: React.FC<any> = ({ x, y, payload }) => (
   <g transform={`translate(${x},${y})`}>

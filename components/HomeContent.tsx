@@ -1,6 +1,6 @@
 // components/HomeContent.tsx
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { Header } from '@/components/ui/Header';
 import  Footer  from '@/components/ui/Footer';
@@ -15,50 +15,11 @@ import {
   rankDistributionAtom,
   characterWinratesAtom,
   characterPopularityAtom,
-  GameRankDistribution,
   winrateChangesAtom
-} from '@/atoms/tekkenStatsAtoms';
+} from '@/app/state/atoms/tekkenStatsAtoms';
+import { HomeContentProps } from '@/app/state/types/tekkenTypes';
 
-interface InitialData {
-    totalReplays: number;
-    totalPlayers: number;
-    characterWinrates: {
-      highRank: { [character: string]: number };
-      mediumRank: { [character: string]: number };
-      lowRank: { [character: string]: number };
-    };
-    characterPopularity: {
-      highRank: { [character: string]: number };
-      mediumRank: { [character: string]: number };
-      lowRank: { [character: string]: number };
-    };
-    gameVersions: string[];
-    rankDistribution: GameRankDistribution;
-    winrateChanges: {
-      highRank: Array<{
-        characterId: string;
-        change: number;
-        trend: 'increase' | 'decrease';
-        rankCategory: string;
-      }>;
-      mediumRank: Array<{
-        characterId: string;
-        change: number;
-        trend: 'increase' | 'decrease';
-        rankCategory: string;
-      }>;
-      lowRank: Array<{
-        characterId: string;
-        change: number;
-        trend: 'increase' | 'decrease';
-        rankCategory: string;
-      }>;
-    };
-  }
 
-interface HomeContentProps {
-  initialData: InitialData;
-}
 
 export default function HomeContent({ initialData }: HomeContentProps) {
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
