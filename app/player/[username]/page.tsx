@@ -1,32 +1,26 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header } from '@/components/ui/Header';
-import  Footer  from '@/components/ui/Footer';
+import Footer from '@/components/ui/Footer';
 import { PlayerProfile } from '@/components/PlayerProfile';
 import EWGFLoadingAnimation from '@/components/EWGFLoadingAnimation';
-
-interface CharacterStats {
-  characterName: string;
-  danName: string;
-  danRank: number;
-  wins: number;
-  losses: number;
-}
-
-interface PlayerStats {
-  playerId: string;
-  name: string;
-  tekkenPower: number;
-  latestBattle: number;
-  characterStats: Record<string, CharacterStats>;
-}
+import { useAtom } from 'jotai';
+import { playerStatsAtom, playerStatsLoadingAtom, playerStatsErrorAtom } from '../../state/atoms/tekkenStatsAtoms';
+import type { PlayerStats, CharacterStats, CharacterStatsWithVersion, CharacterBattleStats, Battle } from '../../state/types/tekkenTypes';
 
 interface FormattedCharacter {
   name: string;
   matches: number;
   winRate: number;
+}
+
+interface FormattedMatch {
+  opponent: string;
+  character: string;
+  result: 'win' | 'loss';
+  date: string;
 }
 
 interface FormattedPlayerStats {
@@ -35,7 +29,10 @@ interface FormattedPlayerStats {
   winRate: number;
   totalMatches: number;
   favoriteCharacters: FormattedCharacter[];
-  recentMatches: any[];
+  recentMatches: FormattedMatch[];
+  characterStatsWithVersion: CharacterStatsWithVersion[];
+  characterBattleStats: CharacterBattleStats[];
+  battles: Battle[];
 }
 
 interface PageProps {
@@ -44,11 +41,101 @@ interface PageProps {
   };
 }
 
+// Utility functions
+function validatePlayerStats(data: PlayerStats): void {
+  if (!data.playerId || !data.name || !data.characterStats) {
+    throw new Error('Invalid player stats data structure');
+  }
+}
+
+function calculateWinRate(characterStats: Record<string, CharacterStats>): number {
+  const totals = Object.values(characterStats).reduce(
+    (acc, stats) => ({
+      wins: acc.wins + stats.wins,
+      total: acc.total + stats.wins + stats.losses
+    }),
+    { wins: 0, total: 0 }
+  );
+
+  return totals.total > 0 ? (totals.wins / totals.total) * 100 : 0;
+}
+
+function calculateTotalMatches(characterStats: Record<string, CharacterStats>): number {
+  return Object.values(characterStats).reduce(
+    (total, stats) => total + stats.wins + stats.losses,
+    0
+  );
+}
+
+function formatFavoriteCharacters(characterStats: Record<string, CharacterStats>): FormattedCharacter[] {
+  return Object.entries(characterStats)
+    .map(([_, stats]) => ({
+      name: stats.characterName,
+      matches: stats.wins + stats.losses,
+      winRate: stats.wins / (stats.wins + stats.losses) * 100
+    }))
+    .sort((a, b) => b.matches - a.matches)
+    .slice(0, 3);
+}
+
+function formatCharacterStatsWithVersion(characterStats: Record<string, CharacterStats>): CharacterStatsWithVersion[] {
+  return Object.entries(characterStats).map(([key, stats]) => {
+    const characterIdMatch = key.match(/characterId=(\d+)/);
+    const gameVersionMatch = key.match(/gameVersion=(\d+)/);
+    
+    return {
+      ...stats,
+      characterId: characterIdMatch ? parseInt(characterIdMatch[1]) : 0,
+      gameVersion: gameVersionMatch ? gameVersionMatch[1] : '0',
+    };
+  });
+}
+
+function formatCharacterBattleStats(characterStats: Record<string, CharacterStats>): CharacterBattleStats[] {
+  const totalBattles = calculateTotalMatches(characterStats);
+  
+  const characterStatsMap = new Map<string, CharacterBattleStats>();
+  
+  Object.entries(characterStats).forEach(([key, stats]) => {
+    const characterIdMatch = key.match(/characterId=(\d+)/);
+    const characterId = characterIdMatch ? parseInt(characterIdMatch[1]) : 0;
+    const battles = stats.wins + stats.losses;
+    
+    if (characterStatsMap.has(stats.characterName)) {
+      const existing = characterStatsMap.get(stats.characterName)!;
+      existing.totalBattles += battles;
+      existing.percentage = (existing.totalBattles / totalBattles) * 100;
+    } else {
+      characterStatsMap.set(stats.characterName, {
+        characterId,
+        characterName: stats.characterName,
+        totalBattles: battles,
+        percentage: (battles / totalBattles) * 100
+      });
+    }
+  });
+
+  return Array.from(characterStatsMap.values())
+    .sort((a, b) => b.totalBattles - a.totalBattles);
+}
+
+function formatRecentMatches(battles: Battle[], playerName: string): FormattedMatch[] {
+  return battles.map(battle => {
+    const isPlayer1 = battle.player1Name === playerName;
+    return {
+      opponent: isPlayer1 ? battle.player2Name : battle.player1Name,
+      character: isPlayer1 ? `Player 1 Char ${battle.player1CharacterId}` : `Player 2 Char ${battle.player2CharacterId}`,
+      result: isPlayer1 ? (battle.winner === 1 ? 'win' : 'loss') : (battle.winner === 2 ? 'win' : 'loss'),
+      date: battle.date
+    };
+  });
+}
+
 export default function PlayerStatsPage({ params }: PageProps) {
   const { username } = params;
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
+  const [playerStats, setPlayerStats] = useAtom(playerStatsAtom);
+  const [isLoading, setIsLoading] = useAtom(playerStatsLoadingAtom);
+  const [error, setError] = useAtom(playerStatsErrorAtom);
 
   useEffect(() => {
     const fetchPlayerStats = async () => {
@@ -58,14 +145,14 @@ export default function PlayerStatsPage({ params }: PageProps) {
       setError(null);
 
       try {
-        const response = await fetch(`http://localhost:8080/player-stats/${encodeURIComponent(username)}`);
+        const response = await fetch(`/api/player-stats/${encodeURIComponent(username)}`);
         
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);
           throw new Error(errorData?.message || `Error: ${response.status}`);
         }
 
-        const data: PlayerStats = await response.json();
+        const data = await response.json();
         validatePlayerStats(data);
         setPlayerStats(data);
       } catch (err) {
@@ -78,7 +165,12 @@ export default function PlayerStatsPage({ params }: PageProps) {
     };
 
     fetchPlayerStats();
-  }, [username]);
+
+    return () => {
+      setPlayerStats(null);
+      setError(null);
+    };
+  }, [username, setPlayerStats, setIsLoading, setError]);
 
   const formattedPlayerStats: FormattedPlayerStats | null = playerStats ? {
     username: playerStats.name,
@@ -86,7 +178,10 @@ export default function PlayerStatsPage({ params }: PageProps) {
     winRate: calculateWinRate(playerStats.characterStats),
     totalMatches: calculateTotalMatches(playerStats.characterStats),
     favoriteCharacters: formatFavoriteCharacters(playerStats.characterStats),
-    recentMatches: [],
+    recentMatches: formatRecentMatches(playerStats.battles || [], playerStats.name),
+    characterStatsWithVersion: formatCharacterStatsWithVersion(playerStats.characterStats),
+    characterBattleStats: formatCharacterBattleStats(playerStats.characterStats),
+    battles: playerStats.battles || []
   } : null;
 
   return (
@@ -147,7 +242,7 @@ export default function PlayerStatsPage({ params }: PageProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="max-w-4xl mx-auto"
+              className="max-w-6xl mx-auto"
             >
               <PlayerProfile stats={formattedPlayerStats} />
             </motion.div>
@@ -168,41 +263,4 @@ export default function PlayerStatsPage({ params }: PageProps) {
       <Footer />
     </div>
   );
-}
-
-// Utility functions
-function validatePlayerStats(data: PlayerStats): void {
-  if (!data.playerId || !data.name || !data.characterStats) {
-    throw new Error('Invalid player stats data structure');
-  }
-}
-
-function calculateWinRate(characterStats: Record<string, CharacterStats>): number {
-  const totals = Object.values(characterStats).reduce(
-    (acc, stats) => ({
-      wins: acc.wins + stats.wins,
-      total: acc.total + stats.wins + stats.losses
-    }),
-    { wins: 0, total: 0 }
-  );
-
-  return totals.total > 0 ? (totals.wins / totals.total) * 100 : 0;
-}
-
-function calculateTotalMatches(characterStats: Record<string, CharacterStats>): number {
-  return Object.values(characterStats).reduce(
-    (total, stats) => total + stats.wins + stats.losses,
-    0
-  );
-}
-
-function formatFavoriteCharacters(characterStats: Record<string, CharacterStats>): FormattedCharacter[] {
-  return Object.values(characterStats)
-    .map(stats => ({
-      name: stats.characterName,
-      matches: stats.wins + stats.losses,
-      winRate: stats.wins / (stats.wins + stats.losses) * 100
-    }))
-    .sort((a, b) => b.matches - a.matches)
-    .slice(0, 3);
 }

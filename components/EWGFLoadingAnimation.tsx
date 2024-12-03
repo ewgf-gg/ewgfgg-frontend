@@ -11,11 +11,11 @@ const EWGFLoadingAnimation: React.FC<EWGFLoadingAnimationProps> = ({ className }
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
  
   const inputs = [
-    '/tekken-inputs/f.png',
-    '/tekken-inputs/n.png',
-    '/tekken-inputs/d.png',
-    '/tekken-inputs/df.png',
-    '/tekken-inputs/2.png'
+    '/static/tekken-inputs/f.png',
+    '/static/tekken-inputs/n.png',
+    '/static/tekken-inputs/d.png',
+    '/static/tekken-inputs/df.png',
+    '/static/tekken-inputs/2.png'
   ];
 
   useEffect(() => {

@@ -2,11 +2,11 @@
 'use client';
 import { useEffect } from 'react';
 import { useAtom } from 'jotai';
-import { Header } from '@/components/ui/Header';
-import  Footer  from '@/components/ui/Footer';
-import { StatsGrid } from '@/components/StatsGrid';
-import { RankDistributionChart } from '@/components/homepage-charts/RankDistributionChart';
-import EWGFLoadingAnimation from '@/components/EWGFLoadingAnimation';
+import { Header } from './ui/Header';
+import Footer from './ui/Footer';
+import { StatsGrid } from './StatsGrid';
+import { RankDistributionChart } from './homepage-charts/RankDistributionChart';
+import EWGFLoadingAnimation from './EWGFLoadingAnimation';
 import {
   isLoadingAtom,
   totalReplaysAtom,
@@ -16,10 +16,8 @@ import {
   characterWinratesAtom,
   characterPopularityAtom,
   winrateChangesAtom
-} from '@/app/state/atoms/tekkenStatsAtoms';
-import { HomeContentProps } from '@/app/state/types/tekkenTypes';
-
-
+} from '../app/state/atoms/tekkenStatsAtoms';
+import { HomeContentProps } from '../app/state/types/tekkenTypes';
 
 export default function HomeContent({ initialData }: HomeContentProps) {
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
@@ -46,10 +44,8 @@ export default function HomeContent({ initialData }: HomeContentProps) {
       } catch (error) {
         console.error('Error initializing state:', error);
       } finally {
-        // Add a small delay to ensure the loading animation is visible
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
+        // Immediately set loading to false once data is initialized
+        setIsLoading(false);
       }
     };
 

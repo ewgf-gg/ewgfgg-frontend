@@ -2,11 +2,33 @@
 import React, { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip } from 'recharts';
-import { characterPopularityAtom } from '@/app/state/atoms/tekkenStatsAtoms';
+import { characterPopularityAtom } from '../../app/state/atoms/tekkenStatsAtoms';
 import { ChartCard } from '../shared/ChartCard';
 import { CustomYAxisTick } from '../shared/CustomYAxisTick';
-import { CustomTooltip } from '../shared/CustomTooltip';
-import { ChartProps } from '@/app/state/types/tekkenTypes';
+import { ChartProps } from '../../app/state/types/tekkenTypes';
+import { characterIconMap } from '../../app/state/types/tekkenTypes';
+
+// Create a custom tooltip specifically for popularity data
+const PopularityTooltip: React.FC<any> = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background border rounded-lg p-2 shadow-lg">
+        <div className="flex items-center gap-2">
+          <img
+            src={characterIconMap[label]}
+            alt={label}
+            className="w-6 h-6"
+          />
+          <span className="font-medium">{label}</span>
+        </div>
+        <div className="text-sm">
+          {payload[0].value.toLocaleString()} character picks
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 
 export const PopularityChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState(true);
@@ -46,7 +68,7 @@ export const PopularityChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>
           width={60}
         />
         <XAxis type="number" hide />
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={<PopularityTooltip />} />
         <Bar
           dataKey="count"
           fill="hsl(var(--primary))"
@@ -66,4 +88,3 @@ export const PopularityChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>
     </ChartCard>
   );
 };
-

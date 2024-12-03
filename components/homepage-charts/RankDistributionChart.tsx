@@ -1,19 +1,19 @@
 // app/components/RankDistributionChart.tsx
 import { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
-import { AnimatedCard } from '@/components/AnimatedCard';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LabelList, ResponsiveContainer, Cell } from 'recharts';
+import { AnimatedCard } from '../AnimatedCard';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, LabelList, ResponsiveContainer, Cell } from 'recharts';
 import { 
   rankColorsAtom, 
   rankDistributionAtom,
   gameVersionsAtom,
   totalPlayersAtom,
   totalReplaysAtom
-} from '@/app/state/atoms/tekkenStatsAtoms';
+} from '../../app/state/atoms/tekkenStatsAtoms';
 
-import { DistributionMode, GameVersion, rankIconMap } from '@/app/state/types/tekkenTypes';
+import { DistributionMode, GameVersion, rankIconMap, rankOrderMap } from '../../app/state/types/tekkenTypes';
 
 export const RankDistributionChart: React.FC = () => {
   const [rankDistribution] = useAtom(rankDistributionAtom);
@@ -24,10 +24,10 @@ export const RankDistributionChart: React.FC = () => {
   const [selectedVersion, setSelectedVersion] = useState<GameVersion>('10901');
   const [selectedMode, setSelectedMode] = useState<DistributionMode>('standard');
   const [isInitialRender, setIsInitialRender] = useState(true);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   // Get the latest version
   const latestVersion = [...gameVersions].sort((a, b) => parseInt(b) - parseInt(a))[0];
-
 
   // Set the initial version to latest on component mount
   useEffect(() => {
@@ -45,11 +45,27 @@ export const RankDistributionChart: React.FC = () => {
   // Only proceed if we have data for the selected version
   const distributionData = rankDistribution[selectedVersion]?.[selectedMode] || [];
 
+  // Calculate top percentage for each rank
+  const calculateTopPercentage = (currentRank: string) => {
+    const rankOrder = Object.entries(rankOrderMap).find(([_, rank]) => rank === currentRank)?.[0];
+    if (!rankOrder) return 0;
+
+    const currentRankIndex = parseInt(rankOrder);
+    return distributionData
+      .filter(data => {
+        const dataRankOrder = Object.entries(rankOrderMap).find(([_, rank]) => rank === data.rank)?.[0];
+        return dataRankOrder && parseInt(dataRankOrder) >= currentRankIndex;
+      })
+      .reduce((sum, data) => sum + data.percentage, 0);
+  };
+
   const chartData = distributionData.map((rank) => {
     const colorEntry = rankColors.find((rc) => rc.rank === rank.rank);
+    const topPercentage = calculateTopPercentage(rank.rank);
     return {
       rank: rank.rank,
       percentage: Number(rank.percentage.toFixed(2)),
+      topPercentage: Number(topPercentage.toFixed(2)),
       fill: colorEntry?.color || '#3182ce',
     };
   });
@@ -77,7 +93,7 @@ export const RankDistributionChart: React.FC = () => {
             <img
               src={rankIconMap[payload.value]}
               alt={payload.value}
-              className="w-30 h-8" // Increased size
+              className="w-30 h-8"
               style={{ 
                 transformOrigin: 'center'
               }}
@@ -88,25 +104,34 @@ export const RankDistributionChart: React.FC = () => {
     );
   };
   
-const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-background border rounded-lg p-2 shadow-lg">
-        <div className="flex items-center gap-2">
-          <img
-            src={rankIconMap[label]}
-            alt={label}
-            className="w-20 h-10"
-          />
-          <span className="font-medium">{label}</span>
+  const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const { percentage, topPercentage } = payload[0].payload;
+      return (
+        <div className="bg-background border rounded-lg p-2 shadow-lg">
+          <div className="flex items-center gap-2">
+            <img
+              src={rankIconMap[label]}
+              alt={label}
+              className="w-20 h-10"
+            />
+            <span className="font-medium">{label}</span>
+          </div>
+          <div className="text-sm">{`${percentage.toFixed(2)}% of the playerbase is here`}</div>
+          <div className="text-sm">{`Top ${topPercentage.toFixed(2)}% of playerbase`}</div>
         </div>
-        <div className="text-sm">{`${payload[0].value.toFixed(2)}%`} of the playerbase is here</div>
-      </div>
-    );
-  }
-  return null;
-};
+      );
+    }
+    return null;
+  };
 
+  const handleMouseEnter = (data: any, index: number) => {
+    setActiveIndex(index);
+  };
+
+  const handleMouseLeave = () => {
+    setActiveIndex(null);
+  };
 
   return (
     <AnimatedCard delay={1}>
@@ -154,8 +179,8 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
               <BarChart
                 data={chartData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
+                onMouseLeave={handleMouseLeave}
               >
-                <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey="rank"
                   tickLine={true}
@@ -165,14 +190,18 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
                   tick={<CustomXAxisTick />}
                 />
                 <YAxis hide />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip 
+                  content={<CustomTooltip />}
+                  cursor={false}
+                />
                 <Bar
                   dataKey="percentage"
                   radius={[8, 8, 0, 0]}
-                  isAnimationActive={true}
+                  isAnimationActive={false}
                   animationBegin={isInitialRender ? 2000 : 100}
                   animationDuration={1000}
                   animationEasing="ease"
+                  onMouseEnter={handleMouseEnter}
                 >
                   <LabelList 
                     dataKey="percentage" 
@@ -180,7 +209,14 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
                     formatter={(value: number) => `${value.toFixed(2)}%`} 
                   />
                   {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.fill}
+                      style={{
+                        filter: activeIndex === index ? `drop-shadow(0 0 6px ${entry.fill})` : 'none',
+                        transition: 'filter 0.2s ease-in-out'
+                      }}
+                    />
                   ))}
                 </Bar>
               </BarChart>
@@ -203,4 +239,3 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
     </AnimatedCard>
   );
 };
-export default RankDistributionChart;

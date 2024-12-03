@@ -6,7 +6,8 @@ import type {
   CharacterWinrates, 
   CharacterPopularity, 
   RankWinrateChanges,
-  GameRankDistribution 
+  GameRankDistribution,
+  PlayerStats
 } from '../types/tekkenTypes';
 
 const initialWinrates: CharacterWinrates = {
@@ -72,6 +73,11 @@ export const characterWinratesAtom = atom<CharacterWinrates>(initialWinrates);
 export const characterPopularityAtom = atom<CharacterPopularity>(initialPopularity);
 export const winrateChangesAtom = atom<RankWinrateChanges>(initialWinrateChanges);
 export const rankDistributionAtom = atom<GameRankDistribution>({} as GameRankDistribution);
+
+// New atom for player stats
+export const playerStatsAtom = atom<PlayerStats | null>(null);
+export const playerStatsLoadingAtom = atom(false);
+export const playerStatsErrorAtom = atom<string | null>(null);
 
 // Helper function
 export const getColor = (rank: string): string => {

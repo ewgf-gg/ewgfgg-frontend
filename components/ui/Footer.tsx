@@ -10,7 +10,7 @@ export default function Footer() {
           <p>All trademarks are property of their respective owners.</p>
         </div>
         <div className="mt-4 flex justify-center space-x-4">
-          <Link href="https://Github.com" className="text-gray-400 hover:text-white transition-colors" aria-label="LinkedIn">
+          <Link href="https://www.github.com/ewgf-gg" className="text-gray-400 hover:text-white transition-colors" aria-label="Github">
             <FaGithub className="w-6 h-6" />
           </Link>
           <Link href="https://discord.com" className="text-gray-400 hover:text-white transition-colors" aria-label="Discord">

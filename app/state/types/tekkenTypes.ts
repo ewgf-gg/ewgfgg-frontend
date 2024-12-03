@@ -19,6 +19,51 @@ export interface RankColor {
     };
   }
 
+  export interface CharacterStats {
+    characterName: string;
+    danName: string;
+    danRank: number;
+    wins: number;
+    losses: number;
+  }
+
+  export interface Battle {
+    date: string;
+    player1Name: string;
+    player1CharacterId: number;
+    player1DanRank: number | null;
+    player1RegionId: number | null;
+    player2Name: string;
+    player2CharacterId: number;
+    player2DanRank: number | null;
+    player2RegionId: number | null;
+    player1RoundsWon: number;
+    player2RoundsWon: number;
+    winner: number;
+    stageId: number;
+  }
+
+  export interface CharacterStatsWithVersion extends CharacterStats {
+    gameVersion: string;
+    characterId: number;
+  }
+
+  export interface CharacterBattleStats {
+    characterId: number;
+    characterName: string;
+    totalBattles: number;
+    percentage: number;
+  }
+
+  export interface PlayerStats {
+    playerId: string;
+    name: string;
+    tekkenPower: number;
+    latestBattle: number;
+    characterStats: Record<string, CharacterStats>;
+    battles: Battle[];
+  }
+
   export interface HomeContentProps {
     initialData: InitialData;
   }
@@ -59,6 +104,9 @@ export interface RankColor {
     id: string;
     name: string;
     tekkenId?: string;
+    regionId: number;
+    mostPlayedCharacter?: string;
+    danRankName?: string;
   }
   
   export interface SearchFormProps {
@@ -68,9 +116,6 @@ export interface RankColor {
     isLoading: boolean;
     errorMessage: string;
   }
-  
-
-
   
   export interface WinrateChangeData extends ChartData {
     trend: 'increase' | 'decrease';
@@ -127,6 +172,7 @@ export interface RankColor {
   ];
   
   export const Regions: {[key: number]: string} = {
+    [-1]: 'N/A', //typescript/javascript is so weird
     0: 'Asia',
     1: 'Middle East',
     2: 'Oceania',
@@ -199,12 +245,51 @@ export interface RankColor {
     'Tekken God Supreme': '/static/rank-icons/TekkenGodSupremeT8.png',
     'God of Destruction': '/static/rank-icons/GodOfDestructionT8.png'
   };
-  
+
+  export const characterIdMap: { [key: number]: string} = {
+    0: 'Paul',
+    1: 'Law',
+    2: 'King',
+    3: 'Yoshimitsu',
+    4: 'Hwoarang',
+    5: 'Xiaoyu',
+    6: 'Jin',
+    7: 'Bryan',
+    8: 'Kazuya',
+    9: 'Steve',
+    10: 'Jack-8',
+    11: 'Asuka',
+    12: 'Devil Jin',
+    13: 'Feng',
+    14: 'Lili',
+    15: 'Dragunov',
+    16: 'Leo',
+    17: 'Lars',
+    18: 'Alisa',
+    19: 'Claudio',
+    20: 'Shaheen',
+    21: 'Nina',
+    22: 'Lee',
+    23: 'Kuma',
+    24: 'Panda',
+    28: 'Zafina',
+    29: 'Leroy',
+    32: 'Jun',
+    33: 'Reina',
+    34: 'Azucena',
+    35: 'Victor',
+    36: 'Raven',
+    38: 'Eddy',
+    39: 'Lidia',
+    40: 'Heihachi'
+}
   export const characterIconMap: { [key: string]: string } = {
+    'Alisa': '/static/character-icons/AlisaT8.png',
     'Asuka': '/static/character-icons/AsukaT8.png',
     'Bryan': '/static/character-icons/BryanT8.png',
     'Claudio': '/static/character-icons/ClaudioT8.png',
-    'Devil Jin': '/static/character-icons/DevilJinT8.png',
+    'Devil Jin': '/static/character-icons/Devil_JinT8.png',
+    'Devil_Jin': '/static/character-icons/Devil_JinT8.png',
     'Dragunov': '/static/character-icons/DragunovT8.png',
     'Feng': '/static/character-icons/FengT8.png',
     'Hwoarang': '/static/character-icons/HwoarangT8.png',
@@ -215,9 +300,10 @@ export interface RankColor {
     'King': '/static/character-icons/KingT8.png',
     'Kuma': '/static/character-icons/KumaT8.png',
     'Heihachi': '/static/character-icons/HeihachiT8.png',
-    'Lidia': 'static/character-icons/LidiaT8.png',
-    'Eddy': 'static/character-icons/EddyT8.png',
-    'Reina': 'static/character-icons/ReinaT8.png',
+    'Lidia': '/static/character-icons/LidiaT8.png',
+    'Eddy': '/static/character-icons/EddyT8.png',
+    'Reina': '/static/character-icons/ReinaT8.png',
+    'Victor': '/static/character-icons/VictorT8.png',
     'Lars': '/static/character-icons/LarsT8.png',
     'Law': '/static/character-icons/LawT8.png',
     'Lee': '/static/character-icons/LeeT8.png',

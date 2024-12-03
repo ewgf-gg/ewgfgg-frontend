@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search } from 'lucide-react';
-import { Input } from "@/components/ui/input";
+import { Input } from './ui/input';
 import {
   Command,
   CommandEmpty,
@@ -8,15 +8,16 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from './ui/command';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from './ui/popover';
 import { useRouter } from 'next/navigation';
 import debounce from 'lodash/debounce';
-import { PlayerSearchResult } from '@/app/state/types/tekkenTypes';
+import { PlayerSearchResult, Regions, characterIconMap, rankIconMap } from '../app/state/types/tekkenTypes';
+import SearchLoadingAnimation from './SearchLoadingAnimation';
 
 export function SearchBar() {
   const [open, setOpen] = useState(false);
@@ -70,7 +71,7 @@ export function SearchBar() {
 
   const handleSelect = useCallback((currentValue: string) => {
     const selectedPlayer = searchResults.find(
-      player => player.name.toLowerCase() === currentValue.toLowerCase()
+      player => player.id === currentValue
     );
     if (selectedPlayer) {
       setOpen(false);
@@ -78,6 +79,14 @@ export function SearchBar() {
       router.push(`/player/${encodeURIComponent(selectedPlayer.tekkenId || selectedPlayer.name)}`);
     }
   }, [searchResults, router]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    if (newValue.length <= 20) {  // Only update if within 20 character limit
+      setSearchQuery(newValue);
+      setOpen(newValue.length >= 3);
+    }
+  };
 
   return (
     <div className="w-full max-w-xl relative">
@@ -98,10 +107,8 @@ export function SearchBar() {
               placeholder="Search player... (Player name / TEKKEN-ID)"
               className="w-full h-10 pl-10 pr-4 text-sm bg-gray-700/50 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 rounded-lg transition-all hover:bg-gray-700/70"
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setOpen(e.target.value.length >= 3);
-              }}
+              onChange={handleInputChange}
+              maxLength={20}  // Add HTML maxLength attribute as additional protection
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && searchQuery.trim()) {
                   e.preventDefault();
@@ -122,34 +129,57 @@ export function SearchBar() {
         >
           <Command className="w-full" shouldFilter={false}>
             <CommandList>
-              <CommandEmpty>
-                {isLoading ? (
-                  <div className="flex items-center justify-center py-6 text-sm text-gray-400">
-                    Searching...
-                  </div>
-                ) : (
-                  <div className="py-6 text-sm text-gray-400">
-                    No players found.
-                  </div>
-                )}
-              </CommandEmpty>
-              <CommandGroup heading="Players">
-                {searchResults.map((player) => (
-                  <CommandItem
-                    key={player.id}
-                    value={player.name}
-                    onSelect={handleSelect}
-                    className="flex flex-col items-start py-3 cursor-pointer hover:bg-gray-100/10"
-                  >
-                    <div className="font-medium">{player.name}</div>
-                    {player.tekkenId && (
-                      <div className="text-sm text-gray-400">
-                        {player.tekkenId}
-                      </div>
-                    )}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
+              {isLoading ? (
+                <div className="py-2">
+                  <SearchLoadingAnimation />
+                </div>
+              ) : (
+                <>
+                  <CommandEmpty>
+                    <div className="py-6 text-sm text-gray-400">
+                      No players found.
+                    </div>
+                  </CommandEmpty>
+                  <CommandGroup heading="Players">
+                    {searchResults.map((player) => (
+                      <CommandItem
+                        key={player.id}
+                        value={player.id}
+                        onSelect={handleSelect}
+                        className="flex flex-col items-start py-3 cursor-pointer hover:bg-gray-100/10"
+                      >
+                        <div className="flex items-center gap-2 w-full">
+                          {/* Main Character Icon */}
+                          {player.mostPlayedCharacter && (
+                            <img
+                              src={characterIconMap[player.mostPlayedCharacter]}
+                              alt={player.mostPlayedCharacter}
+                              className="w-10 h-15"
+                            />
+                          )}
+                          <div className="flex flex-col flex-grow">
+                            <div className="font-medium">{player.name}</div>
+                            <div className="text-sm text-gray-400 flex items-center gap-2">
+                              {player.tekkenId}
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-gray-700">
+                                {Regions[player.regionId]}
+                              </span>
+                            </div>
+                          </div>
+                          {/* Rank Icon */}
+                          {player.danRankName && (
+                            <img
+                              src={rankIconMap[player.danRankName]}
+                              alt={player.danRankName}
+                              className="w-15 h-10"
+                            />
+                          )}
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </>
+              )}
             </CommandList>
           </Command>
         </PopoverContent>
