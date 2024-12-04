@@ -1,8 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { PieChart, Pie, ResponsiveContainer, Label } from 'recharts';
-import { CharacterStatsWithVersion, GameVersion } from '../../app/state/types/tekkenTypes';
+import { CharacterStatsWithVersion } from '../../app/state/types/tekkenTypes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../ui/chart';
 
 interface CharacterWinLossChartProps {
@@ -10,16 +9,10 @@ interface CharacterWinLossChartProps {
 }
 
 const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({ characterStats }) => {
-  const [selectedVersion, setSelectedVersion] = useState<GameVersion>('10901');
-
-  // Get unique game versions
-  const gameVersions = Array.from(new Set(characterStats.map(stat => stat.gameVersion))) as GameVersion[];
-
-  // Calculate total wins and losses for the selected version
+  // Calculate total wins and losses
   const stats = useMemo(() => {
-    const filteredStats = characterStats.filter(stat => stat.gameVersion === selectedVersion);
-    const totalWins = filteredStats.reduce((sum, stat) => sum + stat.wins, 0);
-    const totalLosses = filteredStats.reduce((sum, stat) => sum + stat.losses, 0);
+    const totalWins = characterStats.reduce((sum, stat) => sum + stat.wins, 0);
+    const totalLosses = characterStats.reduce((sum, stat) => sum + stat.losses, 0);
     const winRate = totalWins + totalLosses > 0 
       ? ((totalWins / (totalWins + totalLosses)) * 100).toFixed(1)
       : '0.0';
@@ -31,7 +24,7 @@ const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({ character
       ],
       winRate
     };
-  }, [characterStats, selectedVersion]);
+  }, [characterStats]);
 
   const chartConfig = {
     wins: {
@@ -51,23 +44,6 @@ const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({ character
         <CardDescription>Your overall winrate</CardDescription>
       </CardHeader>
       <CardContent className="flex-1">
-        <div className="mb-4 w-48">
-          <Select
-            value={selectedVersion}
-            onValueChange={(value) => setSelectedVersion(value as GameVersion)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select version" />
-            </SelectTrigger>
-            <SelectContent>
-              {gameVersions.map((version) => (
-                <SelectItem key={version} value={version}>
-                  Version {version}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
         <ChartContainer
           config={chartConfig}
           className="mx-auto aspect-square max-h-[250px]"

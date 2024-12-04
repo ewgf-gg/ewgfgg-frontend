@@ -51,30 +51,30 @@ export const PlayerProfile: React.FC<{ stats: PlayerStats }> = ({ stats }) => {
     return acc;
   }, {} as Record<string, any>);
 
-  // Get the selected character's stats
-  const selectedCharacterStats = selectedCharacterId 
-    ? stats.characterStatsWithVersion.filter(stat => 
+  // Get the selected character's stats and game version
+  const selectedCharacterData = selectedCharacterId 
+    ? stats.characterStatsWithVersion.find(stat => 
         `CharacterStatsId(playerId=0, characterId=${stat.characterId}, gameVersion=${stat.gameVersion})` === selectedCharacterId
       )
-    : stats.characterStatsWithVersion;
+    : null;
 
-  // Get the selected character's ID for charts
-  const selectedCharacterNumericId = selectedCharacterId
-    ? parseInt(selectedCharacterId.match(/characterId=(\d+)/)?.[1] || '0')
-    : 0;
+  // Get the selected character's ID and game version for charts
+  const selectedCharacterNumericId = selectedCharacterData?.characterId || 0;
+  const selectedGameVersion = selectedCharacterData?.gameVersion || '10901';
 
-  // Get the game version, defaulting to '10901' if not available
-  const defaultGameVersion: GameVersion = '10901';
-  const selectedGameVersion = selectedCharacterStats[0]?.gameVersion as GameVersion || defaultGameVersion;
-
-  // Pagination logic
+  // Filter battles by selected character and game version
   const filteredBattles = selectedCharacterNumericId > 0
-    ? stats.battles.filter(battle => 
-        battle.player1CharacterId === selectedCharacterNumericId ||
-        battle.player2CharacterId === selectedCharacterNumericId
-      )
+    ? stats.battles.filter(battle => {
+        const isPlayer1 = battle.player1Name === stats.username;
+        const matchesCharacter = isPlayer1 
+          ? battle.player1CharacterId === selectedCharacterNumericId
+          : battle.player2CharacterId === selectedCharacterNumericId;
+        // Add game version filtering logic here when available in battle data
+        return matchesCharacter;
+      })
     : stats.battles;
 
+  // Pagination logic
   const totalPages = Math.ceil(filteredBattles.length / battlesPerPage);
   const indexOfLastBattle = currentPage * battlesPerPage;
   const indexOfFirstBattle = indexOfLastBattle - battlesPerPage;
@@ -246,39 +246,39 @@ export const PlayerProfile: React.FC<{ stats: PlayerStats }> = ({ stats }) => {
       {selectedCharacterNumericId > 0 && (
         <div className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <CharacterWinLossChart characterStats={selectedCharacterStats} />
+            <CharacterWinLossChart characterStats={[selectedCharacterData!]} />
             <BestMatchupChart 
-              battles={stats.battles}
+              battles={filteredBattles}
               selectedCharacterId={selectedCharacterNumericId}
               playerName={stats.username}
             />
             <WorstMatchupChart 
-              battles={stats.battles}
+              battles={filteredBattles}
               selectedCharacterId={selectedCharacterNumericId}
               playerName={stats.username}
             />
           </div>
           <div className="w-full">
             <CharacterWinrateChart
-              battles={stats.battles}
+              battles={filteredBattles}
               selectedCharacterId={selectedCharacterNumericId}
               playerName={stats.username}
             />
           </div>
           <div className="w-full">
             <CharacterDistributionChart
-              battles={stats.battles}
+              battles={filteredBattles}
               selectedCharacterId={selectedCharacterNumericId}
               playerName={stats.username}
             />
           </div>
           <div className="w-full">
-          <WinrateOverTimeChart
-        battles={stats.battles}
-        playerName={stats.username}
-        selectedCharacterId={selectedCharacterNumericId}
-        />
-      </div>
+            <WinrateOverTimeChart
+              battles={filteredBattles}
+              playerName={stats.username}
+              selectedCharacterId={selectedCharacterNumericId}
+            />
+          </div>
         </div>
       )}
 
