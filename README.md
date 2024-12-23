@@ -1,8 +1,14 @@
 # Tekken-Frontend
-Frontend Client for tekken stats application
+Frontend Client for ewgf-gg
 
 ## Current front page! 
-![image](https://github.com/user-attachments/assets/6478e434-196b-49b0-b96e-9dd0d8ab8069)
+![image](https://github.com/user-attachments/assets/eac8fa11-6fa5-4b92-a98e-0bbc2e43744e)
+![image](https://github.com/user-attachments/assets/e1044447-4db9-4a16-aaf8-df54851c4aa1)
+
+## Player Statistics Page
+![image](https://github.com/user-attachments/assets/400bb8a1-d919-418a-b4e2-a8af0dc7d508)
+
+
 
 ## Technologies Used
 
