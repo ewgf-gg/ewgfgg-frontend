@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "../ui/card";
-import { characterIconMap, rankIconMap } from '../../app/state/types/tekkenTypes';
+import { characterIconMap, rankIconMap, rankOrderMap } from '../../app/state/types/tekkenTypes';
 import { motion } from 'framer-motion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
@@ -16,30 +16,40 @@ interface CharacterSelectorProps {
   characters: Record<string, CharacterData>;
   onSelectCharacter: (characterId: string) => void;
   selectedCharacterId: string | null;
+  onVersionChange: (version: string) => void;
 }
 
 export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
   characters,
   onSelectCharacter,
-  selectedCharacterId
+  selectedCharacterId,
+  onVersionChange
 }) => {
-  // Extract unique game versions and sort them in descending order
-  const gameVersions = [...new Set(Object.values(characters).map(char => char.gameVersion))]
-    .sort((a, b) => parseInt(b) - parseInt(a));
+  // Get unique game versions
+  const gameVersions = ['all', ...new Set(Object.values(characters).map(char => char.gameVersion))]
+    .sort((a, b) => {
+      if (a === 'all') return -1;
+      if (b === 'all') return 1;
+      return parseInt(b) - parseInt(a);
+    });
 
-  // State for selected version
-  const [selectedVersion, setSelectedVersion] = useState(gameVersions[0] || '');
+  const [selectedVersion, setSelectedVersion] = useState(gameVersions[0]);
 
-  // Update selected version when versions change
-  useEffect(() => {
-    if (gameVersions.length > 0 && !gameVersions.includes(selectedVersion)) {
-      setSelectedVersion(gameVersions[0]);
-    }
-  }, [gameVersions]);
+  // Function to get numeric rank value
+  const getRankValue = (rankName: string): number => {
+    const entry = Object.entries(rankOrderMap).find(([_, name]) => name === rankName);
+    return entry ? parseInt(entry[0]) : -1;
+  };
+
+  // Handle version change
+  const handleVersionChange = (version: string) => {
+    setSelectedVersion(version);
+    onVersionChange(version);
+  };
 
   // Filter characters by selected version
   const filteredCharacters = Object.entries(characters).reduce((acc, [id, data]) => {
-    if (data.gameVersion === selectedVersion) {
+    if (selectedVersion === 'all' || data.gameVersion === selectedVersion) {
       acc[id] = data;
     }
     return acc;
@@ -75,10 +85,22 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
     versions: Array<{ id: string } & CharacterData>;
   }>);
 
-  // Sort by total matches in descending order
-  characterSummaries.sort((a, b) => b.totalMatches - a.totalMatches);
+  // Sort by rank first, then by total matches
+  characterSummaries.sort((a, b) => {
+    const rankA = getRankValue(a.latestRank);
+    const rankB = getRankValue(b.latestRank);
+    
+    // If ranks are different, sort by rank (higher rank first)
+    if (rankA !== rankB) {
+      return rankB - rankA;
+    }
+    
+    // If ranks are the same, sort by total matches
+    return b.totalMatches - a.totalMatches;
+  });
 
   const formatVersion = (version: string) => {
+    if (version === 'all') return 'All Versions';
     const major = Math.floor(parseInt(version) / 10000);
     const minor = Math.floor((parseInt(version) % 10000) / 100);
     const patch = parseInt(version) % 100;
@@ -90,7 +112,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
       <div className="flex justify-end">
         <Select
           value={selectedVersion}
-          onValueChange={setSelectedVersion}
+          onValueChange={handleVersionChange}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select version" />
@@ -107,8 +129,9 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {characterSummaries.map((character) => {
-          const isSelected = character.versions.some(v => v.id === selectedCharacterId);
-          const currentVersion = character.versions[0];
+          const latestVersion = character.versions.reduce((latest, current) => 
+            parseInt(current.gameVersion) > parseInt(latest.gameVersion) ? current : latest
+          );
 
           return (
             <motion.div
@@ -118,9 +141,9 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
             >
               <Card 
                 className={`cursor-pointer transition-colors ${
-                  isSelected ? 'bg-accent' : 'hover:bg-accent/50'
+                  latestVersion.id === selectedCharacterId ? 'bg-accent' : 'hover:bg-accent/50'
                 }`}
-                onClick={() => onSelectCharacter(currentVersion.id)}
+                onClick={() => onSelectCharacter(latestVersion.id)}
               >
                 <CardContent className="p-3">
                   <div className="flex items-center space-x-3">

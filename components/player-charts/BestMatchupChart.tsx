@@ -13,6 +13,11 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
   selectedCharacterId, 
   playerName 
 }) => {
+  // Return null if selectedCharacterId is null or undefined (but not 0)
+  if (selectedCharacterId === null || selectedCharacterId === undefined) {
+    return null;
+  }
+
   const bestMatchup = React.useMemo(() => {
     // Filter battles for selected character
     const characterBattles = battles.filter(battle => {

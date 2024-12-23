@@ -1,30 +1,52 @@
-import React, { useMemo } from 'react';
-import { PieChart, Pie, ResponsiveContainer, Label } from 'recharts';
-import { CharacterStatsWithVersion } from '../../app/state/types/tekkenTypes';
+import React from 'react';
+import { PieChart, Pie, Label } from 'recharts';
+import { Battle } from '../../app/state/types/tekkenTypes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../ui/chart';
 
 interface CharacterWinLossChartProps {
-  characterStats: CharacterStatsWithVersion[];
+  battles: Battle[];
+  selectedCharacterId: number;
+  playerName: string;
 }
 
-const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({ characterStats }) => {
-  // Calculate total wins and losses
-  const stats = useMemo(() => {
-    const totalWins = characterStats.reduce((sum, stat) => sum + stat.wins, 0);
-    const totalLosses = characterStats.reduce((sum, stat) => sum + stat.losses, 0);
-    const winRate = totalWins + totalLosses > 0 
-      ? ((totalWins / (totalWins + totalLosses)) * 100).toFixed(1)
-      : '0.0';
+const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({ 
+  battles, 
+  selectedCharacterId,
+  playerName 
+}) => {
+  // Return null if selectedCharacterId is null or undefined (but not 0)
+  if (selectedCharacterId === null || selectedCharacterId === undefined) {
+    return null;
+  }
 
-    return {
-      data: [
-        { name: 'Wins', value: totalWins, fill: '#4ade80' },  // Green color
-        { name: 'Losses', value: totalLosses, fill: '#f87171' }  // Red color
-      ],
-      winRate
-    };
-  }, [characterStats]);
+  // Calculate wins and losses from battles
+  const battleResults = battles.reduce((acc, battle) => {
+    const isPlayer1 = battle.player1Name === playerName;
+    const isPlayingSelectedCharacter = isPlayer1 
+      ? battle.player1CharacterId === selectedCharacterId
+      : battle.player2CharacterId === selectedCharacterId;
+    
+    if (isPlayingSelectedCharacter) {
+      const isWinner = (isPlayer1 && battle.winner === 1) || (!isPlayer1 && battle.winner === 2);
+      if (isWinner) {
+        acc.wins++;
+      } else {
+        acc.losses++;
+      }
+    }
+    return acc;
+  }, { wins: 0, losses: 0 });
+
+  const { wins: totalWins, losses: totalLosses } = battleResults;
+  const winRate = totalWins + totalLosses > 0 
+    ? ((totalWins / (totalWins + totalLosses)) * 100).toFixed(1)
+    : '0.0';
+
+  const data = [
+    { name: 'Wins', value: totalWins, fill: '#4ade80' },  // Green color
+    { name: 'Losses', value: totalLosses, fill: '#f87171' }  // Red color
+  ];
 
   const chartConfig = {
     wins: {
@@ -53,7 +75,7 @@ const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({ character
               content={<ChartTooltipContent />}
             />
             <Pie
-              data={stats.data}
+              data={data}
               dataKey="value"
               nameKey="name"
               innerRadius={60}
@@ -75,7 +97,7 @@ const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({ character
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
                         >
-                          {stats.winRate}%
+                          {winRate}%
                         </tspan>
                         <tspan
                           x={viewBox.cx}

@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { characterIconMap } from '@/app/state/types/tekkenTypes';
+import { characterIconMap } from '../../app/state/types/tekkenTypes';
 
 interface MatchupCardProps {
   characterName: string;
@@ -30,6 +30,7 @@ const MatchupCard: React.FC<MatchupCardProps> = ({
             src={iconPath}
             alt={characterName}
             fill
+            sizes="96px"
             className="object-contain"
           />
         </div>

@@ -6,20 +6,22 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "../ui/card";
 
 interface SimpleChartCardProps {
   title: string;
   description?: string;
   delay?: number;
   children: React.ReactNode;
+  action?: React.ReactNode;
 }
 
 export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
   title,
   description,
   delay = 0,
-  children
+  children,
+  action
 }) => {
   return (
     <motion.div
@@ -30,14 +32,22 @@ export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
     >
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-lg">{title}</CardTitle>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="text-lg">{title}</CardTitle>
+              {description && (
+                <CardDescription>
+                  {description}
+                </CardDescription>
+              )}
+            </div>
+            {action && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Showing stats for:</span>
+                {action}
+              </div>
+            )}
           </div>
-          {description && (
-            <CardDescription>
-              {description}
-            </CardDescription>
-          )}
         </CardHeader>
         <CardContent>
           <div className="w-full h-[400px]">

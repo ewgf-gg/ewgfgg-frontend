@@ -1,162 +1,221 @@
 // types/tekkenTypes.ts
 
-export interface RankColor {
-    rank: string;
+export interface ColorMapping {
+    id: string;
     color: string;
-  }
+}
   
-  export interface RankDistribution {
+export interface RankDistribution {
     rank: string;
     percentage: number;
-  }
+}
   
-  export type DistributionMode = 'overall' | 'standard';
-  export type GameVersion = '10901' | '10701';
+export type DistributionMode = 'overall' | 'standard';
+export type GameVersion = string;
   
-  export type GameRankDistribution = {
-    [key in GameVersion]: {
+export type GameRankDistribution = {
+    [key: string]: {
       [mode in DistributionMode]: RankDistribution[];
     };
-  }
+}
 
-  export interface CharacterStats {
+export interface CharacterStats {
     characterName: string;
     danName: string;
     danRank: number;
     wins: number;
     losses: number;
-  }
+}
 
-  export interface Battle {
+export interface FormattedCharacter {
+    name: string;
+    matches: number;
+    winRate: number;
+}
+  
+export interface FormattedMatch {
+    opponent: string;
+    character: string;
+    result: 'win' | 'loss';
+    date: string;
+}
+
+export interface MainCharacterAndRank {
+    danRank: string;
+    characterName: string;
+}
+  
+export interface FormattedPlayerStats {
+    username: string;
+    polarisId: string;
+    rank: string;
+    winRate: number;
+    totalMatches: number;
+    favoriteCharacters: FormattedCharacter[];
+    recentMatches: FormattedMatch[];
+    characterStatsWithVersion: CharacterStatsWithVersion[];
+    characterBattleStats: CharacterBattleStats[];
+    battles: Battle[];
+    regionId: number;
+    areaId: number;
+    latestBattle: number;
+    mainCharacterAndRank: MainCharacterAndRank;
+}
+
+export interface Battle {
     date: string;
     player1Name: string;
     player1CharacterId: number;
+    player1PolarisId: string;
     player1DanRank: number | null;
     player1RegionId: number | null;
+    player1TekkenPower: number;
     player2Name: string;
     player2CharacterId: number;
+    player2PolarisId: string;
     player2DanRank: number | null;
     player2RegionId: number | null;
+    player2TekkenPower: number;
     player1RoundsWon: number;
     player2RoundsWon: number;
     winner: number;
     stageId: number;
-  }
+    gameVersion: string;
+}
 
-  export interface CharacterStatsWithVersion extends CharacterStats {
+export interface CharacterStatsWithVersion extends CharacterStats {
     gameVersion: string;
     characterId: number;
-  }
+}
 
-  export interface CharacterBattleStats {
+export interface CharacterBattleStats {
     characterId: number;
     characterName: string;
     totalBattles: number;
     percentage: number;
-  }
+}
 
-  export interface PlayerStats {
+export interface PlayerStats {
     playerId: string;
     name: string;
     tekkenPower: number;
     latestBattle: number;
+    regionId: number;
+    areaId: number;
+    mainCharacterAndRank: MainCharacterAndRank;
     characterStats: Record<string, CharacterStats>;
     battles: Battle[];
-  }
+}
 
-  export interface HomeContentProps {
+export interface HomeContentProps {
     initialData: InitialData;
-  }
+}
   
-  export interface ChartProps {
+export interface ChartProps {
     title: string;
     description?: string;
     delay?: number;
     rank: string;
     onRankChange: (value: string) => void;
-  }
+}
   
-  export interface ChartData {
+export interface ChartData {
     character: string;
     value: number;
     originalValue: number;
-  }
+}
 
-  export interface InitialData {
+export interface RankStats {
+    globalStats: { [character: string]: number };
+    regionalStats: { [region: string]: { [character: string]: number } };
+}
+
+export interface InitialData {
     totalReplays: number;
     totalPlayers: number;
     characterWinrates: {
-      highRank: { [character: string]: number };
-      mediumRank: { [character: string]: number };
-      lowRank: { [character: string]: number };
+      highRank: RankStats;
+      mediumRank: RankStats;
+      lowRank: RankStats;
     };
     characterPopularity: {
-      highRank: { [character: string]: number };
-      mediumRank: { [character: string]: number };
-      lowRank: { [character: string]: number };
+      highRank: RankStats;
+      mediumRank: RankStats;
+      lowRank: RankStats;
     };
-    gameVersions: string[];
     rankDistribution: GameRankDistribution;
     winrateChanges: RankWinrateChanges;
-  }
+}
 
-  export interface PlayerSearchResult {
+export interface PlayerSearchResult {
     id: string;
     name: string;
     tekkenId?: string;
     regionId: number;
     mostPlayedCharacter?: string;
     danRankName?: string;
-  }
+}
   
-  export interface SearchFormProps {
+export interface SearchFormProps {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
     handleSearch: (e: React.FormEvent) => Promise<void>;
     isLoading: boolean;
     errorMessage: string;
-  }
+}
   
-  export interface WinrateChangeData extends ChartData {
+export interface WinrateChangeData extends ChartData {
     trend: 'increase' | 'decrease';
-  }
+}
   
-  export type RankOption = {
+export type RankOption = {
     value: string;
     label: string;
     description: string;
-  };
+};
   
-  export interface CharacterWinrates {
-    highRank: { [character: string]: number };
-    mediumRank: { [character: string]: number };
-    lowRank: { [character: string]: number };
-  }
+export interface CharacterWinrates {
+    highRank: RankStats;
+    mediumRank: RankStats;
+    lowRank: RankStats;
+}
   
-  export interface CharacterPopularity {
-    highRank: { [character: string]: number };
-    mediumRank: { [character: string]: number };
-    lowRank: { [character: string]: number };
-  }
+export interface CharacterPopularity {
+    highRank: RankStats;
+    mediumRank: RankStats;
+    lowRank: RankStats;
+}
   
-  export interface WinrateChange {
+export interface WinrateChange {
     characterId: string;
     change: number;
     trend: 'increase' | 'decrease';
     rankCategory: string;
-  }
+}
   
-  export interface RankWinrateChanges {
+export interface RankWinrateChanges {
     highRank: WinrateChange[];
     mediumRank: WinrateChange[];
     lowRank: WinrateChange[];
-  }
-  
-  // Constants
-  export const RANK_OPTIONS: RankOption[] = [
+}
+
+// New types for version statistics
+export interface VersionStats {
+    [version: string]: {
+        highRank: RankStats;
+        mediumRank: RankStats;
+        lowRank: RankStats;
+    };
+}
+
+export interface VersionPopularityStats extends VersionStats {}
+export interface VersionWinrateStats extends VersionStats {}
+
+// Constants
+export const RANK_OPTIONS: RankOption[] = [
     { 
       value: "highRank", 
-      label: "Tekken King+",
+      label: "Tekken King↑",
       description: "in Tekken King and above"
     },
     { 
@@ -166,21 +225,21 @@ export interface RankColor {
     },
     { 
       value: "lowRank", 
-      label: "Eliminator-",
+      label: "Eliminator↓",
       description: "in Eliminator and below"
     }
-  ];
+];
   
-  export const Regions: {[key: number]: string} = {
+export const Regions: {[key: number]: string} = {
     [-1]: 'N/A', //typescript/javascript is so weird
     0: 'Asia',
     1: 'Middle East',
     2: 'Oceania',
     3: 'Americas',
     4: 'Europe'
-  };
+};
   
-  export const rankOrderMap: { [key: number]: string } = {
+export const rankOrderMap: { [key: number]: string } = {
     0: 'Beginner',
     1: '1st Dan',
     2: '2nd Dan',
@@ -211,9 +270,9 @@ export interface RankColor {
     27: 'Tekken God',
     28: 'Tekken God Supreme',
     29: 'God of Destruction'
-  };
+};
   
-  export const rankIconMap: { [key: string]: string } = {
+export const rankIconMap: { [key: string]: string } = {
     'Beginner': '/static/rank-icons/BeginnerT8.png',
     '1st Dan': '/static/rank-icons/1stDanT8.png',
     '2nd Dan': '/static/rank-icons/2ndDanT8.png',
@@ -244,9 +303,9 @@ export interface RankColor {
     'Tekken God': '/static/rank-icons/TekkenGodT8.png',
     'Tekken God Supreme': '/static/rank-icons/TekkenGodSupremeT8.png',
     'God of Destruction': '/static/rank-icons/GodOfDestructionT8.png'
-  };
+};
 
-  export const characterIdMap: { [key: number]: string} = {
+export const characterIdMap: { [key: number]: string} = {
     0: 'Paul',
     1: 'Law',
     2: 'King',
@@ -281,13 +340,16 @@ export interface RankColor {
     36: 'Raven',
     38: 'Eddy',
     39: 'Lidia',
-    40: 'Heihachi'
-}
-  export const characterIconMap: { [key: string]: string } = {
+    40: 'Heihachi',
+    41: 'Clive'
+};
+
+export const characterIconMap: { [key: string]: string } = {
     'Alisa': '/static/character-icons/AlisaT8.png',
     'Asuka': '/static/character-icons/AsukaT8.png',
     'Bryan': '/static/character-icons/BryanT8.png',
     'Claudio': '/static/character-icons/ClaudioT8.png',
+    'Clive': '/static/character-icons/CliveT8.png',
     'Devil Jin': '/static/character-icons/Devil_JinT8.png',
     'Devil_Jin': '/static/character-icons/Devil_JinT8.png',
     'Dragunov': '/static/character-icons/DragunovT8.png',
@@ -320,4 +382,4 @@ export interface RankColor {
     'Xiaoyu': '/static/character-icons/XiaoyuT8.png',
     'Yoshimitsu': '/static/character-icons/YoshimitsuT8.png',
     'Zafina': '/static/character-icons/ZafinaT8.png'
-  };
+};

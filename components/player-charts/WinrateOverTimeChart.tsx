@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceDot, Label } from 'recharts';
+import React, { useState, useMemo } from 'react';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
-import { Battle, rankOrderMap, rankIconMap } from '../../app/state/types/tekkenTypes';
+import { Battle } from '../../app/state/types/tekkenTypes';
 import { format, subDays } from 'date-fns';
-import Image from 'next/image';
 import { Button } from '../ui/button';
 
 interface WinrateOverTimeChartProps {
@@ -19,11 +18,6 @@ interface ChartDataPoint {
   totalGames: number;
   wins: number;
   losses: number;
-  isPromotion?: boolean;
-  isDemotion?: boolean;
-  danRank: number | null;
-  previousRank?: string;
-  newRank?: string;
 }
 
 interface CustomTooltipProps {
@@ -45,26 +39,6 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
         <p>Wins: {data.wins}</p>
         <p>Losses: {data.losses}</p>
         <p>Total Games: {data.totalGames}</p>
-        {data.isPromotion && (
-          <div className="flex items-center gap-2 text-green-500">
-            <span>Promoted to</span>
-            <img 
-              src={rankIconMap[data.newRank!]} 
-              alt={data.newRank} 
-              className="h-6 w-6 object-contain"
-            />
-          </div>
-        )}
-        {data.isDemotion && (
-          <div className="flex items-center gap-2 text-red-500">
-            <span>Demoted to</span>
-            <img 
-              src={rankIconMap[data.newRank!]} 
-              alt={data.newRank} 
-              className="h-6 w-6 object-contain"
-            />
-          </div>
-        )}
       </div>
     );
   }
@@ -78,7 +52,8 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
 }) => {
   const [timeSpan, setTimeSpan] = useState<TimeSpan>('all');
 
-  const processData = (battles: Battle[]): ChartDataPoint[] => {
+  // Calculate all-time winrate data once
+  const allTimeData = useMemo(() => {
     // Filter battles for selected character if specified
     let filteredBattles = selectedCharacterId 
       ? battles.filter(battle => 
@@ -87,22 +62,13 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
         )
       : battles;
 
-    // Apply time span filter
-    if (timeSpan !== 'all') {
-      const cutoffDate = subDays(new Date(), timeSpan === '7d' ? 7 : 30);
-      filteredBattles = filteredBattles.filter(battle => 
-        new Date(battle.date) >= cutoffDate
-      );
-    }
-
+    // Calculate running win rate
     let wins = 0;
     let losses = 0;
-    let lastDanRank: number | null = null;
     
-    return filteredBattles.map((battle) => {
+    return filteredBattles.slice().reverse().map((battle) => {
       const isPlayer1 = battle.player1Name === playerName;
       const won = isPlayer1 ? battle.winner === 1 : battle.winner === 2;
-      const currentDanRank = isPlayer1 ? battle.player1DanRank : battle.player2DanRank;
       
       if (won) wins++;
       else losses++;
@@ -111,16 +77,6 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
       const winRate = (wins / totalGames) * 100;
       
       const date = new Date(battle.date);
-
-      // Detect rank changes
-      const isPromotion = lastDanRank !== null && currentDanRank !== null && currentDanRank > lastDanRank;
-      const isDemotion = lastDanRank !== null && currentDanRank !== null && currentDanRank < lastDanRank;
-      
-      // Get rank names for labels
-      const previousRank = lastDanRank !== null ? rankOrderMap[lastDanRank] : undefined;
-      const newRank = currentDanRank !== null ? rankOrderMap[currentDanRank] : undefined;
-      
-      lastDanRank = currentDanRank;
       
       return {
         date: battle.date,
@@ -128,23 +84,59 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
         formattedDate: format(date, 'MMM d, yyyy HH:mm'),
         totalGames,
         wins,
-        losses,
-        isPromotion,
-        isDemotion,
-        danRank: currentDanRank,
-        previousRank,
-        newRank
+        losses
       };
     });
-  };
+  }, [battles, playerName, selectedCharacterId]);
 
-  const chartData = processData(battles.slice().reverse());
+  // Filter display data based on timespan
+  const displayData = useMemo(() => {
+    if (timeSpan === 'all') return allTimeData;
 
-  if (chartData.length === 0) {
+    const cutoffDate = subDays(new Date(), timeSpan === '7d' ? 7 : 30);
+    const cutoffIndex = allTimeData.findIndex(
+      point => new Date(point.date) >= cutoffDate
+    );
+
+    // If no data within the timespan, return empty array
+    if (cutoffIndex === -1) return [];
+
+    // Return data from cutoff point onwards
+    return allTimeData.slice(cutoffIndex);
+  }, [allTimeData, timeSpan]);
+
+  const timeRangeButtons = (
+    <div className="flex gap-2">
+      <Button
+        variant={timeSpan === '7d' ? 'default' : 'outline'}
+        onClick={() => setTimeSpan('7d')}
+        size="sm"
+      >
+        Last 7 Days
+      </Button>
+      <Button
+        variant={timeSpan === '30d' ? 'default' : 'outline'}
+        onClick={() => setTimeSpan('30d')}
+        size="sm"
+      >
+        Last 30 Days
+      </Button>
+      <Button
+        variant={timeSpan === 'all' ? 'default' : 'outline'}
+        onClick={() => setTimeSpan('all')}
+        size="sm"
+      >
+        All Time
+      </Button>
+    </div>
+  );
+
+  if (displayData.length === 0) {
     return (
       <SimpleChartCard
         title="Win Rate Over Time"
         description="Track your win rate progression"
+        action={timeRangeButtons}
       >
         <div className="h-full flex items-center justify-center">
           <p className="text-muted-foreground">No matches found</p>
@@ -153,62 +145,50 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
     );
   }
 
+  // Calculate min and max winrates for dynamic Y-axis domain
+  const minWinRate = Math.max(0, Math.floor(Math.min(...displayData.map(d => d.winRate)) - 5));
+  const maxWinRate = Math.min(100, Math.ceil(Math.max(...displayData.map(d => d.winRate)) + 5));
+
   return (
     <SimpleChartCard
       title="Win Rate Over Time"
       description="Track your win rate progression"
+      action={timeRangeButtons}
     >
-      <div className="flex gap-2 mb-4">
-        <Button
-          variant={timeSpan === '7d' ? 'default' : 'outline'}
-          onClick={() => setTimeSpan('7d')}
-          size="sm"
-        >
-          Last 7 Days
-        </Button>
-        <Button
-          variant={timeSpan === '30d' ? 'default' : 'outline'}
-          onClick={() => setTimeSpan('30d')}
-          size="sm"
-        >
-          Last 30 Days
-        </Button>
-        <Button
-          variant={timeSpan === 'all' ? 'default' : 'outline'}
-          onClick={() => setTimeSpan('all')}
-          size="sm"
-        >
-          All Time
-        </Button>
-      </div>
-      <div className="w-full h-[300px]">
+      <div className="w-full h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            data={chartData}
+            data={displayData}
             margin={{
-              top: 30,
+              top: 10,
               right: 30,
               left: 0,
-              bottom: 0
+              bottom: 100
             }}
           >
             <defs>
               <linearGradient id="winRateGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.9}/>
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
               </linearGradient>
             </defs>
+            <CartesianGrid 
+              horizontal={true}
+              vertical={false}
+              strokeDasharray="3 3" 
+              opacity={0.2} 
+            />
             <XAxis
               dataKey="formattedDate"
               angle={-45}
               textAnchor="end"
-              height={80}
+              height={30}
               interval="preserveStartEnd"
               tick={{ fontSize: 12 }}
             />
             <YAxis
-              domain={[0, 100]}
-              ticks={[0, 25, 50, 75, 100]}
+              domain={[minWinRate, maxWinRate]}
+              ticks={Array.from({ length: 5 }, (_, i) => minWinRate + (maxWinRate - minWinRate) * i / 4)}
               tick={{ fontSize: 12 }}
             />
             <Tooltip content={<CustomTooltip />} />
@@ -216,48 +196,12 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
               type="monotone"
               dataKey="winRate"
               stroke="#3b82f6"
+              strokeWidth={3}
               fillOpacity={1}
               fill="url(#winRateGradient)"
               isAnimationActive={false}
+              connectNulls
             />
-            {chartData.map((point, index) => (
-              <React.Fragment key={index}>
-                {point.isPromotion && point.newRank && (
-                  <ReferenceDot
-                    x={point.formattedDate}
-                    y={point.winRate}
-                    r={6}
-                    fill="#22c55e"
-                    stroke="none"
-                  >
-                    <Label
-                      value={`Promoted to ${point.newRank}`}
-                      position="top"
-                      fill="#22c55e"
-                      fontSize={12}
-                      offset={15}
-                    />
-                  </ReferenceDot>
-                )}
-                {point.isDemotion && point.newRank && (
-                  <ReferenceDot
-                    x={point.formattedDate}
-                    y={point.winRate}
-                    r={6}
-                    fill="#ef4444"
-                    stroke="none"
-                  >
-                    <Label
-                      value={`Demoted to ${point.newRank}`}
-                      position="bottom"
-                      fill="#ef4444"
-                      fontSize={12}
-                      offset={15}
-                    />
-                  </ReferenceDot>
-                )}
-              </React.Fragment>
-            ))}
           </AreaChart>
         </ResponsiveContainer>
       </div>

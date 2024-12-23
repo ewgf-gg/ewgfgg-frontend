@@ -108,7 +108,7 @@ export function SearchBar() {
               className="w-full h-10 pl-10 pr-4 text-sm bg-gray-700/50 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 rounded-lg transition-all hover:bg-gray-700/70"
               value={searchQuery}
               onChange={handleInputChange}
-              maxLength={20}  // Add HTML maxLength attribute as additional protection
+              maxLength={20}  
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && searchQuery.trim()) {
                   e.preventDefault();

@@ -1,30 +1,21 @@
 'use client';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider as NextThemesProvider } from "next-themes";
-import { ReactNode, useState } from 'react';
+import { Provider as JotaiProvider } from 'jotai';
+import { ThemeProvider } from 'next-themes';
+import GlobalStatsProvider from '@/components/GlobalStatsProvider';
 
-export function Providers({ children }: { children: ReactNode }) {
-  // Create a client inside the component to ensure it's not shared between requests
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 25000, // Consider data stale after 25 seconds
-        refetchInterval: 30000, // Refetch every 30 seconds
-      },
-    },
-  }));
-
+export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <NextThemesProvider
-        attribute="class"
+    <JotaiProvider>
+      <ThemeProvider 
+        attribute="class" 
         defaultTheme="system"
-        enableSystem
+        enableSystem={true}
         disableTransitionOnChange
       >
+        <GlobalStatsProvider />
         {children}
-      </NextThemesProvider>
-    </QueryClientProvider>
+      </ThemeProvider>
+    </JotaiProvider>
   );
 }

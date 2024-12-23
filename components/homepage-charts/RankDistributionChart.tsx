@@ -1,7 +1,8 @@
-// app/components/RankDistributionChart.tsx
+'use client';
+
 import { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
-import { AnimatedCard } from '../AnimatedCard';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, LabelList, ResponsiveContainer, Cell } from 'recharts';
@@ -13,34 +14,34 @@ import {
   totalReplaysAtom
 } from '../../app/state/atoms/tekkenStatsAtoms';
 
-import { DistributionMode, GameVersion, rankIconMap, rankOrderMap } from '../../app/state/types/tekkenTypes';
+import { DistributionMode, GameVersion, rankIconMap, rankOrderMap, RankDistribution } from '../../app/state/types/tekkenTypes';
 
-export const RankDistributionChart: React.FC = () => {
+interface ChartDataPoint {
+  rank: string;
+  percentage: number;
+  topPercentage: number;
+  fill: string;
+}
+
+export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.0 }) => {
   const [rankDistribution] = useAtom(rankDistributionAtom);
   const [rankColors] = useAtom(rankColorsAtom);
   const [gameVersions] = useAtom(gameVersionsAtom);
   const [totalPlayers] = useAtom(totalPlayersAtom);
   const [totalReplays] = useAtom(totalReplaysAtom);
-  const [selectedVersion, setSelectedVersion] = useState<GameVersion>('10901');
+  
+  // Get the latest version immediately
+  const latestVersion = [...gameVersions].sort((a, b) => parseInt(b) - parseInt(a))[0];
+  const [selectedVersion, setSelectedVersion] = useState<GameVersion>(latestVersion);
   const [selectedMode, setSelectedMode] = useState<DistributionMode>('standard');
-  const [isInitialRender, setIsInitialRender] = useState(true);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
-  // Get the latest version
-  const latestVersion = [...gameVersions].sort((a, b) => parseInt(b) - parseInt(a))[0];
-
-  // Set the initial version to latest on component mount
+  // Update selected version when latest version changes
   useEffect(() => {
     if (latestVersion) {
-      setSelectedVersion(latestVersion as GameVersion);
+      setSelectedVersion(latestVersion);
     }
   }, [latestVersion]);
-
-  useEffect(() => {
-    if (isInitialRender) {
-      setIsInitialRender(false);
-    }
-  }, []);
 
   // Only proceed if we have data for the selected version
   const distributionData = rankDistribution[selectedVersion]?.[selectedMode] || [];
@@ -52,15 +53,15 @@ export const RankDistributionChart: React.FC = () => {
 
     const currentRankIndex = parseInt(rankOrder);
     return distributionData
-      .filter(data => {
+      .filter((data: RankDistribution) => {
         const dataRankOrder = Object.entries(rankOrderMap).find(([_, rank]) => rank === data.rank)?.[0];
         return dataRankOrder && parseInt(dataRankOrder) >= currentRankIndex;
       })
-      .reduce((sum, data) => sum + data.percentage, 0);
+      .reduce((sum: number, data: RankDistribution) => sum + data.percentage, 0);
   };
 
-  const chartData = distributionData.map((rank) => {
-    const colorEntry = rankColors.find((rc) => rc.rank === rank.rank);
+  const chartData = distributionData.map((rank: RankDistribution): ChartDataPoint => {
+    const colorEntry = rankColors.find((rc) => rc.id === rank.rank);
     const topPercentage = calculateTopPercentage(rank.rank);
     return {
       rank: rank.rank,
@@ -70,39 +71,38 @@ export const RankDistributionChart: React.FC = () => {
     };
   });
 
-  const getVersionLabel = (version: string) => {
-    // If this is the latest version, append "(Latest)"
-    if (version === latestVersion) {
-      return `Ver. ${version} (Latest)`;
-    }
-    return `Ver. ${version}`;
+  const formatVersion = (version: string) => {
+    const major = Math.floor(parseInt(version) / 10000);
+    const minor = Math.floor((parseInt(version) % 10000) / 100);
+    const patch = parseInt(version) % 100;
+    return `Version ${major}.${minor}.${patch}`;
   };
 
-  const CustomXAxisTick: React.FC<any> = ({ x, y, payload }) => {
-    return (
-      <g transform={`translate(${x},${y})`}>
-        <foreignObject 
-          x="-20" 
-          y="0" 
-          width="40" 
-          height="40" 
-          transform="rotate(-45 0 20)"
-          style={{ overflow: 'visible' }}
-        >
-          <div className="flex items-center justify-center">
-            <img
-              src={rankIconMap[payload.value]}
-              alt={payload.value}
-              className="w-30 h-8"
-              style={{ 
-                transformOrigin: 'center'
-              }}
-            />
-          </div>
-        </foreignObject>
-      </g>
-    );
+  const getVersionLabel = (version: string) => {
+    const formattedVersion = formatVersion(version);
+    return version === latestVersion ? `${formattedVersion} (Latest)` : formattedVersion;
   };
+
+  const CustomXAxisTick: React.FC<any> = ({ x, y, payload }) => (
+    <g transform={`translate(${x},${y})`}>
+      <foreignObject 
+        x="-20" 
+        y="0" 
+        width="40" 
+        height="40" 
+        style={{ overflow: 'visible' }}
+      >
+        <div className="flex items-center justify-center">
+          <img
+            src={rankIconMap[payload.value]}
+            alt={payload.value}
+            className="w-30 h-8"
+            style={{ transformOrigin: 'center' }}
+          />
+        </div>
+      </foreignObject>
+    </g>
+  );
   
   const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -125,16 +125,13 @@ export const RankDistributionChart: React.FC = () => {
     return null;
   };
 
-  const handleMouseEnter = (data: any, index: number) => {
-    setActiveIndex(index);
-  };
-
-  const handleMouseLeave = () => {
-    setActiveIndex(null);
-  };
-
   return (
-    <AnimatedCard delay={1}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay }}
+      className="w-full"
+    >
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
@@ -143,7 +140,7 @@ export const RankDistributionChart: React.FC = () => {
               <CardDescription>Showing rank distribution among players</CardDescription>
             </div>
             <div className="flex gap-4">
-              <Select value={selectedVersion} onValueChange={(v) => setSelectedVersion(v as GameVersion)}>
+              <Select value={selectedVersion} onValueChange={(v) => setSelectedVersion(v)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select game version" />
                 </SelectTrigger>
@@ -179,7 +176,7 @@ export const RankDistributionChart: React.FC = () => {
               <BarChart
                 data={chartData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
-                onMouseLeave={handleMouseLeave}
+                onMouseLeave={() => setActiveIndex(null)}
               >
                 <XAxis
                   dataKey="rank"
@@ -197,24 +194,23 @@ export const RankDistributionChart: React.FC = () => {
                 <Bar
                   dataKey="percentage"
                   radius={[8, 8, 0, 0]}
-                  isAnimationActive={false}
-                  animationBegin={isInitialRender ? 2000 : 100}
+                  onMouseEnter={(_, index) => setActiveIndex(index)}
+                  isAnimationActive={true}
                   animationDuration={1000}
                   animationEasing="ease"
-                  onMouseEnter={handleMouseEnter}
                 >
                   <LabelList 
                     dataKey="percentage" 
                     position="top" 
                     formatter={(value: number) => `${value.toFixed(2)}%`} 
                   />
-                  {chartData.map((entry, index) => (
+                  {chartData.map((entry: ChartDataPoint, index: number) => (
                     <Cell 
                       key={`cell-${index}`} 
                       fill={entry.fill}
                       style={{
                         filter: activeIndex === index ? `drop-shadow(0 0 6px ${entry.fill})` : 'none',
-                        transition: 'filter 0.2s ease-in-out'
+                        transition: 'filter 0.3s ease-in-out'
                       }}
                     />
                   ))}
@@ -236,6 +232,8 @@ export const RankDistributionChart: React.FC = () => {
           </div>
         </CardFooter>
       </Card>
-    </AnimatedCard>
+    </motion.div>
   );
 };
+
+export default RankDistributionChart;

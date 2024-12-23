@@ -1,43 +1,26 @@
-"use client"
+"use client";
 
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header } from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
-import { PlayerProfile } from '@/components/PlayerProfile';
+import { PlayerProfile } from '@/components/player-charts/PlayerProfile';
 import EWGFLoadingAnimation from '@/components/EWGFLoadingAnimation';
 import { useAtom } from 'jotai';
 import { playerStatsAtom, playerStatsLoadingAtom, playerStatsErrorAtom } from '../../state/atoms/tekkenStatsAtoms';
-import type { PlayerStats, CharacterStats, CharacterStatsWithVersion, CharacterBattleStats, Battle } from '../../state/types/tekkenTypes';
-
-interface FormattedCharacter {
-  name: string;
-  matches: number;
-  winRate: number;
-}
-
-interface FormattedMatch {
-  opponent: string;
-  character: string;
-  result: 'win' | 'loss';
-  date: string;
-}
-
-interface FormattedPlayerStats {
-  username: string;
-  rank: string;
-  winRate: number;
-  totalMatches: number;
-  favoriteCharacters: FormattedCharacter[];
-  recentMatches: FormattedMatch[];
-  characterStatsWithVersion: CharacterStatsWithVersion[];
-  characterBattleStats: CharacterBattleStats[];
-  battles: Battle[];
-}
+import type { 
+  PlayerStats, 
+  CharacterStats, 
+  CharacterStatsWithVersion, 
+  CharacterBattleStats, 
+  Battle, 
+  FormattedCharacter, 
+  FormattedMatch, 
+  FormattedPlayerStats } from '../../state/types/tekkenTypes';
 
 interface PageProps {
   params: {
-    username: string;
+    polarisId: string;
   };
 }
 
@@ -132,20 +115,22 @@ function formatRecentMatches(battles: Battle[], playerName: string): FormattedMa
 }
 
 export default function PlayerStatsPage({ params }: PageProps) {
-  const { username } = params;
+  const { polarisId } = params;
   const [playerStats, setPlayerStats] = useAtom(playerStatsAtom);
   const [isLoading, setIsLoading] = useAtom(playerStatsLoadingAtom);
   const [error, setError] = useAtom(playerStatsErrorAtom);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchPlayerStats = async () => {
-      if (!username) return;
+      if (!polarisId) return;
       
       setIsLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(`/api/player-stats/${encodeURIComponent(username)}`);
+        const response = await fetch(`/api/player-stats/${encodeURIComponent(polarisId)}`);
         
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);
@@ -154,26 +139,33 @@ export default function PlayerStatsPage({ params }: PageProps) {
 
         const data = await response.json();
         validatePlayerStats(data);
-        setPlayerStats(data);
+        
+        if (isMounted) {
+          setPlayerStats(data);
+        }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
-        setError(errorMessage);
+        if (isMounted) {
+          setError(errorMessage);
+        }
         console.error('Error fetching player stats:', err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchPlayerStats();
 
     return () => {
-      setPlayerStats(null);
-      setError(null);
+      isMounted = false;
     };
-  }, [username, setPlayerStats, setIsLoading, setError]);
+  }, [polarisId, setPlayerStats, setIsLoading, setError]);
 
   const formattedPlayerStats: FormattedPlayerStats | null = playerStats ? {
     username: playerStats.name,
+    polarisId: polarisId,
     rank: Object.values(playerStats.characterStats)[0]?.danName ?? 'Unknown',
     winRate: calculateWinRate(playerStats.characterStats),
     totalMatches: calculateTotalMatches(playerStats.characterStats),
@@ -181,7 +173,11 @@ export default function PlayerStatsPage({ params }: PageProps) {
     recentMatches: formatRecentMatches(playerStats.battles || [], playerStats.name),
     characterStatsWithVersion: formatCharacterStatsWithVersion(playerStats.characterStats),
     characterBattleStats: formatCharacterBattleStats(playerStats.characterStats),
-    battles: playerStats.battles || []
+    battles: playerStats.battles || [],
+    regionId: playerStats.regionId || 0,
+    areaId: playerStats.areaId || 0,
+    latestBattle: playerStats.latestBattle || 0,
+    mainCharacterAndRank: playerStats.mainCharacterAndRank
   } : null;
 
   return (
@@ -194,7 +190,6 @@ export default function PlayerStatsPage({ params }: PageProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          Player Stats for {username}
         </motion.h1>
         
         <AnimatePresence mode="wait">
@@ -255,7 +250,7 @@ export default function PlayerStatsPage({ params }: PageProps) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <p className="text-xl">No player data found for {username}.</p>
+              <p className="text-xl">No player data found for {polarisId}.</p>
             </motion.div>
           )}
         </AnimatePresence>
