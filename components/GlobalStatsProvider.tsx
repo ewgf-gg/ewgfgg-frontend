@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { totalPlayersAtom, totalReplaysAtom } from '@/app/state/atoms/tekkenStatsAtoms';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.API_URL || 'http://localhost:8080';
 const API_KEY = process.env.API_KEY;
 
 async function fetchStatsSummary() {
@@ -43,7 +43,6 @@ export default function GlobalStatsProvider() {
       }
     };
 
-    // Only run on client-side
     if (typeof window !== 'undefined') {
       initializeStats();
     }
