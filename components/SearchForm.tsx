@@ -2,6 +2,8 @@ import { Input } from "@/components/ui/input";
 import { motion } from 'framer-motion';
 import EWGFLoadingBarAnimation from '@/components/EWGFLoadingAnimation';
 import { SearchFormProps } from "@/app/state/types/tekkenTypes";
+import React from 'react'
+
 
 
 export const SearchForm: React.FC<SearchFormProps> = ({

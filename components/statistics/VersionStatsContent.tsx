@@ -4,11 +4,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { VersionStatsChart } from './VersionStatsChart';
-import { VersionPopularityStats, VersionWinrateStats } from '@/app/state/types/tekkenTypes';
+import { VersionStats } from '@/app/state/types/tekkenTypes';
 
 interface VersionStatsContentProps {
-  popularityData: VersionPopularityStats;
-  winrateData: VersionWinrateStats;
+  popularityData: VersionStats;
+  winrateData: VersionStats;
   selectedVersion: string;
   selectedRegion: string;
   selectedRank: 'highRank' | 'mediumRank' | 'lowRank';

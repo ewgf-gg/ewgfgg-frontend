@@ -31,7 +31,15 @@ interface CustomTooltipProps {
   label?: string;
 }
 
-const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
+interface CustomXAxisTickProps {
+  x?: number;
+  y?: number;
+  payload?: {
+    value: string;
+  };
+}
+
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     const iconPath = characterIconMap[data.characterName];
@@ -57,8 +65,8 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label })
   return null;
 };
 
-const CustomXAxisTick: React.FC<any> = ({ x, y, payload }) => {
-  const iconPath = characterIconMap[payload.value];
+const CustomXAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload }) => {
+  const iconPath = characterIconMap[payload?.value || ''];
   if (!iconPath) return null;
 
   return (
@@ -66,7 +74,7 @@ const CustomXAxisTick: React.FC<any> = ({ x, y, payload }) => {
       <foreignObject x="-16" y="0" width="32" height="32">
         <Image
           src={iconPath}
-          alt={payload.value}
+          alt={payload?.value || ''}
           width={32}
           height={32}
           style={{ objectFit: 'contain' }}

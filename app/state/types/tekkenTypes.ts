@@ -208,9 +208,6 @@ export interface VersionStats {
     };
 }
 
-export interface VersionPopularityStats extends VersionStats {}
-export interface VersionWinrateStats extends VersionStats {}
-
 // Constants
 export const RANK_OPTIONS: RankOption[] = [
     { 

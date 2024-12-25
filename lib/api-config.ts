@@ -1,5 +1,3 @@
-import { headers } from 'next/headers';
-
 interface APIConfig {
   baseURL: string;
   headers: {

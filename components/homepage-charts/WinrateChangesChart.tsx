@@ -64,7 +64,10 @@ export const WinrateChangesChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChan
           domain={domain}
           tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
         />
-        <Tooltip content={<CustomTooltip />} />
+          <Tooltip 
+            content={<CustomTooltip />}
+            cursor={false}
+          />
         <ReferenceLine x={0} stroke="hsl(var(--muted-foreground))" strokeWidth={1} />
         <Bar
           dataKey="change"

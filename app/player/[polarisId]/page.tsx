@@ -17,6 +17,7 @@ import type {
   FormattedCharacter, 
   FormattedMatch, 
   FormattedPlayerStats } from '../../state/types/tekkenTypes';
+  import React from 'react'
 
 interface PageProps {
   params: {
@@ -52,7 +53,7 @@ function calculateTotalMatches(characterStats: Record<string, CharacterStats>): 
 
 function formatFavoriteCharacters(characterStats: Record<string, CharacterStats>): FormattedCharacter[] {
   return Object.entries(characterStats)
-    .map(([_, stats]) => ({
+    .map(([, stats]) => ({
       name: stats.characterName,
       matches: stats.wins + stats.losses,
       winRate: stats.wins / (stats.wins + stats.losses) * 100

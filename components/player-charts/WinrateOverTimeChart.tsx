@@ -55,7 +55,7 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
   // Calculate all-time winrate data once
   const allTimeData = useMemo(() => {
     // Filter battles for selected character if specified
-    let filteredBattles = selectedCharacterId 
+    const filteredBattles = selectedCharacterId 
       ? battles.filter(battle => 
           battle.player1CharacterId === selectedCharacterId ||
           battle.player2CharacterId === selectedCharacterId

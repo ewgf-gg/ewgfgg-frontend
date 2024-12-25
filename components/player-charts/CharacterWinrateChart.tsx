@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
@@ -19,19 +20,21 @@ interface WinrateData {
   totalMatches: number;
 }
 
+interface CustomTooltipPayload {
+  payload: WinrateData;
+  value: number;
+  name: string;
+  dataKey: string;
+}
+
 interface CustomTooltipProps {
   active?: boolean;
-  payload?: Array<{
-    payload: WinrateData;
-    value: number;
-    name: string;
-    dataKey: string;
-  }>;
+  payload?: CustomTooltipPayload[];
   label?: string;
 }
 
 const CustomTooltip = React.memo<CustomTooltipProps>(({ active, payload }) => {
-  if (active && payload && payload.length) {
+  if (active && payload?.[0]) {
     const data = payload[0].payload;
     const iconPath = characterIconMap[data.characterName];
 
@@ -65,28 +68,40 @@ const CustomTooltip = React.memo<CustomTooltipProps>(({ active, payload }) => {
 
 CustomTooltip.displayName = 'CustomTooltip';
 
-function CustomXAxisTick(props: any) {
+const renderCustomAxisTick = (props: { x: number; y: number; payload: { value: string } }) => {
   const { x, y, payload } = props;
   const iconPath = characterIconMap[payload.value];
-  if (!iconPath) return null;
+
+  // Return empty SVG if no icon path
+  if (!iconPath) {
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text x={0} y={0} dy={16} textAnchor="middle" fill="#666">
+          {payload.value}
+        </text>
+      </g>
+    );
+  }
 
   return (
     <g transform={`translate(${x},${y})`}>
       <foreignObject x="-16" y="0" width="32" height="32">
-        <Image
-          src={iconPath}
-          alt={payload.value}
-          width={32}
-          height={32}
-          style={{ objectFit: 'contain' }}
-          loading="lazy"
-        />
+        <div style={{ width: '100%', height: '100%' }}>
+          <Image
+            src={iconPath}
+            alt={payload.value}
+            width={32}
+            height={32}
+            style={{ objectFit: 'contain' }}
+            loading="lazy"
+          />
+        </div>
       </foreignObject>
     </g>
   );
-}
+};
 
-const getBarColor = (winrate: number) => {
+const getBarColor = (winrate: number): string => {
   if (winrate > 52) return '#4ade80'; // green
   if (winrate >= 48) return '#facc15'; // yellow
   return '#ef4444'; // red
@@ -208,7 +223,7 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
               <XAxis 
                 dataKey="characterName"
                 height={40}
-                tick={(props) => <CustomXAxisTick {...props} />}
+                tick={renderCustomAxisTick}
                 interval={0}
               />
               <YAxis 

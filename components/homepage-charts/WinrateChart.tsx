@@ -9,13 +9,6 @@ import { CustomTooltip } from '../shared/CustomTooltip';
 import { ChartProps } from '../../app/state/types/tekkenTypes';
 import { characterIdMap } from '../../app/state/types/tekkenTypes';
 
-interface ChartData {
-  character: string;
-  characterId: number;
-  winrate: number;
-  originalWinrate: number;
-}
-
 export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState(true);
   const [rank, setRank] = useState("highRank");
@@ -31,11 +24,13 @@ export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> =
     
     const chartData = Object.entries(rankData)
       .map(([character, winrate]) => {
-        // Find character ID from the map
-        const characterEntry = Object.entries(characterIdMap).find(([_, name]) => name === character);
+        // Find character ID by looking up the character name in the values
+        const characterId = Object.entries(characterIdMap)
+        // eslint-disable-next-line
+          .find(([_, name]) => name === character)?.[0];
         return {
           character,
-          characterId: characterEntry ? parseInt(characterEntry[0]) : -1,
+          characterId: characterId ? parseInt(characterId) : -1,
           winrate,
           originalWinrate: winrate
         };
@@ -86,7 +81,10 @@ export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> =
           tickLine={false}
           tick={false}
         />
-        <Tooltip content={<CustomTooltip />} />
+          <Tooltip 
+            content={<CustomTooltip />}
+            cursor={false}
+          />
         <Bar
           dataKey="winrate"
           radius={[0, 4, 4, 0]}

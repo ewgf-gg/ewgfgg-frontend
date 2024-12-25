@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   Bar,
   BarChart,
@@ -12,9 +12,9 @@ import {
   ResponsiveContainer,
   ReferenceLine
 } from 'recharts';
-import { characterColors } from '@/app/state/atoms/tekkenStatsAtoms';
+import { characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
 import { useAtomValue } from 'jotai';
-import { characterIconMap, characterIdMap } from '@/app/state/types/tekkenTypes';
+import { characterIconMap, characterIdMap } from '../../app/state/types/tekkenTypes';
 
 interface VersionStatsChartProps {
   data: { [character: string]: number };
@@ -22,9 +22,20 @@ interface VersionStatsChartProps {
   valueLabel: string;
 }
 
+interface ChartData {
+  character: string;
+  characterId: number;
+  value: number;
+  originalValue: number;
+  valueLabel: string;
+}
+
 interface ChartTooltipProps {
   active?: boolean;
-  payload?: any[];
+  payload?: Array<{
+    value: number;
+    payload: ChartData;
+  }>;
   label?: string;
 }
 
@@ -58,38 +69,57 @@ const ChartTooltip: React.FC<ChartTooltipProps> = ({ active, payload, label }) =
   return null;
 };
 
-const CustomXAxisTick: React.FC<any> = ({ x, y, payload }) => (
-  <g transform={`translate(${x},${y})`}>
-    <foreignObject 
-      x="-20" 
-      y="0" 
-      width="40" 
-      height="40" 
-      style={{ overflow: 'visible' }}
-    >
-      <div className="flex items-center justify-center">
-        <img
-          src={characterIconMap[payload.value]}
-          alt={payload.value}
-          className="w-12 h-12"
-          style={{ transformOrigin: 'center' }}
-        />
-      </div>
-    </foreignObject>
-  </g>
-);
+interface CustomXAxisTickProps {
+  x?: number;
+  y?: number;
+  payload?: {
+    value: string;
+  };
+}
+
+const CustomXAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload }) => {
+  if (!payload) return null;
+  
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <foreignObject 
+        x="-20" 
+        y="0" 
+        width="40" 
+        height="40" 
+        style={{ overflow: 'visible' }}
+      >
+        <div className="flex items-center justify-center">
+          <img
+            src={characterIconMap[payload.value]}
+            alt={payload.value}
+            className="w-12 h-12"
+            style={{ transformOrigin: 'center' }}
+          />
+        </div>
+      </foreignObject>
+    </g>
+  );
+};
 
 export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) {
   const colors = useAtomValue(characterColors);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [isInitialRender, setIsInitialRender] = useState(true);
+
+  useEffect(() => {
+    if (isInitialRender) setIsInitialRender(false);
+  }, [isInitialRender]);
 
   const chartData = useMemo(() => {
     return Object.entries(data)
       .map(([character, value]) => {
-        const characterEntry = Object.entries(characterIdMap).find(([_, name]) => name === character);
+        // Find the character ID by matching the name
+        const characterId = Object.entries(characterIdMap)
+          .find(([_, name]) => name === character)?.[0];
         return {
           character,
-          characterId: characterEntry ? parseInt(characterEntry[0]) : -1,
+          characterId: characterId ? parseInt(characterId) : -1,
           value,
           originalValue: value,
           valueLabel
@@ -154,14 +184,13 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
           dataKey="value"
           radius={[4, 4, 0, 0]}
           isAnimationActive={true}
+          animationBegin={isInitialRender ? 500 : 100}
           animationDuration={1000}
           animationEasing="ease"
           onMouseEnter={(_, index) => setActiveIndex(index)}
         >
           {chartData.map((entry, index) => {
-            const colorMapping = entry.characterId !== -1 
-              ? colors.find(c => c.id === entry.characterId.toString()) 
-              : null;
+            const colorMapping = colors.find(c => c.id === entry.characterId.toString());
             return (
               <Cell 
                 key={`cell-${entry.character}`} 

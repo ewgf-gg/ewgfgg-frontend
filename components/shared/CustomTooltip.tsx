@@ -1,7 +1,19 @@
+import { TooltipProps } from "recharts";
 import { characterIconMap } from '@/app/state/types/tekkenTypes';
+import React from 'react';
 
-export const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
+interface CustomTooltipPayload {
+  name: string;
+  value: number;
+}
+
+interface CustomTooltipProps extends Omit<TooltipProps<number, string>, 'payload'> {
+  payload?: CustomTooltipPayload[];
+  label?: string;
+}
+
+export const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
+  if (active && payload && payload.length && label) {
     return (
       <div className="bg-background border rounded-lg p-2 shadow-lg">
         <div className="flex items-center gap-2">

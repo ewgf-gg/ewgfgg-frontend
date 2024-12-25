@@ -7,8 +7,7 @@ import {
   RankDistribution,
   VersionPopularityStats,
   VersionWinrateStats
-} from '@/app/state/types/tekkenTypes';
-import { SetStateAction } from 'react';
+} from '@/app/state/types/tekkenTypes'
 import { fetchWithConfig, fetchStatistics } from '@/lib/api-config';
 
 const transformRankDistribution = (entries: Array<{ rank: number, percentage: number }>): RankDistribution[] => {
@@ -18,9 +17,7 @@ const transformRankDistribution = (entries: Array<{ rank: number, percentage: nu
   }));
 };
 
-export const getInitialData = async (
-  setGameVersions?: (value: SetStateAction<string[]>) => void
-): Promise<InitialData> => {
+export const getInitialData = async (): Promise<InitialData> => {
   try {
       const [
           statsSummary,
@@ -38,7 +35,8 @@ export const getInitialData = async (
 
       const distributionData = {} as GameRankDistribution;
       
-      Object.entries(rankDistributionData).forEach(([version, data]) => {
+      Object.entries(rankDistributionData as Record<string, { overall: Array<{ rank: number, percentage: number }>, standard: Array<{ rank: number, percentage: number }> }>)
+        .forEach(([version, data]) => {
           if (version as GameVersion) {
               distributionData[version as GameVersion] = {
                   overall: transformRankDistribution(data.overall),
@@ -56,7 +54,8 @@ export const getInitialData = async (
           winrateChanges
       };
   } catch (error) {
-      throw new Error('Failed to fetch initial data');
+      console.error('Failed to fetch initial data:', error);
+      throw new Error(`Failed to fetch initial data: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 

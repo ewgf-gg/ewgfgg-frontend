@@ -9,7 +9,11 @@ import TekkenPowerChart from './TekkenPowerChart';
 import { CharacterSelector } from '../player-stats/CharacterSelector';
 import { UserInfoCard } from '../player-stats/UserInfoCard';
 import { RecentBattlesCard } from './RecentBattlesCard';
-import { FormattedPlayerStats } from '../../app/state/types/tekkenTypes';
+import { FormattedPlayerStats, CharacterStats } from '../../app/state/types/tekkenTypes';
+
+interface CharacterStatsRecord extends Omit<CharacterStats, 'danRank'> {
+  gameVersion: string;
+}
 
 export const PlayerProfile: React.FC<{ stats: FormattedPlayerStats }> = ({ stats }) => {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
@@ -26,7 +30,7 @@ export const PlayerProfile: React.FC<{ stats: FormattedPlayerStats }> = ({ stats
       gameVersion: stat.gameVersion
     };
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as Record<string, CharacterStatsRecord>);
 
   // Get the selected character's ID for charts
   const selectedCharacterNumericId = selectedCharacterId

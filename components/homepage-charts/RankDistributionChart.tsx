@@ -13,6 +13,7 @@ import {
   totalPlayersAtom,
   totalReplaysAtom
 } from '../../app/state/atoms/tekkenStatsAtoms';
+import React from 'react';
 
 import { DistributionMode, GameVersion, rankIconMap, rankOrderMap, RankDistribution } from '../../app/state/types/tekkenTypes';
 
@@ -21,6 +22,26 @@ interface ChartDataPoint {
   percentage: number;
   topPercentage: number;
   fill: string;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    payload: {
+      rank: string;
+      percentage: number;
+      topPercentage: number;
+    };
+  }>;
+  label?: string;
+}
+
+interface CustomXAxisTickProps {
+  x?: number;
+  y?: number;
+  payload?: {
+    value: string;
+  };
 }
 
 export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.0 }) => {
@@ -48,12 +69,14 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
 
   // Calculate top percentage for each rank
   const calculateTopPercentage = (currentRank: string) => {
+    // eslint-disable-next-line
     const rankOrder = Object.entries(rankOrderMap).find(([_, rank]) => rank === currentRank)?.[0];
     if (!rankOrder) return 0;
 
     const currentRankIndex = parseInt(rankOrder);
     return distributionData
       .filter((data: RankDistribution) => {
+        // eslint-disable-next-line
         const dataRankOrder = Object.entries(rankOrderMap).find(([_, rank]) => rank === data.rank)?.[0];
         return dataRankOrder && parseInt(dataRankOrder) >= currentRankIndex;
       })
@@ -83,7 +106,7 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
     return version === latestVersion ? `${formattedVersion} (Latest)` : formattedVersion;
   };
 
-  const CustomXAxisTick: React.FC<any> = ({ x, y, payload }) => (
+  const CustomXAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload }) => (
     <g transform={`translate(${x},${y})`}>
       <foreignObject 
         x="-20" 
@@ -94,8 +117,8 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
       >
         <div className="flex items-center justify-center">
           <img
-            src={rankIconMap[payload.value]}
-            alt={payload.value}
+            src={rankIconMap[payload?.value || '']}
+            alt={payload?.value}
             className="w-30 h-8"
             style={{ transformOrigin: 'center' }}
           />
@@ -104,21 +127,21 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
     </g>
   );
   
-  const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
+  const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const { percentage, topPercentage } = payload[0].payload;
       return (
         <div className="bg-background border rounded-lg p-2 shadow-lg">
           <div className="flex items-center gap-2">
             <img
-              src={rankIconMap[label]}
+              src={rankIconMap[label || '']}
               alt={label}
               className="w-20 h-10"
             />
             <span className="font-medium">{label}</span>
           </div>
+          <div className="text-sm">{`Top ${topPercentage.toFixed(2)}% of players`}</div>
           <div className="text-sm">{`${percentage.toFixed(2)}% of the playerbase is here`}</div>
-          <div className="text-sm">{`Top ${topPercentage.toFixed(2)}% of playerbase`}</div>
         </div>
       );
     }

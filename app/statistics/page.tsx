@@ -8,9 +8,10 @@ import { VersionSelector } from '@/components/statistics/VersionSelector';
 import { RegionSelector } from '@/components/statistics/RegionSelector';
 import { RankSelector } from '@/components/statistics/RankSelector';
 import { fetchVersionPopularity, fetchVersionWinrates } from '@/lib/api';
-import { VersionPopularityStats, VersionWinrateStats } from '@/app/state/types/tekkenTypes';
+import { VersionStats } from '@/app/state/types/tekkenTypes';
 import  EWGFLoadingAnimation  from '@/components/EWGFLoadingAnimation';
 import { useState, useEffect } from 'react';
+import React from 'react';
 
 type RankCategory = 'highRank' | 'mediumRank' | 'lowRank';
 
@@ -27,8 +28,8 @@ const getVersionLabel = (version: string, latestVersion: string) => {
 };
 
 export default function StatisticsPage() {
-  const [popularityData, setPopularityData] = useState<VersionPopularityStats | null>(null);
-  const [winrateData, setWinrateData] = useState<VersionWinrateStats | null>(null);
+  const [popularityData, setPopularityData] = useState<VersionStats | null>(null);
+  const [winrateData, setWinrateData] = useState<VersionStats | null>(null);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
   const [selectedRegion, setSelectedRegion] = useState<string>('global');
   const [selectedRank, setSelectedRank] = useState<RankCategory>('highRank');

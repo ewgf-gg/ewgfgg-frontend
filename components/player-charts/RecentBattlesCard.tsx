@@ -75,7 +75,7 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
     const buttons = [];
     const maxVisibleButtons = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisibleButtons / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
+    const endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
 
     if (endPage - startPage + 1 < maxVisibleButtons) {
       startPage = Math.max(1, endPage - maxVisibleButtons + 1);

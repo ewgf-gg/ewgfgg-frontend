@@ -6,6 +6,7 @@ import {
     SelectValue,
   } from "@/components/ui/select";
   import { RANK_OPTIONS } from '@/app/state/types/tekkenTypes';
+  import React from 'react'
   
   interface RankSelectorProps {
     value: string;

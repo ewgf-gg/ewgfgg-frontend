@@ -1,17 +1,31 @@
-// components/charts/PopularityChart.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
-import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell } from 'recharts';
+import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, TooltipProps } from 'recharts';
 import { characterPopularityAtom, characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
 import { ChartCard } from '../shared/ChartCard';
 import { CustomYAxisTick } from '../shared/CustomYAxisTick';
-import { ChartProps } from '../../app/state/types/tekkenTypes';
+import { ChartProps, ColorMapping } from '../../app/state/types/tekkenTypes';
 import { characterIconMap, characterIdMap } from '../../app/state/types/tekkenTypes';
 import dynamic from 'next/dynamic';
 
-// Create a custom tooltip specifically for popularity data
-const PopularityTooltip: React.FC<any> = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
+interface PopularityData {
+  character: string;
+  characterId: number;
+  count: number;
+  originalCount: number;
+}
+
+interface PopularityTooltipProps extends TooltipProps<number, string> {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    payload: PopularityData;
+  }>;
+  label?: string;
+}
+
+const PopularityTooltip: React.FC<PopularityTooltipProps> = ({ active, payload, label }) => {
+  if (active && payload && payload.length && label && label in characterIconMap) {
     return (
       <div className="bg-background border rounded-lg p-2 shadow-lg">
         <div className="flex items-center gap-2">
@@ -31,15 +45,23 @@ const PopularityTooltip: React.FC<any> = ({ active, payload, label }) => {
   return null;
 };
 
-// Create the chart component
-const Chart: React.FC<{
-  data: any[];
+interface ChartComponentProps {
+  data: PopularityData[];
   domainMin: number;
   domainMax: number;
   ticks: number[];
   isInitialRender: boolean;
-  colors: any[];
-}> = ({ data, domainMin, domainMax, ticks, isInitialRender, colors }) => (
+  colors: ColorMapping[];
+}
+
+const Chart: React.FC<ChartComponentProps> = ({ 
+  data, 
+  domainMin, 
+  domainMax, 
+  ticks, 
+  isInitialRender, 
+  colors 
+}) => (
   <BarChart
     width={400}
     height={200}
@@ -58,13 +80,16 @@ const Chart: React.FC<{
     <XAxis 
       type="number"
       domain={[domainMin, domainMax]}
-      tickFormatter={(value) => value.toLocaleString()}
+      tickFormatter={(value: number) => value.toLocaleString()}
       ticks={ticks}
       axisLine={false}
       tickLine={false}
       tick={false}
     />
-    <Tooltip content={<PopularityTooltip />} />
+      <Tooltip 
+        content={<PopularityTooltip />}
+        cursor={false}
+      />
     <Bar
       dataKey="count"
       radius={[0, 4, 4, 0]}
@@ -93,31 +118,33 @@ const Chart: React.FC<{
   </BarChart>
 );
 
-// Create a client-side only version of the chart
 const ClientSideChart = dynamic(() => Promise.resolve(Chart), {
   ssr: false
 });
 
 export const PopularityChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
-  const [isInitialRender, setIsInitialRender] = useState(true);
-  const [rank, setRank] = useState("highRank");
+  const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
+  const [rank, setRank] = useState<string>("highRank");
   const [characterPopularity] = useAtom(characterPopularityAtom);
   const colors = useAtomValue(characterColors);
 
   useEffect(() => {
     if (isInitialRender) setIsInitialRender(false);
-  }, []);
+  }, [isInitialRender]);
 
   const { data, domainMin, domainMax } = useMemo(() => {
-    const rankData = characterPopularity[rank as keyof typeof characterPopularity]?.globalStats || {};
+    const rankStats = characterPopularity[rank as keyof typeof characterPopularity];
+    const rankData = rankStats?.globalStats || {};
     
-    const chartData = Object.entries(rankData)
+    const chartData: PopularityData[] = Object.entries(rankData)
       .map(([character, totalBattles]) => {
-        // Find character ID from the map
-        const characterEntry = Object.entries(characterIdMap).find(([_, name]) => name === character);
+        // Find character ID by looking up the character name in the values
+        const characterId = Object.entries(characterIdMap)
+        // eslint-disable-next-line
+          .find(([_, name]) => name === character)?.[0];
         return {
           character,
-          characterId: characterEntry ? parseInt(characterEntry[0]) : -1,
+          characterId: characterId ? parseInt(characterId) : -1,
           count: totalBattles,
           originalCount: totalBattles
         };

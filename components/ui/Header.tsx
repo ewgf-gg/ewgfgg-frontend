@@ -1,11 +1,12 @@
 "use client"
 
+import React from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAtom } from 'jotai';
 import { useTheme } from 'next-themes';
-import { totalReplaysAtom, totalPlayersAtom } from '@/app/state/atoms/tekkenStatsAtoms';
-import { SearchBar } from '@/components/SearchBar';
+import { totalReplaysAtom, totalPlayersAtom } from '@/app/state/atoms/tekkenStatsAtoms'
+import { SearchBar } from '@/components/SearchBar'
 
 // First, let's keep the custom hook for the animated counter
 const useAnimatedCounter = (endValue: number, duration: number = 1000) => {

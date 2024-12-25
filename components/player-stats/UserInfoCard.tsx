@@ -3,10 +3,10 @@
 import React from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Card, CardContent } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { rankIconMap, characterIconMap, Regions, MainCharacterAndRank } from '@/app/state/types/tekkenTypes'
+import { Card, CardContent } from '../ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
+import { rankIconMap, characterIconMap, Regions, MainCharacterAndRank } from '../../app/state/types/tekkenTypes'
 import { CalendarIcon, MapPinIcon, UserIcon } from 'lucide-react'
 
 interface UserInfoCardProps {
@@ -83,7 +83,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Player's region</p>
+                <p>Player&apos;s region</p>
               </TooltipContent>
             </Tooltip>
 
@@ -134,4 +134,3 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
     </TooltipProvider>
   )
 }
-

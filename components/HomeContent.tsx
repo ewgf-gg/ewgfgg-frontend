@@ -16,6 +16,7 @@ import {
   totalReplaysAtom
 } from '../app/state/atoms/tekkenStatsAtoms';
 import { HomeContentProps } from '../app/state/types/tekkenTypes';
+import React from 'react'
 
 export default function HomeContent({ initialData }: HomeContentProps) {
   const [, setGameVersions] = useAtom(gameVersionsAtom);

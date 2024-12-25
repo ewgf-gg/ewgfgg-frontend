@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+
 import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
@@ -24,6 +26,15 @@ interface CustomTooltipProps {
   payload?: Array<{
     payload: ChartDataPoint;
   }>;
+}
+
+interface CustomDotProps {
+  cx?: number;
+  cy?: number;
+  payload?: ChartDataPoint;
+  r?: number;
+  value?: number;
+  index?: number;
 }
 
 type TimeSpan = '7d' | '30d' | 'all';
@@ -61,18 +72,19 @@ const getRankDivision = (tekkenPower: number): number => {
 };
 
 // Memoize custom dot component
-function CustomDot(props: any) {
-  const { cx, cy, payload } = props;
+const CustomDot = ({ cx = 0, cy = 0, payload, r = 4 }: CustomDotProps) => {
+  if (!payload) return null;
+  
   return (
     <circle 
       cx={cx} 
       cy={cy} 
-      r={4} 
+      r={r} 
       fill={payload.color} 
       stroke="none"
     />
   );
-}
+};
 
 const TimeRangeButtons = React.memo(({ 
   timeSpan, 
