@@ -70,7 +70,11 @@ export async function searchPlayersServer(query: string): Promise<PlayerSearchRe
 
 export async function fetchVersionPopularity(): Promise<VersionStats> {
   try {
-      return await fetchStatistics('version-popularity');
+      const response = await fetch('/api/statistics/version-popularity');
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
   } catch (error) {
       console.error('Failed to fetch version popularity statistics:', error);
       throw new Error('Failed to fetch version popularity statistics');
@@ -79,7 +83,11 @@ export async function fetchVersionPopularity(): Promise<VersionStats> {
 
 export async function fetchVersionWinrates(): Promise<VersionStats> {
   try {
-      return await fetchStatistics('version-winrates');
+      const response = await fetch('/api/statistics/version-winrates');
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
   } catch (error) {
       console.error('Failed to fetch version winrate statistics:', error);
       throw new Error('Failed to fetch version winrate statistics');
