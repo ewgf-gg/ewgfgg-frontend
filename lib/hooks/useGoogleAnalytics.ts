@@ -7,6 +7,7 @@ export const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID;
 
 declare global {
   interface Window {
+     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     gtag: (...args: any[]) => void;
   }
 }
