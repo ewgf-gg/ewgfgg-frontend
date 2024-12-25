@@ -5,8 +5,7 @@ import {
   PlayerSearchResult,
   GameVersion,
   RankDistribution,
-  VersionPopularityStats,
-  VersionWinrateStats
+  VersionStats
 } from '@/app/state/types/tekkenTypes'
 import { fetchWithConfig, fetchStatistics } from '@/lib/api-config';
 
@@ -69,7 +68,7 @@ export async function searchPlayersServer(query: string): Promise<PlayerSearchRe
   }
 }
 
-export async function fetchVersionPopularity(): Promise<VersionPopularityStats> {
+export async function fetchVersionPopularity(): Promise<VersionStats> {
   try {
       return await fetchStatistics('version-popularity');
   } catch (error) {
@@ -78,7 +77,7 @@ export async function fetchVersionPopularity(): Promise<VersionPopularityStats> 
   }
 }
 
-export async function fetchVersionWinrates(): Promise<VersionWinrateStats> {
+export async function fetchVersionWinrates(): Promise<VersionStats> {
   try {
       return await fetchStatistics('version-winrates');
   } catch (error) {
