@@ -1,7 +1,18 @@
 import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectOption } from "@/components/ui/select"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+
+interface TimeSpan {
+  label: string
+  value: string
+}
 
 // Mock data for demonstration
 const generateMockData = (days: number) => {
@@ -22,7 +33,7 @@ const generateMockData = (days: number) => {
   return data
 }
 
-const timeSpans: SelectOption[] = [
+const timeSpans: TimeSpan[] = [
   { label: 'Last Week', value: '7' },
   { label: 'Last Month', value: '30' },
   { label: 'Last 3 Months', value: '90' },
@@ -37,12 +48,18 @@ export const WinLossGraph: React.FC = () => {
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-2xl font-bold">Win/Loss Record</CardTitle>
-        <Select
-          options={timeSpans}
-          value={selectedTimeSpan}
-          onChange={setSelectedTimeSpan}
-          className="w-[180px]"
-        />
+        <Select value={selectedTimeSpan} onValueChange={setSelectedTimeSpan}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {timeSpans.map((timeSpan) => (
+              <SelectItem key={timeSpan.value} value={timeSpan.value}>
+                {timeSpan.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </CardHeader>
       <CardContent>
         <div className="h-[400px]">
