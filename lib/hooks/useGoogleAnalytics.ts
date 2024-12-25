@@ -23,9 +23,17 @@ export default function useGoogleAnalytics() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (pathname) {
-      const url = pathname + searchParams.toString();
+    // Track initial page load
+    const handleLoad = () => {
+      const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
       pageview(url);
-    }
+    };
+
+    // Track route changes
+    const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
+    pageview(url);
+
+    window.addEventListener('load', handleLoad);
+    return () => window.removeEventListener('load', handleLoad);
   }, [pathname, searchParams]);
 }
