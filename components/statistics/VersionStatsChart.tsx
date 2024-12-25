@@ -116,6 +116,7 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
       .map(([character, value]) => {
         // Find the character ID by matching the name
         const characterId = Object.entries(characterIdMap)
+                // eslint-disable-next-line
           .find(([_, name]) => name === character)?.[0];
         return {
           character,

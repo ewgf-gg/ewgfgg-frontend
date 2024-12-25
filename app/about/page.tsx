@@ -49,8 +49,8 @@ export default function AboutPage() {
               <li>Approximately <strong>6%</strong> of players do not have assigned regions. These players are excluded from region-based statistics.</li>
               <li>
                 Global winrates are being polluted using my current methodology due to <strong>mirror matchups</strong> and <strong>cross-category</strong> battles being included.
-                This means that if there is a match between a Tekken King and a Fujin, the match outcome is counted towards each categories' winrate. This effect seems to be more
-                pronounced in the Tekken King and above rank categories. I'm working implementing a better way to analyze these battles and exclude both these types of matches. 
+                This means that if there is a match between a Tekken King and a Fujin, the match outcome is counted towards each categories&apos; winrate. This effect seems to be more
+                pronounced in the Tekken King and above rank categories. I&apos;m working implementing a better way to analyze these battles and exclude both these types of matches. 
               </li>
               <li>Currently, only <strong>ranked matches</strong> are included in the analysis.</li>
             </ul>

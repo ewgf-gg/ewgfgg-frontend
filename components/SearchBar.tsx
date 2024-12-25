@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image'
 import { Search } from 'lucide-react';
 import { Input } from './ui/input';
 import {
@@ -150,7 +151,7 @@ export function SearchBar() {
                         <div className="flex items-center gap-2 w-full">
                           {/* Main Character Icon */}
                           {player.mostPlayedCharacter && (
-                            <img
+                            <Image
                               src={characterIconMap[player.mostPlayedCharacter]}
                               alt={player.mostPlayedCharacter}
                               className="w-10 h-15"
