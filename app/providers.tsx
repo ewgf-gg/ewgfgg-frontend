@@ -1,22 +1,19 @@
 'use client';
 
-import { Provider as JotaiProvider } from 'jotai';
-import { ThemeProvider } from 'next-themes';
-import GlobalStatsProvider from '@/components/GlobalStatsProvider';
-import React from 'react'
+import { ThemeProvider } from "next-themes";
+import useGoogleAnalytics from "@/lib/hooks/useGoogleAnalytics";
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  useGoogleAnalytics();
+  
   return (
-    <JotaiProvider>
-      <ThemeProvider 
-        attribute="class" 
-        defaultTheme="system"
-        enableSystem={true}
-        disableTransitionOnChange
-      >
-        <GlobalStatsProvider />
-        {children}
-      </ThemeProvider>
-    </JotaiProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      {children}
+    </ThemeProvider>
   );
 }
