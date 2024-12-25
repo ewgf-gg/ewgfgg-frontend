@@ -6,6 +6,7 @@ import "./globals.css";
 import React from 'react'
 import Script from 'next/script';
 import { GA_MEASUREMENT_ID } from '../lib/hooks/useGoogleAnalytics';
+import GoogleAnalytics from '../components/GoogleAnalytics';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -72,6 +73,7 @@ export default function RootLayout({
         className="min-h-screen bg-background font-sans antialiased"
       >
         <Providers>
+          <GoogleAnalytics />
           <main className="relative flex min-h-screen flex-col">
             {children}
           </main>
