@@ -3,7 +3,7 @@
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
-export const GA_MEASUREMENT_ID = 'G-D8RTZ1BVP9';
+export const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID;
 
 declare global {
   interface Window {
