@@ -5,7 +5,7 @@ import { Providers } from './providers';
 import "./globals.css";
 import React from 'react'
 import Script from 'next/script';
-import { GA_MEASUREMENT_ID } from '@/lib/hooks/useGoogleAnalytics';
+import { GA_MEASUREMENT_ID } from '../lib/hooks/useGoogleAnalytics';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",

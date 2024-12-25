@@ -1,11 +1,9 @@
 'use client';
 
 import { ThemeProvider } from "next-themes";
-import useGoogleAnalytics from "@/lib/hooks/useGoogleAnalytics";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  useGoogleAnalytics();
-  
   return (
     <ThemeProvider
       attribute="class"
@@ -13,6 +11,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
+      <GoogleAnalytics />
       {children}
     </ThemeProvider>
   );
