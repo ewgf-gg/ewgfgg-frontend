@@ -14,7 +14,7 @@ export default function Footer() {
           <Link href="https://www.github.com/ewgf-gg" className="text-gray-400 hover:text-white transition-colors" aria-label="Github">
             <FaGithub className="w-6 h-6" />
           </Link>
-          <Link href="https://discord.com" className="text-gray-400 hover:text-white transition-colors" aria-label="Discord">
+          <Link href="https://discord.com/EUEnH99har" className="text-gray-400 hover:text-white transition-colors" aria-label="Discord">
             <FaDiscord className="w-6 h-6" />
           </Link>
         </div>
