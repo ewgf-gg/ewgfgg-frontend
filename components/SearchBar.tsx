@@ -110,11 +110,14 @@ export function SearchBar() {
               onChange={handleInputChange}
               maxLength={20}  
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && searchQuery.trim()) {
+                if (e.key === 'Enter') {
                   e.preventDefault();
-                  router.push(`/player/${encodeURIComponent(searchQuery.trim())}`);
-                  setOpen(false);
-                  setSearchQuery('');
+                  const selectedResult = searchResults.find(
+                    player => document.querySelector(`[data-value="${player.id}"][data-selected="true"]`)
+                  );
+                  if (selectedResult) {
+                    handleSelect(selectedResult.id);
+                  }
                 }
               }}
             />
@@ -154,6 +157,8 @@ export function SearchBar() {
                             <Image
                               src={characterIconMap[player.mostPlayedCharacter]}
                               alt={player.mostPlayedCharacter}
+                              width={40}
+                              height={60}
                               className="w-10 h-15"
                             />
                           )}

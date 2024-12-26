@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type RankCategory = 'highRank' | 'mediumRank' | 'lowRank';
+type RankCategory = 'allRanks' | 'highRank' | 'mediumRank' | 'lowRank';
 
 interface RankSelectorProps {
   selectedRank: RankCategory;
@@ -15,6 +15,7 @@ interface RankSelectorProps {
 }
 
 const ranks = [
+  { value: 'allRanks' as RankCategory, label: 'All Ranks' },
   { value: 'highRank' as RankCategory, label: 'Tekken King↑' },
   { value: 'mediumRank' as RankCategory, label: 'Garyu→Bushin' },
   { value: 'lowRank' as RankCategory, label: 'Eliminator↓' }

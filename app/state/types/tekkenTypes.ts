@@ -199,12 +199,12 @@ export interface RankWinrateChanges {
     lowRank: WinrateChange[];
 }
 
-// New types for version statistics
 export interface VersionStats {
     [version: string]: {
         highRank: RankStats;
         mediumRank: RankStats;
         lowRank: RankStats;
+        allRanks: RankStats;
     };
 }
 

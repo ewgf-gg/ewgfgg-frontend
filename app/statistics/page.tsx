@@ -13,7 +13,7 @@ import  EWGFLoadingAnimation  from '@/components/EWGFLoadingAnimation';
 import { useState, useEffect } from 'react';
 import React from 'react';
 
-type RankCategory = 'highRank' | 'mediumRank' | 'lowRank';
+type RankCategory = 'allRanks' | 'highRank' | 'mediumRank' | 'lowRank';
 
 const formatVersion = (version: string) => {
   const major = Math.floor(parseInt(version) / 10000);
@@ -32,7 +32,7 @@ export default function StatisticsPage() {
   const [winrateData, setWinrateData] = useState<VersionStats | null>(null);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
   const [selectedRegion, setSelectedRegion] = useState<string>('global');
-  const [selectedRank, setSelectedRank] = useState<RankCategory>('highRank');
+  const [selectedRank, setSelectedRank] = useState<RankCategory>('allRanks');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
