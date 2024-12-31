@@ -1,7 +1,7 @@
 // components/charts/WinrateChart.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
-import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell } from 'recharts';
+import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, ResponsiveContainer } from 'recharts';
 import { characterWinratesAtom, characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
 import { ChartCard } from '../shared/ChartCard';
 import { CustomYAxisTick } from '../shared/CustomYAxisTick';
@@ -57,12 +57,12 @@ export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> =
 
   return (
     <ChartCard {...props} rank={rank} onRankChange={setRank}>
-      <BarChart
-        width={400}
-        height={200}
-        data={data}
-        layout="vertical"
-        margin={{ left: 100, right: 58, top: 2, bottom: -12 }}
+      <div className="w-full" style={{ minHeight: "200px" }}>
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart
+            data={data}
+            layout="vertical"
+            margin={{ left: 100, right: 58, top: 2, bottom: -12 }}
       >
         <YAxis
           dataKey="character"
@@ -108,9 +108,12 @@ export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> =
             dataKey="originalWinrate"
             position="right"
             formatter={(value: number) => `${value.toFixed(2)}%`}
+            style={{ fontSize: '14px' }}
           />
         </Bar>
-      </BarChart>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </ChartCard>
   );
 };

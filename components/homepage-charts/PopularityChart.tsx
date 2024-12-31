@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
-import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, TooltipProps } from 'recharts';
+import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, TooltipProps, ResponsiveContainer } from 'recharts';
 import { characterPopularityAtom, characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
 import { ChartCard } from '../shared/ChartCard';
 import { CustomYAxisTick } from '../shared/CustomYAxisTick';
@@ -62,12 +62,12 @@ const Chart: React.FC<ChartComponentProps> = ({
   isInitialRender, 
   colors 
 }) => (
-  <BarChart
-    width={400}
-    height={200}
-    data={data}
-    layout="vertical"
-    margin={{ left: 100, right: 58, top: 2, bottom: -12 }}
+  <div className="w-full" style={{ minHeight: "200px" }}>
+    <ResponsiveContainer width="100%" height={200}>
+      <BarChart
+        data={data}
+        layout="vertical"
+        margin={{ left: 100, right: 58, top: 2, bottom: -12 }}
   >
     <YAxis
       dataKey="character"
@@ -112,10 +112,21 @@ const Chart: React.FC<ChartComponentProps> = ({
       <LabelList
         dataKey="originalCount"
         position="right"
-        formatter={(value: number) => value.toLocaleString()}
+        formatter={(value: number) => {
+          if (value >= 1000000) {
+            return `${(value / 1000000).toFixed(2)}M`;
+          }
+          if (value >= 1000) {
+            return `${(value / 1000).toFixed(1)}K`;
+          }
+          return value.toLocaleString();
+        }}
+        style={{ fontSize: '14px' }}
       />
     </Bar>
-  </BarChart>
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
 );
 
 const ClientSideChart = dynamic(() => Promise.resolve(Chart), {

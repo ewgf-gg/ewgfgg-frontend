@@ -17,6 +17,32 @@ import React from 'react';
 
 import { DistributionMode, GameVersion, rankIconMap, rankOrderMap, RankDistribution } from '../../app/state/types/tekkenTypes';
 
+// Hook to detect window size
+const useWindowSize = () => {
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? window.innerHeight : 0,
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial size
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return windowSize;
+};
+
 interface ChartDataPoint {
   rank: string;
   percentage: number;
@@ -50,6 +76,8 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
   const [gameVersions] = useAtom(gameVersionsAtom);
   const [totalPlayers] = useAtom(totalPlayersAtom);
   const [totalReplays] = useAtom(totalReplaysAtom);
+  const { width } = useWindowSize();
+  const isMobile = width < 768;
   
   // Get the latest version immediately
   const latestVersion = [...gameVersions].sort((a, b) => parseInt(b) - parseInt(a))[0];
@@ -109,17 +137,17 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
   const CustomXAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload }) => (
     <g transform={`translate(${x},${y})`}>
       <foreignObject 
-        x="-20" 
-        y="0" 
-        width="40" 
-        height="40" 
+        x={isMobile ? "-50" : "-20"}
+        y={isMobile ? "-13" : "0"}
+        width={isMobile ? "60" : "40"}
+        height={isMobile ? "40" : "40"}
         style={{ overflow: 'visible' }}
       >
         <div className="flex items-center justify-center">
           <img
             src={rankIconMap[payload?.value || '']}
             alt={payload?.value}
-            className="w-30 h-8"
+            className={`${isMobile ? 'w-6 h-6' : 'w-30 h-8'}`}
             style={{ transformOrigin: 'center' }}
           />
         </div>
@@ -157,14 +185,14 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
     >
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <CardTitle className="text-2xl font-bold">Rank Distribution</CardTitle>
               <CardDescription>Showing rank distribution among players</CardDescription>
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Select value={selectedVersion} onValueChange={(v) => setSelectedVersion(v)}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Select game version" />
                 </SelectTrigger>
                 <SelectContent>
@@ -178,7 +206,7 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
                 </SelectContent>
               </Select>
               <Select value={selectedMode} onValueChange={(v) => setSelectedMode(v as DistributionMode)}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Select mode" />
                 </SelectTrigger>
                 <SelectContent>
@@ -195,28 +223,49 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
               <p className="text-gray-500">No data available for this version</p>
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={isMobile ? 600 : 400}>
               <BarChart
                 data={chartData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
+                layout={isMobile ? "vertical" : "horizontal"}
+                margin={isMobile ? 
+                  { top: 10, right: 30, left: 40, bottom: 10 } :
+                  { top: 20, right: 30, left: 20, bottom: 10 }
+                }
                 onMouseLeave={() => setActiveIndex(null)}
               >
-                <XAxis
-                  dataKey="rank"
-                  tickLine={true}
-                  axisLine={false}
-                  interval={0}
-                  height={40}
-                  tick={<CustomXAxisTick />}
-                />
-                <YAxis hide />
+                {isMobile ? (
+                  <>
+                    <XAxis type="number" hide />
+                    <YAxis 
+                      dataKey="rank"
+                      type="category"
+                      tickLine={isMobile ? false : true}
+                      axisLine={false}
+                      interval={0}
+                      width={40}
+                      tick={<CustomXAxisTick />}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <XAxis
+                      dataKey="rank"
+                      tickLine={true}
+                      axisLine={false}
+                      interval={0}
+                      height={40}
+                      tick={<CustomXAxisTick />}
+                    />
+                    <YAxis hide />
+                  </>
+                )}
                 <Tooltip 
                   content={<CustomTooltip />}
                   cursor={false}
                 />
                 <Bar
                   dataKey="percentage"
-                  radius={[8, 8, 0, 0]}
+                  radius={isMobile ? [0, 8, 8, 0] : [8, 8, 0, 0]}
                   onMouseEnter={(_, index) => setActiveIndex(index)}
                   isAnimationActive={true}
                   animationDuration={1000}
@@ -224,7 +273,7 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
                 >
                   <LabelList 
                     dataKey="percentage" 
-                    position="top" 
+                    position={isMobile ? "right" : "top"}
                     formatter={(value: number) => `${value.toFixed(2)}%`} 
                   />
                   {chartData.map((entry: ChartDataPoint, index: number) => (
@@ -242,8 +291,8 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
             </ResponsiveContainer>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between text-sm text-muted-foreground border-t pt-4">
-          <div className="flex gap-8">
+        <CardFooter className="flex flex-col sm:flex-row justify-between text-sm text-muted-foreground border-t pt-4 gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
             <div>
               <span className="font-medium">Total Players:</span>{' '}
               {totalPlayers.toLocaleString()}

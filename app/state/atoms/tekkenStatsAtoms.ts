@@ -102,7 +102,7 @@ export const characterColors = atom<ColorMapping[]>([
   { id: '36', color: '#003049' }, // Raven - Indigo
   { id: '38', color: '#228B22' }, // Eddy - Forest Green
   { id: '39', color: '#CD5C5C' }, // Lidia - Indian Red
-  { id: '40', color: '#808080' },  // Heihachi - Gray
+  { id: '40', color: '#808080' }, // Heihachi - Gray
   { id: '41', color: '#780000' } // Clive - Dark Red
 ]);
 
@@ -135,12 +135,10 @@ export const characterPopularityAtom = atom<CharacterPopularity>(initialPopulari
 export const winrateChangesAtom = atom<RankWinrateChanges>(initialWinrateChanges);
 export const rankDistributionAtom = atom<GameRankDistribution>({} as GameRankDistribution);
 
-// New atom for player stats
 export const playerStatsAtom = atom<PlayerStats | null>(null);
 export const playerStatsLoadingAtom = atom(false);
 export const playerStatsErrorAtom = atom<string | null>(null);
 
-// Helper function
 export const getColor = (id: string): string => {
   const colors = rankColorsAtom.init;
   const ColorMapping = colors.find(item => item.id === id);
