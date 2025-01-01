@@ -6,12 +6,14 @@ interface BestMatchupChartProps {
   battles: Battle[];
   selectedCharacterId: number;
   playerName: string;
+  polarisId: string;
 }
 
 const BestMatchupChart: React.FC<BestMatchupChartProps> = ({ 
   battles, 
   selectedCharacterId, 
-  playerName 
+  playerName,
+  polarisId 
 }) => {
   const bestMatchup = React.useMemo(() => {
     // Return null if selectedCharacterId is null or undefined (but not 0)
@@ -20,7 +22,7 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
     }
     // Filter battles for selected character
     const characterBattles = battles.filter(battle => {
-      const isPlayer1 = battle.player1Name === playerName;
+      const isPlayer1 = battle.player1PolarisId === polarisId;
       return isPlayer1 
         ? battle.player1CharacterId === selectedCharacterId
         : battle.player2CharacterId === selectedCharacterId;
@@ -28,7 +30,7 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
 
     // Calculate winrates against each character
     const matchups = characterBattles.reduce((acc, battle) => {
-      const isPlayer1 = battle.player1Name === playerName;
+      const isPlayer1 = battle.player1PolarisId === polarisId;
       const opponentCharId = isPlayer1 ? battle.player2CharacterId : battle.player1CharacterId;
       const won = isPlayer1 ? battle.winner === 1 : battle.winner === 2;
 

@@ -8,12 +8,14 @@ interface CharacterWinLossChartProps {
   battles: Battle[];
   selectedCharacterId: number;
   playerName: string;
+  polarisId: string;
 }
 
 const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({ 
   battles, 
   selectedCharacterId,
-  playerName 
+  playerName,
+  polarisId 
 }) => {
   // Return null if selectedCharacterId is null or undefined (but not 0)
   if (selectedCharacterId === null || selectedCharacterId === undefined) {
@@ -22,7 +24,7 @@ const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({
 
   // Calculate wins and losses from battles
   const battleResults = battles.reduce((acc, battle) => {
-    const isPlayer1 = battle.player1Name === playerName;
+    const isPlayer1 = battle.player1PolarisId === polarisId;
     const isPlayingSelectedCharacter = isPlayer1 
       ? battle.player1CharacterId === selectedCharacterId
       : battle.player2CharacterId === selectedCharacterId;

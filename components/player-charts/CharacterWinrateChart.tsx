@@ -9,6 +9,8 @@ interface CharacterWinrateChartProps {
   battles: Battle[];
   selectedCharacterId: number;
   playerName: string;
+  polarisId: string;
+
 }
 
 interface WinrateData {
@@ -127,10 +129,11 @@ const WinrateLegend = () => (
 const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
   battles,
   selectedCharacterId,
-  playerName
+  playerName,
+  polarisId
 }) => {
   const characterBattles = useMemo(() => battles.filter(battle => {
-    const isPlayer1 = battle.player1Name === playerName;
+    const isPlayer1 = battle.player1PolarisId === polarisId;
     return isPlayer1 
       ? battle.player1CharacterId === selectedCharacterId
       : battle.player2CharacterId === selectedCharacterId;
@@ -138,7 +141,7 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
 
   const chartData = useMemo(() => {
     const winrateData = characterBattles.reduce((acc, battle) => {
-      const isPlayer1 = battle.player1Name === playerName;
+      const isPlayer1 = battle.player1PolarisId === polarisId;
       const opponentCharId = isPlayer1 ? battle.player2CharacterId : battle.player1CharacterId;
       const won = isPlayer1 ? battle.winner === 1 : battle.winner === 2;
       const characterName = characterIdMap[opponentCharId] || `Character ${opponentCharId}`;
@@ -167,7 +170,7 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
     }, {} as Record<string, WinrateData>);
 
     return Object.values(winrateData).sort((a, b) => b.winRate - a.winRate);
-  }, [characterBattles, playerName]);
+  }, [characterBattles, polarisId]);
 
   const selectedCharacterName = characterIdMap[selectedCharacterId];
   const selectedCharacterIcon = selectedCharacterName ? characterIconMap[selectedCharacterName] : null;

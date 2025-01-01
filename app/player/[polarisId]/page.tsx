@@ -103,9 +103,9 @@ function formatCharacterBattleStats(characterStats: Record<string, CharacterStat
     .sort((a, b) => b.totalBattles - a.totalBattles);
 }
 
-function formatRecentMatches(battles: Battle[], playerName: string): FormattedMatch[] {
+function formatRecentMatches(battles: Battle[], polarisId: string): FormattedMatch[] {
   return battles.map(battle => {
-    const isPlayer1 = battle.player1Name === playerName;
+    const isPlayer1 = battle.player1PolarisId === polarisId;
     return {
       opponent: isPlayer1 ? battle.player2Name : battle.player1Name,
       character: isPlayer1 ? `Player 1 Char ${battle.player1CharacterId}` : `Player 2 Char ${battle.player2CharacterId}`,
@@ -171,7 +171,7 @@ export default function PlayerStatsPage({ params }: PageProps) {
     winRate: calculateWinRate(playerStats.characterStats),
     totalMatches: calculateTotalMatches(playerStats.characterStats),
     favoriteCharacters: formatFavoriteCharacters(playerStats.characterStats),
-    recentMatches: formatRecentMatches(playerStats.battles || [], playerStats.name),
+    recentMatches: formatRecentMatches(playerStats.battles || [], polarisId),
     characterStatsWithVersion: formatCharacterStatsWithVersion(playerStats.characterStats),
     characterBattleStats: formatCharacterBattleStats(playerStats.characterStats),
     battles: playerStats.battles || [],

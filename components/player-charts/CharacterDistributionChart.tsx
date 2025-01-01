@@ -12,6 +12,7 @@ interface CharacterDistributionChartProps {
   battles: Battle[];
   selectedCharacterId: number;
   playerName: string;
+  polarisId: string;
 }
 
 interface DistributionData {
@@ -87,7 +88,8 @@ const CustomXAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload
 const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
   battles,
   selectedCharacterId,
-  playerName
+  playerName,
+  polarisId
 }) => {
   const colors = useAtomValue(characterColors);
 
@@ -103,7 +105,7 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
 
     // Filter battles for selected character
     const characterBattles = battles.filter(battle => {
-      const isPlayer1 = battle.player1Name === playerName;
+      const isPlayer1 = battle.player1PolarisId === polarisId;
       return isPlayer1 
         ? battle.player1CharacterId === selectedCharacterId
         : battle.player2CharacterId === selectedCharacterId;
@@ -111,7 +113,7 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
 
     // Calculate total matches against each character
     const distributionData = characterBattles.reduce<Record<string, DistributionData>>((acc, battle) => {
-      const isPlayer1 = battle.player1Name === playerName;
+      const isPlayer1 = battle.player1PolarisId === polarisId;
       const opponentCharId = isPlayer1 ? battle.player2CharacterId : battle.player1CharacterId;
       const characterName = characterIdMap[opponentCharId] || `Character ${opponentCharId}`;
 

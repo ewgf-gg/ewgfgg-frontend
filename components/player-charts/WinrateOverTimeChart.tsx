@@ -9,6 +9,7 @@ interface WinrateOverTimeChartProps {
   battles: Battle[];
   playerName: string;
   selectedCharacterId?: number;
+  polarisId: string
 }
 
 interface ChartDataPoint {
@@ -48,7 +49,8 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
 const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
   battles,
   playerName,
-  selectedCharacterId
+  selectedCharacterId,
+  polarisId
 }) => {
   const [timeSpan, setTimeSpan] = useState<TimeSpan>('all');
 
@@ -67,7 +69,7 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
     let losses = 0;
     
     return filteredBattles.slice().reverse().map((battle) => {
-      const isPlayer1 = battle.player1Name === playerName;
+      const isPlayer1 = battle.player1PolarisId === polarisId;
       const won = isPlayer1 ? battle.winner === 1 : battle.winner === 2;
       
       if (won) wins++;

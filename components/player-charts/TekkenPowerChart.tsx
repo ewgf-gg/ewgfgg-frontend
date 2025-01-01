@@ -11,6 +11,7 @@ import { rankDivisionColors } from '../../app/state/atoms/tekkenStatsAtoms';
 interface TekkenPowerChartProps {
   battles: Battle[];
   playerName: string;
+  polarisId: string;
 }
 
 interface ChartDataPoint {
@@ -122,7 +123,8 @@ TimeRangeButtons.displayName = 'TimeRangeButtons';
 
 const TekkenPowerChart: React.FC<TekkenPowerChartProps> = ({
   battles,
-  playerName
+  playerName,
+  polarisId
 }) => {
   const [timeSpan, setTimeSpan] = useState<TimeSpan>('all');
 
@@ -132,7 +134,7 @@ const TekkenPowerChart: React.FC<TekkenPowerChartProps> = ({
     const processedData: ChartDataPoint[] = [];
     
     sortedBattles.forEach((battle, index) => {
-      const isPlayer1 = battle.player1Name === playerName;
+      const isPlayer1 = battle.player1PolarisId === polarisId;
       const tekkenPower = isPlayer1 ? battle.player1TekkenPower : battle.player2TekkenPower;
       const date = new Date(battle.date);
       const rankDivision = getRankDivision(tekkenPower);

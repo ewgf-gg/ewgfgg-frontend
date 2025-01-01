@@ -11,12 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 interface RecentBattlesCardProps {
   battles: Battle[];
   playerName: string;
+  polarisId: string;
   selectedVersion: string;
 }
 
 export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
   battles,
   playerName,
+  polarisId,
   selectedVersion,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -198,7 +200,7 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
           </TableHeader>
           <TableBody>
             {currentBattles.map((battle, index) => {
-              const isPlayer1 = battle.player1Name === playerName;
+              const isPlayer1 = battle.player1PolarisId === polarisId;
               const playerCharacter = getCharacterName(isPlayer1 ? battle.player1CharacterId : battle.player2CharacterId);
               const opponentCharacter = getCharacterName(isPlayer1 ? battle.player2CharacterId : battle.player1CharacterId);
               const opponentName = isPlayer1 ? battle.player2Name : battle.player1Name;
