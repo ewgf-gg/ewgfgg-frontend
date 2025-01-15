@@ -17,6 +17,7 @@ interface RecentBattlesCardProps {
 
 export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
   battles,
+  // eslint-disable-next-line
   playerName,
   polarisId,
   selectedVersion,

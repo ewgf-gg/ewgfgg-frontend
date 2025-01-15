@@ -14,6 +14,7 @@ interface CharacterWinLossChartProps {
 const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({ 
   battles, 
   selectedCharacterId,
+  // eslint-disable-next-line
   playerName,
   polarisId 
 }) => {

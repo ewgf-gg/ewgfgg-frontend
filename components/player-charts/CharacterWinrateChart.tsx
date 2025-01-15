@@ -8,6 +8,7 @@ import Image from 'next/image';
 interface CharacterWinrateChartProps {
   battles: Battle[];
   selectedCharacterId: number;
+  // eslint-disable-next-line
   playerName: string;
   polarisId: string;
 
