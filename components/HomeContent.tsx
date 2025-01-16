@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useAtom } from 'jotai';
 import { Header } from './ui/Header';
 import Footer from './ui/Footer';
-import { StatsGrid } from './StatsGrid';
+import { StatsGrid } from './homepage-charts/StatsGrid';
 import { RankDistributionChart } from './homepage-charts/RankDistributionChart';
 import {
   gameVersionsAtom,

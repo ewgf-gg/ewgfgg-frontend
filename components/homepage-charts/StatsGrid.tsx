@@ -1,7 +1,7 @@
 import React from 'react';
-import { PopularityChart } from './homepage-charts/PopularityChart';
-import { WinrateChart } from './homepage-charts/WinrateChart';
-import { WinrateChangesChart } from './homepage-charts/WinrateChangesChart';
+import { PopularityChart } from './PopularityChart';
+import { WinrateChart } from './WinrateChart';
+import { WinrateChangesChart } from './WinrateChangesChart';
 
 export const StatsGrid: React.FC = () => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
@@ -17,7 +17,7 @@ export const StatsGrid: React.FC = () => (
     />
     <WinrateChangesChart
       title="Highest Win Rate Changes"
-      description="Most significant changes since last patch"
+      description="Top win rate changes since last patch"
       delay={0.8}
     />
   </div>

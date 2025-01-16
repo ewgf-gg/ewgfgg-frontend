@@ -38,8 +38,8 @@ export const WinrateChangesChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChan
 
   const getBarColor = (change: number) => {
     return change >= 0
-      ? 'hsl(142.1 76.2% 36.3%)' // Tailwind success color
-      : 'hsl(0 84.2% 60.2%)'     // Tailwind destructive color
+      ? 'hsl(142.1 76.2% 36.3%)' 
+      : 'hsl(0 84.2% 60.2%)'    
   };
 
   return (
