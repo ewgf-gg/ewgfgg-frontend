@@ -213,7 +213,7 @@ export const RANK_OPTIONS: RankOption[] = [
     { 
       value: "highRank", 
       label: "Tekken King↑",
-      description: "in Tekken King and above"
+      description: "in TK and above"
     },
     { 
       value: "mediumRank", 
