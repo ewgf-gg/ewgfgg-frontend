@@ -61,7 +61,7 @@ export const rankColorsAtom = atom<ColorMapping[]>([
   { id: 'Kishin', color: '#013a63' },
   { id: 'Bushin', color: '#012a4a' },
   { id: 'Tekken King', color: '#240046' },
-  { id: 'Tekken Emperor', color: '#10002b' },
+  { id: 'Tekken Emperor', color: '#240046' },
   { id: 'Tekken God', color: '#ffe94e' },
   { id: 'Tekken God Supreme', color: '#b69121' },
   { id: 'God of Destruction', color: '#9e0059' }
