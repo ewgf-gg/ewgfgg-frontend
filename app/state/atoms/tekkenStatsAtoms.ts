@@ -88,7 +88,7 @@ export const characterColors = atom<ColorMapping[]>([
   { id: '17', color: '#4682B4' }, // Lars - Steel Blue
   { id: '18', color: '#ff8fab' }, // Alisa - Light Pink
   { id: '19', color: '#dee2e6' }, // Claudio - Light Gray
-  { id: '20', color: '#8B4513' }, // Shaheen - Saddle Brown
+  { id: '20', color: '#eae2b7' }, // Shaheen - Saddle Brown
   { id: '21', color: '#800080' }, // Nina - Purple
   { id: '22', color: '#483D8B' }, // Lee - Dark Slate Blue
   { id: '23', color: '#8B4513' }, // Kuma - Saddle Brown
