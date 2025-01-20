@@ -84,7 +84,7 @@ export const characterColors = atom<ColorMapping[]>([
   { id: '13', color: '#f6bd60' }, // Feng - Light gold 
   { id: '14', color: '#DDA0DD' }, // Lili - Plum
   { id: '15', color: '#2F4F4F' }, // Dragunov - Dark Slate Gray
-  { id: '16', color: '#800000' }, // Leo - Peru
+  { id: '16', color: '#e5383b' }, // Leo - Lighter red
   { id: '17', color: '#4682B4' }, // Lars - Steel Blue
   { id: '18', color: '#ff8fab' }, // Alisa - Light Pink
   { id: '19', color: '#dee2e6' }, // Claudio - Light Gray
@@ -103,7 +103,7 @@ export const characterColors = atom<ColorMapping[]>([
   { id: '38', color: '#228B22' }, // Eddy - Forest Green
   { id: '39', color: '#CD5C5C' }, // Lidia - Indian Red
   { id: '40', color: '#808080' }, // Heihachi - Gray
-  { id: '41', color: '#780000' } // Clive - Dark Red
+  { id: '41', color: '#6a040f' } // Clive - Dark Red
 ]);
 
 export const rankDivisionColors = atom<ColorMapping[]>([
