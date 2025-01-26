@@ -37,6 +37,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
 
   // Function to get numeric rank value
   const getRankValue = (rankName: string): number => {
+    // eslint-disable-next-line
     const entry = Object.entries(rankOrderMap).find(([_, name]) => name === rankName);
     return entry ? parseInt(entry[0]) : -1;
   };
