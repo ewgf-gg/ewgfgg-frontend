@@ -23,7 +23,7 @@ export async function generateMetadata(
   const mainChar = playerData.mainCharacterAndRank?.characterName || 'Unknown Character'
   const rank = playerData.mainCharacterAndRank?.danRank || 'Unknown Rank'
   const region = playerData.regionId !== undefined ? Regions[playerData.regionId] : 'Unknown Region'
-  const area = playerData.areaId ? ` Area ${playerData.areaId}` : ''
+  const area = playerData.areaId ? `${playerData.areaId}` : ''
   
   const characterIcon = characterIconMap[mainChar] || ''
   const rankIcon = rankIconMap[rank] || ''
