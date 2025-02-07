@@ -10,7 +10,7 @@ export async function generateMetadata(
   { params }: Props
 ): Promise<Metadata> {
   // Fetch player data
-  const response = await fetch(`${process.env.API_URL}/player-stats/metadata/${params.polarisId}`)
+  const response = await fetch(`${process.env.API_URL}/player-stats/metaData/${params.polarisId}`)
   const playerData: PlayerMetadata = await response.json()
 
   if (!playerData) {
@@ -20,7 +20,6 @@ export async function generateMetadata(
     }
   }
 
-  const playerName = playerData.playerName ? `${playerData.polarisId}` : ''
   const mainChar = playerData.mainCharacterAndRank?.characterName || ''
   const rank = playerData.mainCharacterAndRank?.danRank || ''
   const region = playerData.regionId !== undefined ? Regions[playerData.regionId] : ''
@@ -29,7 +28,7 @@ export async function generateMetadata(
   const characterIcon = characterIconMap[mainChar] || ''
   const rankIcon = rankIconMap[rank] || ''
   
-  const title = `${playerName}'s Tekken 8 Profile`
+  const title = `${playerData.playerName}'s Tekken 8 Profile`
   const description = `Tekken-ID: ${polarisId}'s Tekken 8 Stats\n🥋 Main: ${mainChar}\n👑 Rank: ${rank}\n🌎 Region: ${region} ${area}`
 
   return {
