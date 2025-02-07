@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { characterIconMap, rankIconMap, Regions } from '@/app/state/types/tekkenTypes'
+import { characterIconMap, rankIconMap, Regions, PlayerMetadata } from '@/app/state/types/tekkenTypes'
 
 type Props = {
   params: { polarisId: string }
@@ -10,8 +10,8 @@ export async function generateMetadata(
   { params }: Props
 ): Promise<Metadata> {
   // Fetch player data
-  const response = await fetch(`${process.env.API_URL}/player-stats/${params.polarisId}`)
-  const playerData = await response.json()
+  const response = await fetch(`${process.env.API_URL}/player-stats/metadata/${params.polarisId}`)
+  const playerData: PlayerMetadata = await response.json()
 
   if (!playerData) {
     return {
@@ -28,8 +28,8 @@ export async function generateMetadata(
   const characterIcon = characterIconMap[mainChar] || ''
   const rankIcon = rankIconMap[rank] || ''
   
-  const title = `${playerData.name}'s Tekken 8 Profile - ${mainChar} | ${rank}`
-  const description = `🎮 ${playerData.name}'s Tekken 8 Stats\n🥋 Main: ${mainChar}\n👑 Rank: ${rank}\n🌎 Region: ${region}${area}`
+  const title = `${playerData.playerName}'s Tekken 8 Profile - ${mainChar} | ${rank}`
+  const description = `Tekken-ID: ${playerData.playerName}'s Tekken 8 Stats\n🥋 Main: ${mainChar}\n👑 Rank: ${rank}\n🌎 Region: ${region} ${area}`
 
   return {
     title,

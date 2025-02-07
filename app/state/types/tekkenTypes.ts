@@ -19,6 +19,16 @@ export type GameRankDistribution = {
     };
 }
 
+export interface PlayerMetadata{
+    playerName: string;
+    polarisId: string;
+    regionId: number;
+    areaId: number;
+    latestBattleDate: string;
+    tekkenPower: number;
+    mainCharacterAndRank: Record<string, string>;
+}
+
 export interface CharacterStats {
     characterName: string;
     danName: string;

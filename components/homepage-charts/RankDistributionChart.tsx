@@ -83,7 +83,6 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
   const latestVersion = [...gameVersions].sort((a, b) => parseInt(b) - parseInt(a))[0];
   const [selectedVersion, setSelectedVersion] = useState<GameVersion>(latestVersion);
   const [selectedMode, setSelectedMode] = useState<DistributionMode>('standard');
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   // Update selected version when latest version changes
   useEffect(() => {
@@ -231,7 +230,6 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
                   { top: 10, right: 30, left: 40, bottom: 10 } :
                   { top: 20, right: 30, left: 20, bottom: 10 }
                 }
-                onMouseLeave={() => setActiveIndex(null)}
               >
                 {isMobile ? (
                   <>
@@ -266,7 +264,6 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
                 <Bar
                   dataKey="percentage"
                   radius={isMobile ? [0, 8, 8, 0] : [8, 8, 0, 0]}
-                  onMouseEnter={(_, index) => setActiveIndex(index)}
                   isAnimationActive={true}
                   animationDuration={1000}
                   animationEasing="ease"
@@ -280,10 +277,6 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
                     <Cell 
                       key={`cell-${index}`} 
                       fill={entry.fill}
-                      style={{
-                        filter: activeIndex === index ? `drop-shadow(0 0 6px ${entry.fill})` : 'none',
-                        transition: 'filter 0.3s ease-in-out'
-                      }}
                     />
                   ))}
                 </Bar>
