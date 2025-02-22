@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { characterIconMap, rankIconMap, Regions, PlayerMetadata } from '@/app/state/types/tekkenTypes'
+import { characterIconMap, rankIconMap, Regions } from '@/app/state/types/tekkenTypes'
 
 export const dynamic = 'force-dynamic';
 
