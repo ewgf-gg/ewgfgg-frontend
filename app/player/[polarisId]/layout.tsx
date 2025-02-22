@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { characterIconMap, rankIconMap, Regions, PlayerMetadata } from '@/app/state/types/tekkenTypes'
 
 export const dynamic = 'force-dynamic';
 
@@ -11,9 +12,7 @@ export async function generateMetadata(
   { params }: Props
 ): Promise<Metadata> {
   // Fetch player data
-  const response = await fetch(`${process.env.API_URL}/api/player-stats/${params.polarisId}`, {
-    cache: 'no-store'
-  })
+  const response = await fetch(`${process.env.API_URL}/api/player-stats/${params.polarisId}`)
   const playerData = await response.json()
 
   if (!playerData) {
@@ -23,23 +22,33 @@ export async function generateMetadata(
     }
   }
 
-  const mainChar = playerData.mainCharacterAndRank?.characterName || 'Unknown Character'
-  const rank = playerData.mainCharacterAndRank?.danRank || 'Unknown Rank'
-  const region = playerData.regionId ? `Region ${playerData.regionId}` : 'Unknown Region'
-  const area = playerData.areaId 
+  const mainChar = playerData.mainCharacterAndRank?.characterName || ''
+  const rank = playerData.mainCharacterAndRank?.danRank || ''
+  const region = playerData.regionId !== undefined ? Regions[playerData.regionId] : ''
+  const area = playerData.areaId ? `${playerData.areaId}` : ''
+  const polarisId = playerData.polarisId ? `${playerData.polarisId}` : ''
+  const characterIcon = characterIconMap[mainChar] || ''
+  const rankIcon = rankIconMap[rank] || ''
+  
+  const title = `${playerData.playerName}'s Tekken 8 Profile`
+  const description = `Tekken-ID: ${polarisId}'s Tekken 8 Stats\n🥋 Main: ${mainChar}\n👑 Rank: ${rank}\n🌎 Region: ${region} ${area}`
 
   return {
-    title: `${playerData.name}'s Tekken 8 Profile`,
-    description: `View ${playerData.name}'s Tekken 8 profile. Main: ${mainChar} | Rank: ${rank} | ${region} ${area}`,
+    title,
+    description,
     openGraph: {
-      title: `${playerData.name}'s Tekken 8 Profile`,
-      description: `View ${playerData.name}'s Tekken 8 profile. Main: ${mainChar} | Rank: ${rank} | ${region} ${area}`,
+      title,
+      description,
       type: 'profile',
+      images: [characterIcon, rankIcon],
+      siteName: 'EWGF.GG',
+      locale: 'en_US',
     },
     twitter: {
-      card: 'summary',
-      title: `${playerData.name}'s Tekken 8 Profile`,
-      description: `View ${playerData.name}'s Tekken 8 profile. Main: ${mainChar} | Rank: ${rank} | ${region} ${area}`,
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [characterIcon],
     }
   }
 }

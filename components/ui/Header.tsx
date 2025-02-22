@@ -132,14 +132,14 @@ export function Header() {
             <div className="hidden md:flex items-center gap-6">
               <div className="flex flex-col items-end">
                 <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Players</span>
-                <span className="text-base md:text-lg font-bold bg-gradient-to-r from-blue-400 to-cyan-300 dark:from-blue-500 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-sm">
+                <span className="text-base md:text-lg font-bold bg-gradient-to-r from-blue-400 to-cyan-300 dark:from-blue-500 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-sm font-mono min-w-[4ch] inline-block text-right">
                   {formatNumber(animatedPlayers)}
                 </span>
               </div>
               <div className="h-8 w-px bg-gray-700 dark:bg-gray-600" />
               <div className="flex flex-col items-end">
                 <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Replays</span>
-                <span className="text-base md:text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent drop-shadow-sm">
+                <span className="text-base md:text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent drop-shadow-sm font-mono min-w-[4ch] inline-block text-right">
                   {formatNumber(animatedReplays)}
                 </span>
               </div>
@@ -185,13 +185,13 @@ export function Header() {
                 <div className="flex items-center gap-4">
                   <div>
                     <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Players</span>
-                    <div className="text-base font-bold bg-gradient-to-r from-blue-400 to-cyan-300 dark:from-blue-500 dark:to-cyan-400 bg-clip-text text-transparent">
+                    <div className="text-base font-bold bg-gradient-to-r from-blue-400 to-cyan-300 dark:from-blue-500 dark:to-cyan-400 bg-clip-text text-transparent font-mono min-w-[4ch] inline-block text-right">
                       {formatNumber(animatedPlayers)}
                     </div>
                   </div>
                   <div>
                     <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Replays</span>
-                    <div className="text-base font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent">
+                    <div className="text-base font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent font-mono min-w-[4ch] inline-block text-right">
                       {formatNumber(animatedReplays)}
                     </div>
                   </div>
