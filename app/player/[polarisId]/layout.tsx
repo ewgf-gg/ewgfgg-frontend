@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic';
+
 type Props = {
   params: { polarisId: string }
   children: React.ReactNode
@@ -9,7 +11,9 @@ export async function generateMetadata(
   { params }: Props
 ): Promise<Metadata> {
   // Fetch player data
-  const response = await fetch(`${process.env.API_URL}/api/player-stats/${params.polarisId}`)
+  const response = await fetch(`${process.env.API_URL}/api/player-stats/${params.polarisId}`, {
+    cache: 'no-store'
+  })
   const playerData = await response.json()
 
   if (!playerData) {

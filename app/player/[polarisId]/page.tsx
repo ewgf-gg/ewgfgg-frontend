@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header } from '@/components/ui/Header';
