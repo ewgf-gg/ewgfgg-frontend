@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 import { characterIconMap, rankIconMap, Regions, PlayerMetadata } from '@/app/state/types/tekkenTypes'
 
+export const dynamic = 'force-dynamic'
+
 type Props = {
   params: { polarisId: string }
   children: React.ReactNode
@@ -10,7 +12,13 @@ export async function generateMetadata(
   { params }: Props
 ): Promise<Metadata> {
   // Fetch player data
-  const response = await fetch(`${process.env.API_URL}/player-stats/metaData/${params.polarisId}`)
+  const response = await fetch(`${process.env.API_URL}/player-stats/metaData/${params.polarisId}`, {
+    cache: 'no-store',
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache'
+    }
+  })
   const playerData: PlayerMetadata = await response.json()
 
   if (!playerData) {

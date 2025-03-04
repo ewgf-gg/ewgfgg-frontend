@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { Suspense } from 'react';
 import { VersionStatsContent } from '@/components/statistics/VersionStatsContent';
 import { Header } from '@/components/ui/Header';
