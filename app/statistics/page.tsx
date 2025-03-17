@@ -15,7 +15,6 @@ import React from 'react';
 
 type RankCategory = 'allRanks' | 'highRank' | 'mediumRank' | 'lowRank';
 
-export const revalidate = false;
 
 const formatVersion = (version: string) => {
   const major = Math.floor(parseInt(version) / 10000);
