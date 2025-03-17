@@ -25,6 +25,8 @@ interface PageProps {
   };
 }
 
+export const revalidate = 0;
+
 // Utility functions
 function validatePlayerStats(data: PlayerStats): void {
   if (!data.playerId || !data.name || !data.characterStats) {

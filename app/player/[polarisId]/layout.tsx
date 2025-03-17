@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { characterIconMap, rankIconMap, Regions, PlayerMetadata } from '@/app/state/types/tekkenTypes'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0;
 
 type Props = {
   params: { polarisId: string }
@@ -16,7 +17,6 @@ export async function generateMetadata(
     cache: 'no-store',
     headers: {
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-      'Pragma': 'no-cache'
     }
   })
   const playerData: PlayerMetadata = await response.json()

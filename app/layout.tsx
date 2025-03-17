@@ -20,7 +20,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "ewgf.gg - TEKKEN 8 Statistics",
-  description: "See your stats!",
+  description: "TEKKEN 8 Character and Rank Statistics",
 };
 
 export default function RootLayout({
