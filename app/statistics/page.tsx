@@ -1,6 +1,4 @@
-'use client';
-
-export const revalidate = 0;
+"use client"
 
 import { Suspense } from 'react';
 import { VersionStatsContent } from '@/components/statistics/VersionStatsContent';
@@ -16,6 +14,8 @@ import { useState, useEffect } from 'react';
 import React from 'react';
 
 type RankCategory = 'allRanks' | 'highRank' | 'mediumRank' | 'lowRank';
+
+export const revalidate = false;
 
 const formatVersion = (version: string) => {
   const major = Math.floor(parseInt(version) / 10000);
