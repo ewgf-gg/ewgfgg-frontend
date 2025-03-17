@@ -32,7 +32,6 @@ export async function fetchWithConfig(endpoint: string, options: RequestInit = {
   const response = await fetch(`${config.baseURL}${endpoint}`, {
     ...options,
     cache: 'no-store',
-    next: { revalidate: 0 },
     headers: {
       ...config.headers,
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
