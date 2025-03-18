@@ -29,6 +29,7 @@ export function getAPIConfig(): APIConfig {
 export async function fetchWithConfig(endpoint: string, options: RequestInit = {}) {
   const config = getAPIConfig();
   
+  // eslint-disable-next-line
   const nextOptions = (options as any).next || {};
   
   const response = await fetch(`${config.baseURL}${endpoint}`, {
