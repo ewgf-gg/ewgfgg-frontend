@@ -29,19 +29,25 @@ export function getAPIConfig(): APIConfig {
 export async function fetchWithConfig(endpoint: string, options: RequestInit = {}) {
   const config = getAPIConfig();
   
+  const nextOptions = (options as any).next || {};
+  
   const response = await fetch(`${config.baseURL}${endpoint}`, {
     ...options,
     headers: {
       ...config.headers,
       ...options.headers
+    },
+    next: {
+      revalidate: 30,
+      ...nextOptions
     }
   });
-
+  
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
     throw new Error(errorData?.message || `API error: ${response.status}`);
   }
-
+  
   return response.json();
 }
 

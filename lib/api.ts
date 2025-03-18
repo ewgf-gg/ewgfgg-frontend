@@ -71,12 +71,11 @@ export async function searchPlayersServer(query: string): Promise<PlayerSearchRe
 export async function fetchVersionPopularity(): Promise<VersionStats> {
   try {
       const response = await fetch('/api/statistics/version-popularity', {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache'
+        next: {
+          revalidate: 30 
         }
       });
+      
       if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -90,10 +89,8 @@ export async function fetchVersionPopularity(): Promise<VersionStats> {
 export async function fetchVersionWinrates(): Promise<VersionStats> {
   try {
       const response = await fetch('/api/statistics/version-winrates', {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache'
+        next: {
+          revalidate: 30
         }
       });
       if (!response.ok) {
