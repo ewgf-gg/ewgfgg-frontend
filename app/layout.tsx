@@ -6,6 +6,10 @@ import "./globals.css";
 import React from 'react'
 import GoogleAnalytics from '../components/GoogleAnalytics';
 
+// Apply global revalidation every 30 seconds
+export const revalidate = 30;
+export const dynamic = 'force-dynamic'
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
