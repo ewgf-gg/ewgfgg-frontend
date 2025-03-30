@@ -2,7 +2,7 @@ import React from 'react';
 import { useAtom } from 'jotai';
 import { recentlyActivePlayersAtom } from '@/app/state/atoms/tekkenStatsAtoms';
 import { Regions, rankIconMap, characterIconMap } from '@/app/state/types/tekkenTypes';
-import { SimpleChartCard } from '@/components/shared/SimpleChartCard';
+import { CustomChartCard } from '@/components/shared/CustomChartCard';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistanceToNow, fromUnixTime } from 'date-fns';
@@ -87,12 +87,13 @@ export const RecentlyActivePlayersChart: React.FC<RecentlyActivePlayersChartProp
   );
 
   return (
-    <SimpleChartCard
+    <CustomChartCard
       title={title}
       description={description}
       delay={delay}
+      height={233}
     >
       {content}
-    </SimpleChartCard>
+    </CustomChartCard>
   );
 };

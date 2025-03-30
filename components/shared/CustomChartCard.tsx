@@ -6,22 +6,24 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../ui/card";
+} from "@/components/ui/card";
 
-interface SimpleChartCardProps {
+interface CustomChartCardProps {
   title: string;
   description?: string;
   delay?: number;
   children: React.ReactNode;
   action?: React.ReactNode;
+  height?: number | string;
 }
 
-export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
+export const CustomChartCard: React.FC<CustomChartCardProps> = ({
   title,
   description,
   delay = 0,
   children,
-  action
+  action,
+  height = 400
 }) => {
   return (
     <motion.div
@@ -30,7 +32,7 @@ export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
       transition={{ duration: 0.5, delay }}
       className="w-full"
     >
-      <Card className="h-full">
+      <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
@@ -50,7 +52,7 @@ export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="w-full h-[400px]">
+          <div className="w-full" style={{ height: typeof height === 'number' ? `${height}px` : height }}>
             {children}
           </div>
         </CardContent>
