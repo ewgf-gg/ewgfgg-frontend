@@ -220,10 +220,10 @@ export interface WinrateChange {
 }
   
 export interface RankWinrateChanges {
-    masterRanks: WinrateChange[];
-    advancedRanks: WinrateChange[];
-    intermediateRanks: WinrateChange[];
-    beginnerRanks: WinrateChange[];
+    master: WinrateChange[];
+    advanced: WinrateChange[];
+    intermediate: WinrateChange[];
+    beginner: WinrateChange[];
 }
 
 export interface VersionStats {
