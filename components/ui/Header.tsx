@@ -107,7 +107,6 @@ export function Header() {
                 className="font-['Russo_One'] text-xl md:text-2xl text-white whitespace-nowrap flex items-center"
               >
                 <div className="relative" style={{ width: '40px', height: '40px', marginRight: '8px' }}>
-                  {theme === 'dark' ? (
                     <Image 
                       src="/static/EWGF_ICON@2x.png" 
                       alt="EWGF Logo" 
@@ -115,15 +114,6 @@ export function Header() {
                       className="object-contain"
                       style={{ transform: 'scale(1.7)' }}
                     />
-                  ) : (
-                    <Image 
-                      src="/static/EWGF_ICON_BLK@2x.png" 
-                      alt="EWGF Logo" 
-                      fill
-                      className="object-contain"
-                      style={{ transform: 'scale(1.7)' }}
-                    />
-                  )}
                 </div>
                 ewgf<span className="text-blue-400 dark:text-blue-500">.gg</span>
               </Link>
