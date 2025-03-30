@@ -59,7 +59,7 @@ export const RecentlyActivePlayersChart: React.FC<RecentlyActivePlayersChartProp
                       <div className="flex justify-between items-center">
                         <h4 className="font-medium text-sm">{player.name}</h4>
                         <span className="text-xs text-muted-foreground">
-                          about {formatDistanceToNow(fromUnixTime(player.lastSeen))} ago
+                          about {formatDistanceToNow(fromUnixTime(player.lastSeen), {includeSeconds: true})} ago
                         </span>
                       </div>
                       <div className="flex justify-between items-center text-xs text-muted-foreground">
