@@ -32,10 +32,10 @@ const initialPopularity: CharacterPopularity = {
 };
 
 const initialWinrateChanges: RankWinrateChanges = {
-  masterRanks:[],
-  advancedRanks: [],
-  intermediateRanks: [],
-  beginnerRanks: []
+  master:[],
+  advanced: [],
+  intermediate: [],
+  beginner: []
 };
 
 export const rankColorsAtom = atom<ColorMapping[]>([
