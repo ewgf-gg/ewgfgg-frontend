@@ -149,6 +149,7 @@ export interface RecentlyActivePlayer {
     tekkenPower: number;
     region: number;
     lastSeen: number;
+    polarisId: string;
 }
 
 export interface InitialData {

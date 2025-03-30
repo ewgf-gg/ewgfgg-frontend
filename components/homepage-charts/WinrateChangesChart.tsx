@@ -17,7 +17,16 @@ export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> 
   }, []);
 
   const { data, domain } = useMemo(() => {
-    const rankData = winrateChanges[rank as keyof typeof winrateChanges] || [];
+    // Map the rank values from the selector to the keys in the winrateChangesAtom
+    const rankMap: Record<string, keyof typeof winrateChanges> = {
+      "masterRanks": "master",
+      "advancedRanks": "advanced",
+      "intermediateRanks": "intermediate",
+      "beginnerRanks": "beginner"
+    };
+    
+    const mappedRank = rankMap[rank] || "master";
+    const rankData = winrateChanges[mappedRank] || [];
     
     const chartData = [...rankData]
       .map(entry => ({
