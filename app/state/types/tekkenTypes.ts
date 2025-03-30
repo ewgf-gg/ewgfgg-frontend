@@ -140,21 +140,35 @@ export interface RankStats {
     regionalStats: { [region: string]: { [character: string]: number } };
 }
 
+export interface RecentlyActivePlayer {
+    name: string;
+    characterAndRank: {
+        danRank: string;
+        characterName: string;
+    };
+    tekkenPower: number;
+    region: number;
+    lastSeen: number;
+}
+
 export interface InitialData {
     totalReplays: number;
     totalPlayers: number;
     characterWinrates: {
-      highRank: RankStats;
-      mediumRank: RankStats;
-      lowRank: RankStats;
+        masterRanks: RankStats;
+        advancedRanks: RankStats;
+        intermediateRanks: RankStats;
+        beginnerRanks: RankStats;
     };
     characterPopularity: {
-      highRank: RankStats;
-      mediumRank: RankStats;
-      lowRank: RankStats;
+        masterRanks: RankStats;
+        advancedRanks: RankStats;
+        intermediateRanks: RankStats;
+        beginnerRanks: RankStats;
     };
     rankDistribution: GameRankDistribution;
     winrateChanges: RankWinrateChanges;
+    recentlyActivePlayers: RecentlyActivePlayer[];
 }
 
 export interface PlayerSearchResult {
@@ -185,15 +199,17 @@ export type RankOption = {
 };
   
 export interface CharacterWinrates {
-    highRank: RankStats;
-    mediumRank: RankStats;
-    lowRank: RankStats;
+    masterRanks: RankStats;
+    advancedRanks: RankStats;
+    intermediateRanks: RankStats;
+    beginnerRanks: RankStats;
 }
   
 export interface CharacterPopularity {
-    highRank: RankStats;
-    mediumRank: RankStats;
-    lowRank: RankStats;
+    masterRanks: RankStats;
+    advancedRanks: RankStats;
+    intermediateRanks: RankStats;
+    beginnerRanks: RankStats;
 }
   
 export interface WinrateChange {
@@ -204,35 +220,42 @@ export interface WinrateChange {
 }
   
 export interface RankWinrateChanges {
-    highRank: WinrateChange[];
-    mediumRank: WinrateChange[];
-    lowRank: WinrateChange[];
+    masterRanks: WinrateChange[];
+    advancedRanks: WinrateChange[];
+    intermediateRanks: WinrateChange[];
+    beginnerRanks: WinrateChange[];
 }
 
 export interface VersionStats {
     [version: string]: {
-        highRank: RankStats;
-        mediumRank: RankStats;
-        lowRank: RankStats;
         allRanks: RankStats;
+        masterRanks: RankStats;
+        advancedRanks: RankStats;
+        intermediateRanks: RankStats;
+        beginnerRanks: RankStats;
     };
 }
 
 // Constants
 export const RANK_OPTIONS: RankOption[] = [
-    { 
-      value: "highRank", 
-      label: "Tekken King↑",
-      description: "in Tekken King and above"
+    {
+        value: "masterRanks",
+        label: "Master",
+        description: "in Tekken God and above"
     },
     { 
-      value: "mediumRank", 
-      label: "Garyu→Bushin",
-      description: "from Garyu → Bushin"
+      value: "advancedRanks", 
+      label: "Advanced",
+      description: "from Fujin→ Tekken King"
     },
     { 
-      value: "lowRank", 
-      label: "Eliminator↓",
+      value: "intermediateRanks", 
+      label: "Intermediate",
+      description: "from Garyu → Battle Ruler"
+    },
+    { 
+      value: "beginnerRanks", 
+      label: "Beginner",
       description: "in Eliminator and below"
     }
 ];

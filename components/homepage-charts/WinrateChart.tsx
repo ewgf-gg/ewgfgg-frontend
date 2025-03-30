@@ -11,7 +11,7 @@ import { characterIdMap } from '../../app/state/types/tekkenTypes';
 
 export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState(true);
-  const [rank, setRank] = useState("highRank");
+  const [rank, setRank] = useState("masterRanks");
   const [characterWinrates] = useAtom(characterWinratesAtom);
   const colors = useAtomValue(characterColors);
 

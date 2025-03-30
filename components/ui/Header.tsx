@@ -3,6 +3,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAtom } from 'jotai';
 import { useTheme } from 'next-themes';
 import { totalReplaysAtom, totalPlayersAtom } from '@/app/state/atoms/tekkenStatsAtoms'
@@ -103,8 +104,27 @@ export function Header() {
             <div className="flex items-center space-x-4 md:space-x-8">
               <Link
                 href="/"
-                className="font-['Russo_One'] text-xl md:text-2xl text-white whitespace-nowrap"
+                className="font-['Russo_One'] text-xl md:text-2xl text-white whitespace-nowrap flex items-center"
               >
+                <div className="relative" style={{ width: '40px', height: '40px', marginRight: '8px' }}>
+                  {theme === 'dark' ? (
+                    <Image 
+                      src="/static/EWGF_ICON@2x.png" 
+                      alt="EWGF Logo" 
+                      fill
+                      className="object-contain"
+                      style={{ transform: 'scale(1.7)' }}
+                    />
+                  ) : (
+                    <Image 
+                      src="/static/EWGF_ICON_BLK@2x.png" 
+                      alt="EWGF Logo" 
+                      fill
+                      className="object-contain"
+                      style={{ transform: 'scale(1.7)' }}
+                    />
+                  )}
+                </div>
                 ewgf<span className="text-blue-400 dark:text-blue-500">.gg</span>
               </Link>
               <div className="hidden md:flex space-x-6">

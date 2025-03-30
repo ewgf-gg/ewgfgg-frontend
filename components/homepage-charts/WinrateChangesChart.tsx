@@ -7,9 +7,9 @@ import { CustomYAxisTick } from '../shared/CustomYAxisTick';
 import { CustomTooltip } from '../shared/CustomTooltip';
 import { ChartProps } from '@/app/state/types/tekkenTypes';
 
-export const WinrateChangesChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
+export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState(true);
-  const [rank, setRank] = useState("highRank");
+  const [rank, setRank] = useState("masterRanks");
   const [winrateChanges] = useAtom(winrateChangesAtom);
 
   useEffect(() => {

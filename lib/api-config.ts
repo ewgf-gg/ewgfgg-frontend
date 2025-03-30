@@ -12,7 +12,6 @@ export function getAPIConfig(): APIConfig {
   const apiKey = process.env.API_KEY;
   
   const defaultHeaders: APIConfig['headers'] = {
-    'Cache-Control': 'no-store',
     'Accept': 'application/json'
   };
 
@@ -52,12 +51,14 @@ export async function fetchWithConfig(endpoint: string, options: RequestInit = {
   return response.json();
 }
 
-// Utility function for player-specific endpoints
 export async function fetchPlayerData(username: string) {
-    return fetchWithConfig(`/player-stats/${encodeURIComponent(username)}`);
-  }
-  
-  // Utility function for statistics endpoints
-  export async function fetchStatistics(endpoint: string) {
-    return fetchWithConfig(`/statistics/${endpoint}`);
-  }
+  return fetchWithConfig(`/player-stats/${encodeURIComponent(username)}`, {
+    next: {
+      revalidate: 0
+    }
+  });
+}
+
+export async function fetchStatistics(endpoint: string) {
+  return fetchWithConfig(`/statistics/${endpoint}`);
+}

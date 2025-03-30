@@ -1,24 +1,30 @@
 import React from 'react';
 import { PopularityChart } from './PopularityChart';
 import { WinrateChart } from './WinrateChart';
-import { WinrateChangesChart } from './WinrateChangesChart';
+import { WinRateTrends } from './WinrateChangesChart';
+import { RecentlyActivePlayersChart } from './RecentlyActivePlayersChart';
 
 export const StatsGrid: React.FC = () => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
     <PopularityChart
       title="Most Popular Characters"
-      description="Top 5 most picked characters"
+      description="Most picked characters"
       delay={0.4}
     />
     <WinrateChart
       title="Highest Win Rates"
-      description="Top 5 characters by win rate"
+      description="Characters with highest winrates"
       delay={0.6}
     />
-    <WinrateChangesChart
-      title="Highest Win Rate Changes"
-      description="Top win rate changes since last patch"
+    <WinRateTrends
+      title="Win Rate Trends"
+      description="Win rate trends since last patch"
       delay={0.8}
+    />
+    <RecentlyActivePlayersChart
+      title="Recently Active Players"
+      description="Last seen players on ranked"
+      delay={1.0}
     />
   </div>
 );

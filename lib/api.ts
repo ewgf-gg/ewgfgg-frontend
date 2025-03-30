@@ -7,7 +7,7 @@ import {
   RankDistribution,
   VersionStats
 } from '@/app/state/types/tekkenTypes'
-import { fetchWithConfig, fetchStatistics } from '@/lib/api-config';
+import { fetchWithConfig, fetchStatistics, fetchPlayerData } from '@/lib/api-config';
 
 const transformRankDistribution = (entries: Array<{ rank: number, percentage: number }>): RankDistribution[] => {
   return entries.map(entry => ({
@@ -23,13 +23,15 @@ export const getInitialData = async (): Promise<InitialData> => {
           winrates,
           popularity,
           winrateChanges,
-          rankDistributionData
+          rankDistributionData,
+          recentlyActivePlayers
       ] = await Promise.all([
           fetchStatistics('stats-summary'),
           fetchStatistics('top-winrates'),
           fetchStatistics('top-popularity'),
           fetchStatistics('winrate-changes'),
-          fetchStatistics('rankDistribution')
+          fetchStatistics('rankDistribution'),
+          fetchPlayerData('recentlyActive')
       ]);
 
       const distributionData = {} as GameRankDistribution;
@@ -50,7 +52,8 @@ export const getInitialData = async (): Promise<InitialData> => {
           characterWinrates: winrates,
           characterPopularity: popularity,
           rankDistribution: distributionData,
-          winrateChanges
+          winrateChanges,
+          recentlyActivePlayers
       };
   } catch (error) {
       console.error('Failed to fetch initial data:', error);

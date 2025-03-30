@@ -8,7 +8,8 @@ import type {
   RankWinrateChanges,
   GameRankDistribution,
   PlayerStats,
-  RankStats
+  RankStats,
+  RecentlyActivePlayer
 } from '../types/tekkenTypes';
 
 const initialRankStats: RankStats = {
@@ -17,21 +18,24 @@ const initialRankStats: RankStats = {
 };
 
 const initialWinrates: CharacterWinrates = {
-  highRank: initialRankStats,
-  mediumRank: initialRankStats,
-  lowRank: initialRankStats
+  masterRanks: initialRankStats,
+  advancedRanks: initialRankStats,
+  intermediateRanks: initialRankStats,
+  beginnerRanks: initialRankStats
 };
 
 const initialPopularity: CharacterPopularity = {
-  highRank: initialRankStats,
-  mediumRank: initialRankStats,
-  lowRank: initialRankStats
+  masterRanks: initialRankStats,
+  advancedRanks: initialRankStats,
+  intermediateRanks: initialRankStats,
+  beginnerRanks: initialRankStats
 };
 
 const initialWinrateChanges: RankWinrateChanges = {
-  highRank: [],
-  mediumRank: [],
-  lowRank: []
+  masterRanks:[],
+  advancedRanks: [],
+  intermediateRanks: [],
+  beginnerRanks: []
 };
 
 export const rankColorsAtom = atom<ColorMapping[]>([
@@ -138,6 +142,7 @@ export const rankDistributionAtom = atom<GameRankDistribution>({} as GameRankDis
 export const playerStatsAtom = atom<PlayerStats | null>(null);
 export const playerStatsLoadingAtom = atom(false);
 export const playerStatsErrorAtom = atom<string | null>(null);
+export const recentlyActivePlayersAtom = atom<RecentlyActivePlayer[]>([]);
 
 export const getColor = (id: string): string => {
   const colors = rankColorsAtom.init;

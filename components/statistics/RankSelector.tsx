@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type RankCategory = 'allRanks' | 'highRank' | 'mediumRank' | 'lowRank';
+export type RankCategory = 'allRanks' | 'masterRanks' | 'advancedRanks' | 'intermediateRanks' | 'beginnerRanks';
 
 interface RankSelectorProps {
   selectedRank: RankCategory;
@@ -16,9 +16,10 @@ interface RankSelectorProps {
 
 const ranks = [
   { value: 'allRanks' as RankCategory, label: 'All Ranks' },
-  { value: 'highRank' as RankCategory, label: 'Tekken King↑' },
-  { value: 'mediumRank' as RankCategory, label: 'Garyu→Bushin' },
-  { value: 'lowRank' as RankCategory, label: 'Eliminator↓' }
+  { value: 'masterRanks' as RankCategory, label: 'Tekken God↑'},
+  { value: 'advancedRanks' as RankCategory, label: 'Fujin→Tekken King' },
+  { value: 'intermediateRanks' as RankCategory, label: 'Garyu→Battle Ruler' },
+  { value: 'beginnerRanks' as RankCategory, label: 'Eliminator↓' }
 ];
 
 export function RankSelector({ selectedRank, onRankChange }: RankSelectorProps) {

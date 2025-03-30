@@ -13,8 +13,7 @@ import  EWGFLoadingAnimation  from '@/components/EWGFLoadingAnimation';
 import { useState, useEffect } from 'react';
 import React from 'react';
 
-type RankCategory = 'allRanks' | 'highRank' | 'mediumRank' | 'lowRank';
-
+import { RankCategory } from '@/components/statistics/RankSelector'
 
 const formatVersion = (version: string) => {
   const major = Math.floor(parseInt(version) / 10000);

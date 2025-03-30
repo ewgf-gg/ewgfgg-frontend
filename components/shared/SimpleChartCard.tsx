@@ -30,9 +30,9 @@ export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
       transition={{ duration: 0.5, delay }}
       className="w-full"
     >
-      <Card>
+      <Card className="h-full">
         <CardHeader>
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-center">
             <div>
               <CardTitle className="text-lg">{title}</CardTitle>
               {description && (
@@ -50,7 +50,7 @@ export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="w-full h-[400px]">
+          <div className="w-full h-[200px]">
             {children}
           </div>
         </CardContent>

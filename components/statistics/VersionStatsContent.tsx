@@ -11,7 +11,7 @@ interface VersionStatsContentProps {
   winrateData: VersionStats;
   selectedVersion: string;
   selectedRegion: string;
-  selectedRank: 'allRanks' | 'highRank' | 'mediumRank' | 'lowRank';
+  selectedRank: 'allRanks' | 'masterRanks' | 'advancedRanks' | 'intermediateRanks' | 'beginnerRanks';
 }
 
 export function VersionStatsContent({ 
