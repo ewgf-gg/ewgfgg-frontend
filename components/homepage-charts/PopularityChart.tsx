@@ -37,7 +37,7 @@ const PopularityTooltip: React.FC<PopularityTooltipProps> = ({ active, payload, 
           <span className="font-medium">{label}</span>
         </div>
         <div className="text-sm">
-          {payload[0].value.toLocaleString()} character picks
+          {payload[0].payload.originalCount.toLocaleString()} character picks
         </div>
       </div>
     );
@@ -147,6 +147,7 @@ export const PopularityChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>
     const rankStats = characterPopularity[rank as keyof typeof characterPopularity];
     const rankData = rankStats?.globalStats || {};
     
+    // First, create the chart data with original counts
     const chartData: PopularityData[] = Object.entries(rankData)
       .map(([character, totalBattles]) => {
         // Find character ID by looking up the character name in the values
@@ -156,19 +157,28 @@ export const PopularityChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>
         return {
           character,
           characterId: characterId ? parseInt(characterId) : -1,
-          count: totalBattles,
+          count: totalBattles, // Temporary value, will be normalized
           originalCount: totalBattles
         };
       })
       .sort((a, b) => b.originalCount - a.originalCount);
     
-    const minCount = Math.floor(Math.min(...chartData.map(d => d.count)));
-    const maxCount = Math.ceil(Math.max(...chartData.map(d => d.count)));
-    const domainPadding = (maxCount - minCount) * 0.05;
+    // Find the maximum value (the most popular character)
+    const maxOriginalCount = Math.max(...chartData.map(d => d.originalCount));
+    
+    // Normalize all values as percentage of maximum (0-100 scale)
+    chartData.forEach(item => {
+      item.count = (item.originalCount / maxOriginalCount) * 100;
+    });
+    
+    // Set domain for the normalized values
+    const minCount = 0; // Minimum will always be 0 or close to it
+    const maxCount = 100; // Maximum will always be 100 for the most popular character
+    const domainPadding = 5; // Add a small padding
     
     return {
       data: chartData,
-      domainMin: Math.max(0, minCount - domainPadding),
+      domainMin: minCount,
       domainMax: maxCount + domainPadding
     };
   }, [characterPopularity, rank]);

@@ -271,7 +271,8 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
                   <LabelList 
                     dataKey="percentage" 
                     position={isMobile ? "right" : "top"}
-                    formatter={(value: number) => `${value.toFixed(2)}%`} 
+                    formatter={(value: number) => `${value.toFixed(2)}%`}
+                    style={{ fontSize: '12px' }} 
                   />
                   {chartData.map((entry: ChartDataPoint, index: number) => (
                     <Cell 
