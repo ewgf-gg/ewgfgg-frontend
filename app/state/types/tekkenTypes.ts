@@ -372,7 +372,8 @@ export const characterIdMap: { [key: number]: string} = {
     38: 'Eddy',
     39: 'Lidia',
     40: 'Heihachi',
-    41: 'Clive'
+    41: 'Clive',
+    42: 'Anna'
 };
 
 export const characterIconMap: { [key: string]: string } = {
@@ -412,5 +413,6 @@ export const characterIconMap: { [key: string]: string } = {
     'Steve': '/static/character-icons/SteveT8.png',
     'Xiaoyu': '/static/character-icons/XiaoyuT8.png',
     'Yoshimitsu': '/static/character-icons/YoshimitsuT8.png',
-    'Zafina': '/static/character-icons/ZafinaT8.png'
+    'Zafina': '/static/character-icons/ZafinaT8.png',
+    'Anna': '/static/character-icons/AnnaT8Temp.png'
 };
