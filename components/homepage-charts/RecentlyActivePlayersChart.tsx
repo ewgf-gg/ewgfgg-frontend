@@ -30,7 +30,7 @@ export const RecentlyActivePlayersChart: React.FC<RecentlyActivePlayersChartProp
         <div className="w-full h-full">
           {displayPlayers.length === 0 ? (
             <div className="flex items-center justify-center h-full">
-              <p className="text-muted-foreground">No recently active players found</p>
+              <p className="text-muted-foreground">No recently active players found. (Servers could be down for maintenence.)</p>
             </div>
           ) : (
             <div className="space-y-1 overflow-y-auto h-full pr-2">
