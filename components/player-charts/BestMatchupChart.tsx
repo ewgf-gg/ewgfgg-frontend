@@ -12,7 +12,6 @@ interface BestMatchupChartProps {
 
 const BestMatchupChart: React.FC<BestMatchupChartProps> = ({ 
   selectedCharacterId, 
-  playerName,
   playedCharacters
 }) => {
   // Get the character name from the ID

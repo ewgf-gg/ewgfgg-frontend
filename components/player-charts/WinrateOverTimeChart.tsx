@@ -48,7 +48,6 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
 
 const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
   battles,
-  playerName,
   selectedCharacterId,
   polarisId
 }) => {

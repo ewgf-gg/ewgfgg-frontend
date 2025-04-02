@@ -128,10 +128,7 @@ const WinrateLegend = () => (
 );
 
 const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
-  battles,
   selectedCharacterId,
-  playerName,
-  polarisId,
   playedCharacters
 }) => {
   // Get the character name from the ID
@@ -152,6 +149,7 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
     // Convert matchups to chart data format
     return Object.entries(character.matchups).map(([opponentName, matchup]) => ({
       characterName: opponentName,
+      // eslint-disable-next-line
       characterId: Object.entries(characterIdMap).find(([_, name]) => name === opponentName)?.[0] || 0,
       wins: matchup.wins,
       losses: matchup.losses,

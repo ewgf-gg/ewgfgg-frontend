@@ -9,7 +9,7 @@ import TekkenPowerChart from './TekkenPowerChart';
 import { CharacterSelector } from '../player-stats/CharacterSelector';
 import { UserInfoCard } from '../player-stats/UserInfoCard';
 import { RecentBattlesCard } from './RecentBattlesCard';
-import { FormattedPlayerStats, CharacterStats, PlayedCharacter } from '../../app/state/types/tekkenTypes';
+import { FormattedPlayerStats, CharacterStats } from '../../app/state/types/tekkenTypes';
 
 interface CharacterStatsRecord extends Omit<CharacterStats, 'danRank'> {
   gameVersion: string;

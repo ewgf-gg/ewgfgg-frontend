@@ -123,7 +123,6 @@ TimeRangeButtons.displayName = 'TimeRangeButtons';
 
 const TekkenPowerChart: React.FC<TekkenPowerChartProps> = ({
   battles,
-  playerName,
   polarisId
 }) => {
   const [timeSpan, setTimeSpan] = useState<TimeSpan>('all');

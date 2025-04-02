@@ -10,7 +10,6 @@ import { useAtom } from 'jotai';
 import { playerStatsAtom, playerStatsLoadingAtom, playerStatsErrorAtom } from '../../state/atoms/tekkenStatsAtoms';
 import { 
   PlayerStats, 
-  CharacterStats, 
   CharacterStatsWithVersion, 
   CharacterBattleStats, 
   Battle, 
@@ -58,6 +57,7 @@ function formatFavoriteCharacters(playedCharacters: Record<string, PlayedCharact
 function formatCharacterStatsWithVersion(playedCharacters: Record<string, PlayedCharacter>): CharacterStatsWithVersion[] {
   // Find character IDs from characterIdMap
   const getCharacterId = (characterName: string): number => {
+    // eslint-disable-next-line
     const entry = Object.entries(characterIdMap).find(([_, name]) => name === characterName);
     return entry ? parseInt(entry[0]) : 0;
   };
@@ -82,6 +82,7 @@ function formatCharacterBattleStats(playedCharacters: Record<string, PlayedChara
   
   // Find character IDs from characterIdMap
   const getCharacterId = (characterName: string): number => {
+    // eslint-disable-next-line
     const entry = Object.entries(characterIdMap).find(([_, name]) => name === characterName);
     return entry ? parseInt(entry[0]) : 0;
   };

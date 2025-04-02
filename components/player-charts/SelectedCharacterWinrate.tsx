@@ -13,11 +13,9 @@ interface CharacterWinLossChartProps {
 }
 
 const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({ 
-  battles, 
   selectedCharacterId,
   // eslint-disable-next-line
   playerName,
-  polarisId,
   playedCharacters
 }) => {
   // Return null if selectedCharacterId is null or undefined (but not 0)
