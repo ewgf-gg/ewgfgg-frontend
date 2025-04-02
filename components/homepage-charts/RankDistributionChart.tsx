@@ -115,8 +115,8 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
     const topPercentage = calculateTopPercentage(rank.rank);
     return {
       rank: rank.rank,
-      percentage: Number(rank.percentage.toFixed(2)),
-      topPercentage: Number(topPercentage.toFixed(2)),
+      percentage: rank.percentage,
+      topPercentage: topPercentage,
       fill: colorEntry?.color || '#3182ce',
     };
   });
@@ -154,6 +154,29 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
     </g>
   );
   
+  // Function to format percentage with first significant digit
+  const formatPercentage = (value: number) => {
+    if (value === 0) return '0.00%';
+    if (value >= 0.01) return `${value.toFixed(2)}%`;
+    
+    // For values less than 0.01%, find the first significant digit
+    const valueStr = value.toString();
+    const decimalIndex = valueStr.indexOf('.');
+    if (decimalIndex === -1) return `${value.toFixed(2)}%`;
+    
+    let significantDigits = 0;
+    for (let i = decimalIndex + 1; i < valueStr.length; i++) {
+      significantDigits++;
+      if (valueStr[i] !== '0') {
+        // Found first non-zero digit, show up to this digit plus one more
+        return `${value.toFixed(significantDigits + 1)}%`;
+      }
+    }
+    
+    // If we get here, all digits are zeros
+    return `${value.toFixed(2)}%`;
+  };
+
   const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const { percentage, topPercentage } = payload[0].payload;
@@ -167,8 +190,8 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
             />
             <span className="font-medium">{label}</span>
           </div>
-          <div className="text-sm">{`Top ${topPercentage.toFixed(2)}% of players`}</div>
-          <div className="text-sm">{`${percentage.toFixed(2)}% of the playerbase is here`}</div>
+          <div className="text-sm">{`Top ${formatPercentage(topPercentage)} of players`}</div>
+          <div className="text-sm">{`${formatPercentage(percentage)} of the playerbase is here`}</div>
         </div>
       );
     }
@@ -271,7 +294,7 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
                   <LabelList 
                     dataKey="percentage" 
                     position={isMobile ? "right" : "top"}
-                    formatter={(value: number) => `${value.toFixed(2)}%`}
+                    formatter={(value: number) => formatPercentage(value)}
                     style={{ fontSize: '12px' }} 
                   />
                   {chartData.map((entry: ChartDataPoint, index: number) => (
