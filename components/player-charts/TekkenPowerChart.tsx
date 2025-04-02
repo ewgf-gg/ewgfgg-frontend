@@ -128,43 +128,88 @@ const TekkenPowerChart: React.FC<TekkenPowerChartProps> = ({
 }) => {
   const [timeSpan, setTimeSpan] = useState<TimeSpan>('all');
 
-  // Calculate all-time tekken power data
+  // Calculate all-time tekken power data with bucketing to reduce data points
   const allTimeData = useMemo(() => {
-    const sortedBattles = battles.slice().reverse();
-    const processedData: ChartDataPoint[] = [];
+    if (battles.length === 0) return [];
     
-    sortedBattles.forEach((battle, index) => {
+    // Sort battles by date (oldest first)
+    const sortedBattles = battles.slice().sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    
+    // Group battles by day to reduce data points
+    const battlesByDay: Record<string, { 
+      date: string; 
+      tekkenPower: number; 
+      rankDivision: number;
+      color: string;
+    }> = {};
+    
+    sortedBattles.forEach(battle => {
+      const date = new Date(battle.date);
+      const dayKey = format(date, 'yyyy-MM-dd'); // Group by day
       const isPlayer1 = battle.player1PolarisId === polarisId;
       const tekkenPower = isPlayer1 ? battle.player1TekkenPower : battle.player2TekkenPower;
-      const date = new Date(battle.date);
-      const rankDivision = getRankDivision(tekkenPower);
-      const color = rankDivisionColors.init.find(c => c.id === rankDivision.toString())?.color || '#718096';
-
-      // Add transition point if rank changed
-      if (index > 0) {
-        const prevPoint = processedData[processedData.length - 1];
-        if (prevPoint.rankDivision !== rankDivision) {
+      
+      // For each day, keep the latest battle's tekken power
+      if (!battlesByDay[dayKey] || new Date(battle.date) > new Date(battlesByDay[dayKey].date)) {
+        const rankDivision = getRankDivision(tekkenPower);
+        const color = rankDivisionColors.init.find(c => c.id === rankDivision.toString())?.color || '#718096';
+        
+        battlesByDay[dayKey] = {
+          date: battle.date,
+          tekkenPower,
+          rankDivision,
+          color
+        };
+      }
+    });
+    
+    // Get all days sorted
+    const days = Object.keys(battlesByDay).sort();
+    
+    // For very large datasets, further reduce points by sampling
+    const maxDataPoints = 100; // Maximum number of data points to display
+    const skipFactor = days.length > maxDataPoints ? Math.floor(days.length / maxDataPoints) : 1;
+    
+    const processedData: ChartDataPoint[] = [];
+    let prevRankDivision: number | null = null;
+    
+    days
+      .filter((_, index) => index % skipFactor === 0 || index === days.length - 1) // Sample data points
+      .forEach(dayKey => {
+        const dayData = battlesByDay[dayKey];
+        const date = new Date(dayData.date);
+        
+        // Add transition point if rank changed
+        if (prevRankDivision !== null && prevRankDivision !== dayData.rankDivision) {
+          // Find the previous data point
+          const prevPoint = processedData[processedData.length - 1];
+          
+          // Add a transition point with the new tekken power but old rank
           processedData.push({
-            date: battle.date,
-            tekkenPower,
-            formattedDate: format(date, 'MMM d, yyyy HH:mm'),
-            rankDivision: prevPoint.rankDivision,
+            date: dayData.date,
+            tekkenPower: dayData.tekkenPower,
+            formattedDate: format(date, 'MMM d, yyyy'),
+            rankDivision: prevRankDivision,
             color: prevPoint.color
           });
         }
-      }
-
-      processedData.push({
-        date: battle.date,
-        tekkenPower,
-        formattedDate: format(date, 'MMM d, yyyy HH:mm'),
-        rankDivision,
-        color
+        
+        // Add the regular data point
+        processedData.push({
+          date: dayData.date,
+          tekkenPower: dayData.tekkenPower,
+          formattedDate: format(date, 'MMM d, yyyy'),
+          rankDivision: dayData.rankDivision,
+          color: dayData.color
+        });
+        
+        prevRankDivision = dayData.rankDivision;
       });
-    });
-
+    
     return processedData;
-  }, [battles, playerName]);
+  }, [battles, polarisId]);
 
   // Filter display data based on timespan
   const displayData = useMemo(() => {

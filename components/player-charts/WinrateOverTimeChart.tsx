@@ -54,7 +54,7 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
 }) => {
   const [timeSpan, setTimeSpan] = useState<TimeSpan>('all');
 
-  // Calculate all-time winrate data once
+  // Calculate all-time winrate data with bucketing to reduce data points
   const allTimeData = useMemo(() => {
     // Filter battles for selected character if specified
     const filteredBattles = selectedCharacterId 
@@ -64,32 +64,69 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
         )
       : battles;
 
-    // Calculate running win rate
-    let wins = 0;
-    let losses = 0;
+    if (filteredBattles.length === 0) return [];
     
-    return filteredBattles.slice().reverse().map((battle) => {
+    // Sort battles by date (oldest first)
+    const sortedBattles = filteredBattles.slice().sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    
+    // Group battles by day to reduce data points
+    const battlesByDay: Record<string, { wins: number; losses: number; date: string }> = {};
+    
+    sortedBattles.forEach(battle => {
+      const date = new Date(battle.date);
+      const dayKey = format(date, 'yyyy-MM-dd'); // Group by day
+      
+      if (!battlesByDay[dayKey]) {
+        battlesByDay[dayKey] = {
+          wins: 0,
+          losses: 0,
+          date: battle.date // Keep the date of the first battle of the day
+        };
+      }
+      
       const isPlayer1 = battle.player1PolarisId === polarisId;
       const won = isPlayer1 ? battle.winner === 1 : battle.winner === 2;
       
-      if (won) wins++;
-      else losses++;
-      
-      const totalGames = wins + losses;
-      const winRate = (wins / totalGames) * 100;
-      
-      const date = new Date(battle.date);
-      
-      return {
-        date: battle.date,
-        winRate,
-        formattedDate: format(date, 'MMM d, yyyy HH:mm'),
-        totalGames,
-        wins,
-        losses
-      };
+      if (won) battlesByDay[dayKey].wins++;
+      else battlesByDay[dayKey].losses++;
     });
-  }, [battles, playerName, selectedCharacterId]);
+    
+    // Convert daily data to cumulative data points
+    let cumulativeWins = 0;
+    let cumulativeLosses = 0;
+    
+    // Get all days sorted
+    const days = Object.keys(battlesByDay).sort();
+    
+    // For very large datasets, further reduce points by sampling
+    const maxDataPoints = 100; // Maximum number of data points to display
+    const skipFactor = days.length > maxDataPoints ? Math.floor(days.length / maxDataPoints) : 1;
+    
+    return days
+      .filter((_, index) => index % skipFactor === 0 || index === days.length - 1) // Sample data points
+      .map(dayKey => {
+        const dayData = battlesByDay[dayKey];
+        
+        cumulativeWins += dayData.wins;
+        cumulativeLosses += dayData.losses;
+        
+        const totalGames = cumulativeWins + cumulativeLosses;
+        const winRate = (cumulativeWins / totalGames) * 100;
+        
+        const date = new Date(dayData.date);
+        
+        return {
+          date: dayData.date,
+          winRate,
+          formattedDate: format(date, 'MMM d, yyyy'),
+          totalGames,
+          wins: cumulativeWins,
+          losses: cumulativeLosses
+        };
+      });
+  }, [battles, selectedCharacterId, polarisId]);
 
   // Filter display data based on timespan
   const displayData = useMemo(() => {

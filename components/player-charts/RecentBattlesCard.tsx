@@ -12,7 +12,6 @@ interface RecentBattlesCardProps {
   battles: Battle[];
   playerName: string;
   polarisId: string;
-  selectedVersion: string;
 }
 
 export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
@@ -20,20 +19,14 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
   // eslint-disable-next-line
   playerName,
   polarisId,
-  selectedVersion,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [battlesPerPage, setBattlesPerPage] = useState(25);
 
-  // Filter battles based on version
-  const filteredBattles = selectedVersion === 'all' 
-    ? battles 
-    : battles.filter(battle => battle.gameVersion.toString() === selectedVersion);
-
-  const totalPages = Math.ceil(filteredBattles.length / battlesPerPage);
+  const totalPages = Math.ceil(battles.length / battlesPerPage);
   const indexOfLastBattle = currentPage * battlesPerPage;
   const indexOfFirstBattle = indexOfLastBattle - battlesPerPage;
-  const currentBattles = filteredBattles.slice(indexOfFirstBattle, indexOfLastBattle);
+  const currentBattles = battles.slice(indexOfFirstBattle, indexOfLastBattle);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -166,7 +159,7 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
     return buttons;
   };
 
-  if (filteredBattles.length === 0) {
+  if (battles.length === 0) {
     return null;
   }
 

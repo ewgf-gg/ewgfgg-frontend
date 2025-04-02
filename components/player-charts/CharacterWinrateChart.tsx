@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
-import { Battle, characterIdMap, characterIconMap } from '../../app/state/types/tekkenTypes';
+import { Battle, characterIdMap, characterIconMap, PlayedCharacter } from '../../app/state/types/tekkenTypes';
 import Image from 'next/image';
 
 interface CharacterWinrateChartProps {
@@ -11,7 +11,7 @@ interface CharacterWinrateChartProps {
   // eslint-disable-next-line
   playerName: string;
   polarisId: string;
-
+  playedCharacters?: Record<string, PlayedCharacter>;
 }
 
 interface WinrateData {
@@ -131,47 +131,34 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
   battles,
   selectedCharacterId,
   playerName,
-  polarisId
+  polarisId,
+  playedCharacters
 }) => {
-  const characterBattles = useMemo(() => battles.filter(battle => {
-    const isPlayer1 = battle.player1PolarisId === polarisId;
-    return isPlayer1 
-      ? battle.player1CharacterId === selectedCharacterId
-      : battle.player2CharacterId === selectedCharacterId;
-  }), [battles, selectedCharacterId, playerName]);
+  // Get the character name from the ID
+  const getCharacterName = (characterId: number): string => {
+    return characterIdMap[characterId] || `Character ${characterId}`;
+  };
+
+  const selectedCharName = getCharacterName(selectedCharacterId);
 
   const chartData = useMemo(() => {
-    const winrateData = characterBattles.reduce((acc, battle) => {
-      const isPlayer1 = battle.player1PolarisId === polarisId;
-      const opponentCharId = isPlayer1 ? battle.player2CharacterId : battle.player1CharacterId;
-      const won = isPlayer1 ? battle.winner === 1 : battle.winner === 2;
-      const characterName = characterIdMap[opponentCharId] || `Character ${opponentCharId}`;
-
-      if (!acc[characterName]) {
-        acc[characterName] = {
-          characterName,
-          characterId: opponentCharId,
-          wins: 0,
-          losses: 0,
-          winRate: 0,
-          totalMatches: 0
-        };
-      }
-
-      if (won) {
-        acc[characterName].wins++;
-      } else {
-        acc[characterName].losses++;
-      }
-      
-      acc[characterName].totalMatches++;
-      acc[characterName].winRate = (acc[characterName].wins / acc[characterName].totalMatches) * 100;
-
-      return acc;
-    }, {} as Record<string, WinrateData>);
-
-    return Object.values(winrateData).sort((a, b) => b.winRate - a.winRate);
-  }, [characterBattles, polarisId]);
+    // Get the character data from playedCharacters
+    const character = playedCharacters?.[selectedCharName];
+    
+    if (!character || !character.matchups) {
+      return [];
+    }
+    
+    // Convert matchups to chart data format
+    return Object.entries(character.matchups).map(([opponentName, matchup]) => ({
+      characterName: opponentName,
+      characterId: Object.entries(characterIdMap).find(([_, name]) => name === opponentName)?.[0] || 0,
+      wins: matchup.wins,
+      losses: matchup.losses,
+      winRate: matchup.winRate,
+      totalMatches: matchup.totalMatches
+    })).sort((a, b) => b.winRate - a.winRate);
+  }, [selectedCharName, playedCharacters]);
 
   const selectedCharacterName = characterIdMap[selectedCharacterId];
   const selectedCharacterIcon = selectedCharacterName ? characterIconMap[selectedCharacterName] : null;

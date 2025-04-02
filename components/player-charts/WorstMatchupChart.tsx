@@ -1,5 +1,5 @@
 import React from 'react';
-import { Battle, characterIdMap } from '../../app/state/types/tekkenTypes';
+import { Battle, characterIdMap, PlayedCharacter } from '../../app/state/types/tekkenTypes';
 import MatchupCard from './MatchupCard';
 
 interface WorstMatchupChartProps {
@@ -7,77 +7,54 @@ interface WorstMatchupChartProps {
   selectedCharacterId: number;
   playerName: string;
   polarisId: string;
+  playedCharacters?: Record<string, PlayedCharacter>;
 }
 
 const WorstMatchupChart: React.FC<WorstMatchupChartProps> = ({ 
-  battles, 
   selectedCharacterId, 
   playerName,
-  polarisId 
+  playedCharacters
 }) => {
+  // Get the character name from the ID
+  const getCharacterName = (characterId: number): string => {
+    return characterIdMap[characterId] || `Character ${characterId}`;
+  };
+
+  const selectedCharacterName = getCharacterName(selectedCharacterId);
+  
+  // Use the worstMatchup data directly from the playedCharacters if available
   const worstMatchup = React.useMemo(() => {
     // Return null if selectedCharacterId is null or undefined (but not 0)
-    if (selectedCharacterId === null || selectedCharacterId === undefined) {
+    if (selectedCharacterId === null || selectedCharacterId === undefined || !playedCharacters) {
       return null;
     }
-    // Filter battles for selected character
-    const characterBattles = battles.filter(battle => {
-      const isPlayer1 = battle.player1PolarisId === polarisId;
-      return isPlayer1 
-        ? battle.player1CharacterId === selectedCharacterId
-        : battle.player2CharacterId === selectedCharacterId;
-    });
 
-    // Calculate winrates against each character
-    const matchups = characterBattles.reduce((acc, battle) => {
-      const isPlayer1 = battle.player1PolarisId === polarisId;
-      const opponentCharId = isPlayer1 ? battle.player2CharacterId : battle.player1CharacterId;
-      const won = isPlayer1 ? battle.winner === 1 : battle.winner === 2;
+    const character = Object.entries(playedCharacters).find(
+      ([name]) => name === selectedCharacterName
+    );
 
-      if (!acc[opponentCharId]) {
-        acc[opponentCharId] = {
-          wins: 0,
-          losses: 0,
-          totalMatches: 0,
-          winRate: 0
-        };
-      }
+    if (!character) return null;
 
-      if (won) {
-        acc[opponentCharId].wins++;
-      } else {
-        acc[opponentCharId].losses++;
-      }
-      
-      acc[opponentCharId].totalMatches++;
-      acc[opponentCharId].winRate = (acc[opponentCharId].wins / acc[opponentCharId].totalMatches) * 100;
+    const [, characterData] = character;
+    
+    // If there's no worst matchup data or it's empty, return null
+    if (!characterData.worstMatchup || Object.keys(characterData.worstMatchup).length === 0) {
+      return null;
+    }
 
-      return acc;
-    }, {} as Record<number, { wins: number; losses: number; totalMatches: number; winRate: number; }>);
+    // Get the worst matchup character and winrate
+    const [opponentName, winRate] = Object.entries(characterData.worstMatchup)[0];
+    
+    // Get the total matches for this matchup
+    const matchupData = characterData.matchups[opponentName];
+    const totalMatches = matchupData ? matchupData.totalMatches : 0;
 
-    // Convert to array and sort by winrate, prioritizing matchups with more games
-    const sortedMatchups = Object.entries(matchups)
-      .map(([characterId, stats]) => ({
-        characterId: parseInt(characterId),
-        ...stats
-      }))
-      .filter(matchup => matchup.totalMatches >= 3) // Only consider matchups with at least 3 games
-      .sort((a, b) => {
-        if (Math.abs(b.winRate - a.winRate) < 0.001) {
-          return b.totalMatches - a.totalMatches;
-        }
-        return a.winRate - b.winRate; // Sort ascending for worst matchup
-      });
-
-    if (sortedMatchups.length === 0) return null;
-
-    const worst = sortedMatchups[0];
     return {
-      characterName: characterIdMap[worst.characterId] || `Character ${worst.characterId}`,
-      winRate: worst.winRate,
-      totalMatches: worst.totalMatches
+      characterName: opponentName,
+      winRate: winRate, // Already in percentage form
+      totalMatches
     };
-  }, [battles, selectedCharacterId, playerName]);
+  }, [selectedCharacterId, selectedCharacterName, playedCharacters]);
 
   if (!worstMatchup) {
     return null;

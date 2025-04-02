@@ -70,6 +70,7 @@ export interface FormattedPlayerStats {
     areaId: number;
     latestBattle: number;
     mainCharacterAndRank: MainCharacterAndRank;
+    playedCharacters?: Record<string, PlayedCharacter>;
 }
 
 export interface Battle {
@@ -105,15 +106,33 @@ export interface CharacterBattleStats {
     percentage: number;
 }
 
+export interface Matchup {
+    wins: number;
+    losses: number;
+    winRate: number;
+    totalMatches: number;
+}
+
+export interface PlayedCharacter {
+    wins: number;
+    losses: number;
+    currentSeasonDanRank: number | null;
+    previousSeasonDanRank: number;
+    characterWinrate: number;
+    bestMatchup: Record<string, number>;
+    worstMatchup: Record<string, number>;
+    matchups: Record<string, Matchup>;
+}
+
 export interface PlayerStats {
-    playerId: string;
+    polarisId: string;
     name: string;
     tekkenPower: number;
     latestBattle: number;
     regionId: number;
     areaId: number;
     mainCharacterAndRank: MainCharacterAndRank;
-    characterStats: Record<string, CharacterStats>;
+    playedCharacters: Record<string, PlayedCharacter>;
     battles: Battle[];
 }
 

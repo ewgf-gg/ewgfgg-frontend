@@ -8,7 +8,7 @@ import { PlayerProfile } from '@/components/player-charts/PlayerProfile';
 import EWGFLoadingAnimation from '@/components/EWGFLoadingAnimation';
 import { useAtom } from 'jotai';
 import { playerStatsAtom, playerStatsLoadingAtom, playerStatsErrorAtom } from '../../state/atoms/tekkenStatsAtoms';
-import type { 
+import { 
   PlayerStats, 
   CharacterStats, 
   CharacterStatsWithVersion, 
@@ -16,8 +16,11 @@ import type {
   Battle, 
   FormattedCharacter, 
   FormattedMatch, 
-  FormattedPlayerStats } from '../../state/types/tekkenTypes';
-  import React from 'react'
+  FormattedPlayerStats,
+  PlayedCharacter,
+  characterIdMap,
+  rankOrderMap } from '../../state/types/tekkenTypes';
+import React from 'react'
 
 interface PageProps {
   params: {
@@ -27,80 +30,74 @@ interface PageProps {
 
 // Utility functions
 function validatePlayerStats(data: PlayerStats): void {
-  if (!data.playerId || !data.name || !data.characterStats) {
+  if (!data.polarisId || !data.name || !data.playedCharacters) {
     throw new Error('Invalid player stats data structure');
   }
 }
 
-function calculateWinRate(characterStats: Record<string, CharacterStats>): number {
-  const totals = Object.values(characterStats).reduce(
-    (acc, stats) => ({
-      wins: acc.wins + stats.wins,
-      total: acc.total + stats.wins + stats.losses
-    }),
-    { wins: 0, total: 0 }
-  );
-
-  return totals.total > 0 ? (totals.wins / totals.total) * 100 : 0;
-}
-
-function calculateTotalMatches(characterStats: Record<string, CharacterStats>): number {
-  return Object.values(characterStats).reduce(
+// Calculate total matches across all characters
+function calculateTotalMatches(playedCharacters: Record<string, PlayedCharacter>): number {
+  return Object.values(playedCharacters).reduce(
     (total, stats) => total + stats.wins + stats.losses,
     0
   );
 }
 
-function formatFavoriteCharacters(characterStats: Record<string, CharacterStats>): FormattedCharacter[] {
-  return Object.entries(characterStats)
-    .map(([, stats]) => ({
-      name: stats.characterName,
+// Get top 3 most played characters
+function formatFavoriteCharacters(playedCharacters: Record<string, PlayedCharacter>): FormattedCharacter[] {
+  return Object.entries(playedCharacters)
+    .map(([characterName, stats]) => ({
+      name: characterName,
       matches: stats.wins + stats.losses,
-      winRate: stats.wins / (stats.wins + stats.losses) * 100
+      winRate: stats.characterWinrate
     }))
     .sort((a, b) => b.matches - a.matches)
     .slice(0, 3);
 }
 
-function formatCharacterStatsWithVersion(characterStats: Record<string, CharacterStats>): CharacterStatsWithVersion[] {
-  return Object.entries(characterStats).map(([key, stats]) => {
-    const characterIdMatch = key.match(/characterId=(\d+)/);
-    const gameVersionMatch = key.match(/gameVersion=(\d+)/);
+function formatCharacterStatsWithVersion(playedCharacters: Record<string, PlayedCharacter>): CharacterStatsWithVersion[] {
+  // Find character IDs from characterIdMap
+  const getCharacterId = (characterName: string): number => {
+    const entry = Object.entries(characterIdMap).find(([_, name]) => name === characterName);
+    return entry ? parseInt(entry[0]) : 0;
+  };
+
+  return Object.entries(playedCharacters).map(([characterName, stats]) => {
+    const characterId = getCharacterId(characterName);
     
     return {
-      ...stats,
-      characterId: characterIdMatch ? parseInt(characterIdMatch[1]) : 0,
-      gameVersion: gameVersionMatch ? gameVersionMatch[1] : '0',
+      characterName,
+      danName: rankOrderMap[stats.currentSeasonDanRank || stats.previousSeasonDanRank || 0],
+      danRank: stats.currentSeasonDanRank || stats.previousSeasonDanRank || 0,
+      wins: stats.wins,
+      losses: stats.losses,
+      characterId,
+      gameVersion: '0', // Default version since we don't have version info in the new structure
     };
   });
 }
 
-function formatCharacterBattleStats(characterStats: Record<string, CharacterStats>): CharacterBattleStats[] {
-  const totalBattles = calculateTotalMatches(characterStats);
+function formatCharacterBattleStats(playedCharacters: Record<string, PlayedCharacter>): CharacterBattleStats[] {
+  const totalBattles = calculateTotalMatches(playedCharacters);
   
-  const characterStatsMap = new Map<string, CharacterBattleStats>();
+  // Find character IDs from characterIdMap
+  const getCharacterId = (characterName: string): number => {
+    const entry = Object.entries(characterIdMap).find(([_, name]) => name === characterName);
+    return entry ? parseInt(entry[0]) : 0;
+  };
   
-  Object.entries(characterStats).forEach(([key, stats]) => {
-    const characterIdMatch = key.match(/characterId=(\d+)/);
-    const characterId = characterIdMatch ? parseInt(characterIdMatch[1]) : 0;
+  // Simply map the data without recalculating
+  return Object.entries(playedCharacters).map(([characterName, stats]) => {
+    const characterId = getCharacterId(characterName);
     const battles = stats.wins + stats.losses;
     
-    if (characterStatsMap.has(stats.characterName)) {
-      const existing = characterStatsMap.get(stats.characterName)!;
-      existing.totalBattles += battles;
-      existing.percentage = (existing.totalBattles / totalBattles) * 100;
-    } else {
-      characterStatsMap.set(stats.characterName, {
-        characterId,
-        characterName: stats.characterName,
-        totalBattles: battles,
-        percentage: (battles / totalBattles) * 100
-      });
-    }
-  });
-
-  return Array.from(characterStatsMap.values())
-    .sort((a, b) => b.totalBattles - a.totalBattles);
+    return {
+      characterId,
+      characterName,
+      totalBattles: battles,
+      percentage: (battles / totalBattles) * 100 // This calculation is still needed as it's not in the payload
+    };
+  }).sort((a, b) => b.totalBattles - a.totalBattles);
 }
 
 function formatRecentMatches(battles: Battle[], polarisId: string): FormattedMatch[] {
@@ -167,18 +164,23 @@ export default function PlayerStatsPage({ params }: PageProps) {
   const formattedPlayerStats: FormattedPlayerStats | null = playerStats ? {
     username: playerStats.name,
     polarisId: polarisId,
-    rank: Object.values(playerStats.characterStats)[0]?.danName ?? 'Unknown',
-    winRate: calculateWinRate(playerStats.characterStats),
-    totalMatches: calculateTotalMatches(playerStats.characterStats),
-    favoriteCharacters: formatFavoriteCharacters(playerStats.characterStats),
+    rank: playerStats.mainCharacterAndRank?.danRank ?? 'Unknown',
+    // Use main character's winrate directly or average of all characters
+    winRate: playerStats.mainCharacterAndRank ? 
+      playerStats.playedCharacters[playerStats.mainCharacterAndRank.characterName]?.characterWinrate : 
+      Object.values(playerStats.playedCharacters).reduce((sum, char) => sum + char.characterWinrate, 0) / 
+        Object.values(playerStats.playedCharacters).length,
+    totalMatches: calculateTotalMatches(playerStats.playedCharacters),
+    favoriteCharacters: formatFavoriteCharacters(playerStats.playedCharacters),
     recentMatches: formatRecentMatches(playerStats.battles || [], polarisId),
-    characterStatsWithVersion: formatCharacterStatsWithVersion(playerStats.characterStats),
-    characterBattleStats: formatCharacterBattleStats(playerStats.characterStats),
+    characterStatsWithVersion: formatCharacterStatsWithVersion(playerStats.playedCharacters),
+    characterBattleStats: formatCharacterBattleStats(playerStats.playedCharacters),
     battles: playerStats.battles || [],
     regionId: playerStats.regionId || 0,
     areaId: playerStats.areaId || 0,
     latestBattle: playerStats.latestBattle || 0,
-    mainCharacterAndRank: playerStats.mainCharacterAndRank
+    mainCharacterAndRank: playerStats.mainCharacterAndRank,
+    playedCharacters: playerStats.playedCharacters
   } : null;
 
   return (

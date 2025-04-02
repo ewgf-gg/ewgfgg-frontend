@@ -9,7 +9,7 @@ import TekkenPowerChart from './TekkenPowerChart';
 import { CharacterSelector } from '../player-stats/CharacterSelector';
 import { UserInfoCard } from '../player-stats/UserInfoCard';
 import { RecentBattlesCard } from './RecentBattlesCard';
-import { FormattedPlayerStats, CharacterStats } from '../../app/state/types/tekkenTypes';
+import { FormattedPlayerStats, CharacterStats, PlayedCharacter } from '../../app/state/types/tekkenTypes';
 
 interface CharacterStatsRecord extends Omit<CharacterStats, 'danRank'> {
   gameVersion: string;
@@ -17,49 +17,38 @@ interface CharacterStatsRecord extends Omit<CharacterStats, 'danRank'> {
 
 export const PlayerProfile: React.FC<{ stats: FormattedPlayerStats }> = ({ stats }) => {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
-  const [selectedVersion, setSelectedVersion] = useState<string>('all');
 
   // Extract character stats for the selector
   const characterStats = stats.characterStatsWithVersion.reduce((acc, stat) => {
     const key = `CharacterStatsId(playerId=0, characterId=${stat.characterId}, gameVersion=${stat.gameVersion})`;
+    
+    // Get previous season rank from playedCharacters if available
+    const playedCharacterData = stats.playedCharacters ? stats.playedCharacters[stat.characterName] : undefined;
+    const previousSeasonDanRank = playedCharacterData?.previousSeasonDanRank;
+    
     acc[key] = {
       characterName: stat.characterName,
       danName: stat.danName,
       wins: stat.wins,
       losses: stat.losses,
-      gameVersion: stat.gameVersion
+      gameVersion: stat.gameVersion,
+      previousSeasonDanRank: previousSeasonDanRank
     };
     return acc;
-  }, {} as Record<string, CharacterStatsRecord>);
+  }, {} as Record<string, CharacterStatsRecord & { previousSeasonDanRank?: number }>);
 
   // Get the selected character's ID for charts
   const selectedCharacterNumericId = selectedCharacterId
     ? parseInt(selectedCharacterId.match(/characterId=(\d+)/)?.[1] || '0')
     : null;
 
-  // Filter battles for charts (with character and version filters)
-  const getFilteredBattlesForCharts = () => {
-    let filtered = stats.battles;
-    
-    // Apply character filter if selected
-    if (selectedCharacterId !== null && selectedCharacterNumericId !== null) {
-      filtered = filtered.filter(battle => 
+  // Filter battles for charts by selected character
+  const filteredBattlesForCharts = selectedCharacterNumericId 
+    ? stats.battles.filter(battle => 
         battle.player1CharacterId === selectedCharacterNumericId ||
         battle.player2CharacterId === selectedCharacterNumericId
-      );
-    }
-
-    // Apply version filter if a specific version is selected
-    if (selectedVersion !== 'all') {
-      filtered = filtered.filter(battle => 
-        battle.gameVersion.toString() === selectedVersion
-      );
-    }
-
-    return filtered;
-  };
-
-  const filteredBattlesForCharts = getFilteredBattlesForCharts();
+      )
+    : stats.battles;
 
   return (
     <div className="space-y-8">
@@ -76,7 +65,6 @@ export const PlayerProfile: React.FC<{ stats: FormattedPlayerStats }> = ({ stats
         characters={characterStats}
         onSelectCharacter={setSelectedCharacterId}
         selectedCharacterId={selectedCharacterId}
-        onVersionChange={setSelectedVersion}
       />
 
       {selectedCharacterId !== null && selectedCharacterNumericId !== null && (
@@ -87,18 +75,21 @@ export const PlayerProfile: React.FC<{ stats: FormattedPlayerStats }> = ({ stats
               selectedCharacterId={selectedCharacterNumericId}
               playerName={stats.username}
               polarisId={stats.polarisId}
+              playedCharacters={stats.playedCharacters}
             />
             <BestMatchupChart 
               battles={filteredBattlesForCharts}
               selectedCharacterId={selectedCharacterNumericId}
               playerName={stats.username}
               polarisId={stats.polarisId}
+              playedCharacters={stats.playedCharacters}
             />
             <WorstMatchupChart 
               battles={filteredBattlesForCharts}
               selectedCharacterId={selectedCharacterNumericId}
               playerName={stats.username}
               polarisId={stats.polarisId}
+              playedCharacters={stats.playedCharacters}
             />
           </div>
           <div className="w-full">
@@ -107,6 +98,7 @@ export const PlayerProfile: React.FC<{ stats: FormattedPlayerStats }> = ({ stats
               selectedCharacterId={selectedCharacterNumericId}
               polarisId={stats.polarisId}
               playerName={stats.username}
+              playedCharacters={stats.playedCharacters}
             />
           </div>
           <div className="w-full">
@@ -140,7 +132,6 @@ export const PlayerProfile: React.FC<{ stats: FormattedPlayerStats }> = ({ stats
         battles={stats.battles}
         playerName={stats.username}
         polarisId={stats.polarisId}
-        selectedVersion={selectedVersion}
       />
     </div>
   );

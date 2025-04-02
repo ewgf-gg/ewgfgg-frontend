@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from "../ui/card";
 import { characterIconMap, rankIconMap, rankOrderMap } from '../../app/state/types/tekkenTypes';
 import { motion } from 'framer-motion';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { ChevronRight } from 'lucide-react';
 
 interface CharacterData {
   characterName: string;
@@ -10,31 +10,20 @@ interface CharacterData {
   wins: number;
   losses: number;
   gameVersion: string;
+  previousSeasonDanRank?: number;
 }
 
 interface CharacterSelectorProps {
   characters: Record<string, CharacterData>;
   onSelectCharacter: (characterId: string) => void;
   selectedCharacterId: string | null;
-  onVersionChange: (version: string) => void;
 }
 
 export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
   characters,
   onSelectCharacter,
-  selectedCharacterId,
-  onVersionChange
+  selectedCharacterId
 }) => {
-  // Get unique game versions
-  const gameVersions = ['all', ...new Set(Object.values(characters).map(char => char.gameVersion))]
-    .sort((a, b) => {
-      if (a === 'all') return -1;
-      if (b === 'all') return 1;
-      return parseInt(b) - parseInt(a);
-    });
-
-  const [selectedVersion, setSelectedVersion] = useState(gameVersions[0]);
-
   // Function to get numeric rank value
   const getRankValue = (rankName: string): number => {
     // eslint-disable-next-line
@@ -42,22 +31,8 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
     return entry ? parseInt(entry[0]) : -1;
   };
 
-  // Handle version change
-  const handleVersionChange = (version: string) => {
-    setSelectedVersion(version);
-    onVersionChange(version);
-  };
-
-  // Filter characters by selected version
-  const filteredCharacters = Object.entries(characters).reduce((acc, [id, data]) => {
-    if (selectedVersion === 'all' || data.gameVersion === selectedVersion) {
-      acc[id] = data;
-    }
-    return acc;
-  }, {} as Record<string, CharacterData>);
-
   // Group characters by name to combine stats across versions
-  const characterSummaries = Object.entries(filteredCharacters).reduce((acc, [id, data]) => {
+  const characterSummaries = Object.entries(characters).reduce((acc, [id, data]) => {
     const existing = acc.find(c => c.characterName === data.characterName);
     if (existing) {
       existing.totalMatches += data.wins + data.losses;
@@ -100,72 +75,78 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
     return b.totalMatches - a.totalMatches;
   });
 
-  const formatVersion = (version: string) => {
-    if (version === 'all') return 'All Versions';
-    const major = Math.floor(parseInt(version) / 10000);
-    const minor = Math.floor((parseInt(version) % 10000) / 100);
-    const patch = parseInt(version) % 100;
-    return `Version ${major}.${minor}.${patch}`;
-  };
-
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Select
-          value={selectedVersion}
-          onValueChange={handleVersionChange}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select version" />
-          </SelectTrigger>
-          <SelectContent>
-            {gameVersions.map((version) => (
-              <SelectItem key={version} value={version}>
-                {formatVersion(version)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <h2 className="text-xl font-semibold mb-2">Select a Character</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {characterSummaries.map((character) => {
           const latestVersion = character.versions.reduce((latest, current) => 
             parseInt(current.gameVersion) > parseInt(latest.gameVersion) ? current : latest
           );
+          
+          // Get previous season rank if available
+          const previousSeasonRank = latestVersion.previousSeasonDanRank !== undefined 
+            ? rankOrderMap[latestVersion.previousSeasonDanRank] 
+            : null;
 
           return (
             <motion.div
               key={character.characterName}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.03, y: -5 }}
               whileTap={{ scale: 0.98 }}
+              className="transform transition-all duration-200"
             >
               <Card 
-                className={`cursor-pointer transition-colors ${
-                  latestVersion.id === selectedCharacterId ? 'bg-accent' : 'hover:bg-accent/50'
+                className={`cursor-pointer border-2 transition-all duration-200 overflow-hidden ${
+                  latestVersion.id === selectedCharacterId 
+                    ? 'border-primary shadow-lg shadow-primary/20' 
+                    : 'border-transparent hover:border-primary/50 hover:shadow-md'
                 }`}
                 onClick={() => onSelectCharacter(latestVersion.id)}
               >
-                <CardContent className="p-3">
-                  <div className="flex items-center space-x-3">
-                    <img
-                      src={characterIconMap[character.characterName]}
-                      alt={character.characterName}
-                      className="w-12 h-12 object-contain"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-bold text-base truncate">{character.characterName}</h3>
-                      <div className="flex items-center gap-2">
-                        <img 
-                          src={rankIconMap[character.latestRank]} 
-                          alt={character.latestRank}
-                          className="w-15 h-12 object-contain"
+                <CardContent className="p-4 relative">
+                  {previousSeasonRank && (
+                    <div className="absolute top-2 right-2 bg-accent/90 text-xs font-medium px-1.5 py-0.5 rounded-full z-10 shadow-sm">
+                      S1: <img 
+                        src={rankIconMap[previousSeasonRank]} 
+                        alt={previousSeasonRank}
+                        className="w-10 h-6 inline-block ml-0.5"
+                      />
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <img
+                          src={characterIconMap[character.characterName]}
+                          alt={character.characterName}
+                          className={`w-14 h-14 object-contain rounded-full p-1 ${
+                            latestVersion.id === selectedCharacterId 
+                              ? 'bg-primary/10 ring-2 ring-primary' 
+                              : 'bg-accent/10'
+                          }`}
                         />
-                        <p className="text-xs text-muted-foreground">
-                          Matches: {character.totalMatches}
-                        </p>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-bold text-base truncate">{character.characterName}</h3>
+                        <div className="flex flex-col">
+                          <div className="flex items-center">
+                            <img 
+                              src={rankIconMap[character.latestRank]} 
+                              alt={character.latestRank}
+                              className="w-12 h-10 object-contain"
+                            />
+                          </div>
+                          
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Matches: {character.totalMatches}
+                          </p>
+                        </div>
                       </div>
                     </div>
+                    <ChevronRight className={`h-5 w-5 transition-opacity ${
+                      latestVersion.id === selectedCharacterId ? 'opacity-100 text-primary' : 'opacity-50'
+                    }`} />
                   </div>
                 </CardContent>
               </Card>

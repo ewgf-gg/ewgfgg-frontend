@@ -1,6 +1,6 @@
 import React from 'react';
 import { PieChart, Pie, Label } from 'recharts';
-import { Battle } from '../../app/state/types/tekkenTypes';
+import { Battle, characterIdMap, PlayedCharacter } from '../../app/state/types/tekkenTypes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../ui/chart';
 
@@ -9,6 +9,7 @@ interface CharacterWinLossChartProps {
   selectedCharacterId: number;
   playerName: string;
   polarisId: string;
+  playedCharacters?: Record<string, PlayedCharacter>;
 }
 
 const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({ 
@@ -16,35 +17,28 @@ const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({
   selectedCharacterId,
   // eslint-disable-next-line
   playerName,
-  polarisId 
+  polarisId,
+  playedCharacters
 }) => {
   // Return null if selectedCharacterId is null or undefined (but not 0)
   if (selectedCharacterId === null || selectedCharacterId === undefined) {
     return null;
   }
 
-  // Calculate wins and losses from battles
-  const battleResults = battles.reduce((acc, battle) => {
-    const isPlayer1 = battle.player1PolarisId === polarisId;
-    const isPlayingSelectedCharacter = isPlayer1 
-      ? battle.player1CharacterId === selectedCharacterId
-      : battle.player2CharacterId === selectedCharacterId;
-    
-    if (isPlayingSelectedCharacter) {
-      const isWinner = (isPlayer1 && battle.winner === 1) || (!isPlayer1 && battle.winner === 2);
-      if (isWinner) {
-        acc.wins++;
-      } else {
-        acc.losses++;
-      }
-    }
-    return acc;
-  }, { wins: 0, losses: 0 });
+  // Get the character name from the ID
+  const getCharacterName = (characterId: number): string => {
+    return characterIdMap[characterId] || `Character ${characterId}`;
+  };
 
-  const { wins: totalWins, losses: totalLosses } = battleResults;
-  const winRate = totalWins + totalLosses > 0 
-    ? ((totalWins / (totalWins + totalLosses)) * 100).toFixed(1)
-    : '0.0';
+  const selectedCharName = getCharacterName(selectedCharacterId);
+
+  // Get data directly from playedCharacters
+  const characterData = playedCharacters?.[selectedCharName];
+  
+  // Use data directly from the payload
+  const totalWins = characterData?.wins || 0;
+  const totalLosses = characterData?.losses || 0;
+  const winRate = characterData?.characterWinrate.toFixed(1) || '0.0';
 
   const data = [
     { name: 'Wins', value: totalWins, fill: '#4ade80' },  // Green color
