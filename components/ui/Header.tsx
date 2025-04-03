@@ -78,15 +78,6 @@ export function Header() {
     <>
       <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet" />
       <header className="fixed top-0 left-0 right-0 bg-gray-800/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg z-50">
-        {/* Maintenance Banner */}
-        <div className="bg-amber-500 dark:bg-amber-600 text-black py-2 px-4 text-center font-medium">
-          <div className="container mx-auto flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-            </svg>
-            <span>Attention: Website is undergoing upgrades! Updates will be paused until upgrades are complete.</span>
-          </div>
-        </div>
         <nav className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between relative">
             {/* Mobile menu button */}
