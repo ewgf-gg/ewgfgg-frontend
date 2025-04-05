@@ -14,34 +14,9 @@ import {
   totalReplaysAtom
 } from '../../app/state/atoms/tekkenStatsAtoms';
 import React from 'react';
+import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
 
 import { DistributionMode, GameVersion, rankIconMap, rankOrderMap, RankDistribution } from '../../app/state/types/tekkenTypes';
-
-// Hook to detect window size
-const useWindowSize = () => {
-  const [windowSize, setWindowSize] = useState({
-    width: typeof window !== 'undefined' ? window.innerWidth : 0,
-    height: typeof window !== 'undefined' ? window.innerHeight : 0,
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const handleResize = () => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Initial size
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  return windowSize;
-};
 
 interface ChartDataPoint {
   rank: string;
@@ -77,7 +52,7 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
   const [totalPlayers] = useAtom(totalPlayersAtom);
   const [totalReplays] = useAtom(totalReplaysAtom);
   const { width } = useWindowSize();
-  const isMobile = width < 768;
+  const isMobile = isMobileView(width);
   
   // Get the latest version immediately
   const latestVersion = [...gameVersions].sort((a, b) => parseInt(b) - parseInt(a))[0];

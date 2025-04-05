@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
+import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
 import {
   Bar,
   BarChart,
@@ -80,13 +81,36 @@ interface CustomXAxisTickProps {
 const CustomXAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload }) => {
   if (!payload) return null;
   
+  const { width } = useWindowSize();
+  const isMobile = isMobileView(width);
+  
+  // For mobile, display character name text instead of portrait
+  if (isMobile) {
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text
+          x={-5}
+          y={0}
+          dy={4}
+          textAnchor="end"
+          fill="currentColor"
+          fontSize={12}
+          className="font-medium"
+        >
+          {payload.value}
+        </text>
+      </g>
+    );
+  }
+  
+  // For desktop, keep the portrait images
   return (
     <g transform={`translate(${x},${y})`}>
       <foreignObject 
-        x="-20" 
-        y="0" 
-        width="40" 
-        height="40" 
+        x="-20"
+        y="0"
+        width="40"
+        height="40"
         style={{ overflow: 'visible' }}
       >
         <div className="flex items-center justify-center">
@@ -106,6 +130,8 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
   const colors = useAtomValue(characterColors);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [isInitialRender, setIsInitialRender] = useState(true);
+  const { width } = useWindowSize();
+  const isMobile = isMobileView(width);
 
   useEffect(() => {
     if (isInitialRender) setIsInitialRender(false);
@@ -150,32 +176,60 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
   }
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width="100%" height={isMobile ? 600 : 400}>
       <BarChart
         data={chartData}
-        margin={{ left: 20, right: 20, top: 20, bottom: 30 }}
+        layout={isMobile ? "vertical" : "horizontal"}
+        margin={isMobile ? 
+          { top: 10, right: 30, left: 40, bottom: 10 } :
+          { top: 20, right: 20, left: 20, bottom: 30 }
+        }
         onMouseLeave={() => setActiveIndex(null)}
       >
-        <XAxis
-          dataKey="character"
-          interval={0}
-          tick={<CustomXAxisTick />}
-          height={60}
-        />
-        <YAxis
-          domain={[domainMin, domainMax]}
-          tickFormatter={(value) => valueLabel === 'winrate' ? `${value.toFixed(1)}%` : formatNumber(value)}
-          axisLine={false}
-          tickLine={false}
-        />
+        {isMobile ? (
+          <>
+            <XAxis 
+              type="number" 
+              domain={[domainMin, domainMax]}
+              tickFormatter={(value) => valueLabel === 'winrate' ? `${value.toFixed(1)}%` : formatNumber(value)}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              dataKey="character"
+              type="category"
+              tickLine={false}
+              axisLine={false}
+              interval={0}
+              width={40}
+              tick={<CustomXAxisTick />}
+            />
+          </>
+        ) : (
+          <>
+            <XAxis
+              dataKey="character"
+              interval={0}
+              tick={<CustomXAxisTick />}
+              height={60}
+            />
+            <YAxis
+              domain={[domainMin, domainMax]}
+              tickFormatter={(value) => valueLabel === 'winrate' ? `${value.toFixed(1)}%` : formatNumber(value)}
+              axisLine={false}
+              tickLine={false}
+            />
+          </>
+        )}
         {valueLabel === 'winrate' && (
           <ReferenceLine 
-            y={50} 
+            y={isMobile ? undefined : 50}
+            x={isMobile ? 50 : undefined}
             stroke="hsl(var(--muted-foreground))" 
             strokeDasharray="3 3"
             label={{ 
               value: "50%", 
-              position: "right",
+              position: isMobile ? "top" : "right",
               fill: "hsl(var(--muted-foreground))"
             }}
           />
@@ -183,7 +237,7 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
         <Tooltip content={<ChartTooltip />} cursor={false} />
         <Bar
           dataKey="value"
-          radius={[4, 4, 0, 0]}
+          radius={isMobile ? [0, 8, 8, 0] : [4, 4, 0, 0]}
           isAnimationActive={true}
           animationBegin={isInitialRender ? 500 : 100}
           animationDuration={1000}
@@ -205,7 +259,7 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
           })}
           <LabelList
             dataKey="originalValue"
-            position="top"
+            position={isMobile ? "right" : "top"}
             formatter={(value: number) => {
               if (valueLabel === 'winrate') {
                 return `${value.toFixed(2)}%`;
@@ -213,7 +267,7 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
               return formatNumber(value);
             }}
             offset={10}
-            angle={-30}
+            angle={isMobile ? 0 : -30}
             style={{ fontSize: '12px' }}
           />
         </Bar>

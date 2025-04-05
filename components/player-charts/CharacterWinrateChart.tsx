@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
+import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { Battle, characterIdMap, characterIconMap, PlayedCharacter } from '../../app/state/types/tekkenTypes';
 import Image from 'next/image';
@@ -71,35 +72,52 @@ const CustomTooltip = React.memo<CustomTooltipProps>(({ active, payload }) => {
 
 CustomTooltip.displayName = 'CustomTooltip';
 
-const renderCustomAxisTick = (props: { x: number; y: number; payload: { value: string } }) => {
-  const { x, y, payload } = props;
-  const iconPath = characterIconMap[payload.value];
+interface CustomAxisTickProps {
+  x?: number;
+  y?: number;
+  payload?: {
+    value: string;
+  };
+}
 
-  // Return empty SVG if no icon path
-  if (!iconPath) {
+const CustomAxisTick: React.FC<CustomAxisTickProps> = ({ x = 0, y = 0, payload }) => {
+  if (!payload) return null;
+  const { width } = useWindowSize();
+  const isMobile = isMobileView(width);
+
+  // For mobile vertical layout
+  if (isMobile) {
     return (
       <g transform={`translate(${x},${y})`}>
-        <text x={0} y={0} dy={16} textAnchor="middle" fill="#666">
+        <text 
+          x={-5} 
+          y={0} 
+          dy={4} 
+          textAnchor="end" 
+          fill="currentColor" 
+          fontSize={12}
+          className="font-medium"
+        >
           {payload.value}
         </text>
       </g>
     );
   }
 
+  // For desktop horizontal layout
   return (
     <g transform={`translate(${x},${y})`}>
-      <foreignObject x="-16" y="0" width="32" height="32">
-        <div style={{ width: '100%', height: '100%' }}>
-          <Image
-            src={iconPath}
-            alt={payload.value}
-            width={32}
-            height={32}
-            style={{ objectFit: 'contain' }}
-            loading="lazy"
-          />
-        </div>
-      </foreignObject>
+      <text 
+        x={0} 
+        y={0} 
+        dy={16} 
+        textAnchor="middle" 
+        fill="currentColor"
+        fontSize={12}
+        className="font-medium"
+      >
+        {payload.value}
+      </text>
     </g>
   );
 };
@@ -183,6 +201,9 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
     );
   }
 
+  const { width } = useWindowSize();
+  const isMobile = isMobileView(width);
+
   return (
     <SimpleChartCard
       title="Character Matchup Winrates"
@@ -202,47 +223,82 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 40
-              }}
+              layout={isMobile ? "vertical" : "horizontal"}
+              margin={isMobile ? 
+                { top: 10, right: 30, left: 40, bottom: 10 } :
+                { top: 20, right: 30, left: 20, bottom: 40 }
+              }
             >
-              <XAxis 
-                dataKey="characterName"
-                height={40}
-                tick={renderCustomAxisTick}
-                interval={0}
-              />
-              <YAxis 
-                domain={[0, 100]}
-                ticks={[0, 25, 50, 75, 100]}
-                tickFormatter={(value) => `${value}%`}
-                fontSize={12}
-                stroke="#666"
-                tickLine={false}
-              />
+              {isMobile ? (
+                <>
+                  <XAxis 
+                    type="number"
+                    domain={[0, 100]}
+                    ticks={[0, 25, 50, 75, 100]}
+                    tickFormatter={(value) => `${value}%`}
+                    fontSize={12}
+                    stroke="#666"
+                    tickLine={false}
+                  />
+                  <YAxis 
+                    dataKey="characterName"
+                    type="category"
+                    width={40}
+                    tick={<CustomAxisTick />}
+                    interval={0}
+                    axisLine={false}
+                  />
+                  <ReferenceLine 
+                    x={50} 
+                    stroke="#666" 
+                    strokeDasharray="3 3"
+                    strokeWidth={1}
+                    label={{
+                      value: "50%",
+                      position: "top",
+                      fill: "#666",
+                      fontSize: 12
+                    }}
+                  />
+                </>
+              ) : (
+                <>
+                  <XAxis 
+                    dataKey="characterName"
+                    height={40}
+                    tick={<CustomAxisTick />}
+                    interval={0}
+                  />
+                  <YAxis 
+                    domain={[0, 100]}
+                    ticks={[0, 25, 50, 75, 100]}
+                    tickFormatter={(value) => `${value}%`}
+                    fontSize={12}
+                    stroke="#666"
+                    tickLine={false}
+                  />
+                  <ReferenceLine 
+                    y={50} 
+                    stroke="#666" 
+                    strokeDasharray="3 3"
+                    strokeWidth={1}
+                    label={{
+                      value: "50%",
+                      position: "right",
+                      fill: "#666",
+                      fontSize: 12
+                    }}
+                  />
+                </>
+              )}
               <Tooltip 
                 content={<CustomTooltip />}
                 cursor={false}
               />
-              <ReferenceLine 
-                y={50} 
-                stroke="#666" 
-                strokeDasharray="3 3"
-                strokeWidth={1}
-                label={{
-                  value: "50%",
-                  position: "right",
-                  fill: "#666",
-                  fontSize: 12
-                }}
-              />
               <Bar 
                 dataKey="winRate" 
                 name="Winrate"
-                radius={[8, 8, 0, 0]}
+                radius={isMobile ? [0, 8, 8, 0] : [8, 8, 0, 0]}
                 isAnimationActive={false}
               >
                 {chartData.map((entry, index) => (
