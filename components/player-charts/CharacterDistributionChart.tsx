@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { Battle, characterIdMap, characterIconMap } from '../../app/state/types/tekkenTypes';
 import Image from 'next/image';
@@ -66,21 +67,45 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
   return null;
 };
 
-const CustomXAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload }) => {
-  const iconPath = characterIconMap[payload?.value || ''];
-  if (!iconPath) return null;
-
+const CustomAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload }) => {
+  if (!payload) return null;
+  
+  const { width } = useWindowSize();
+  const isMobile = isMobileView(width);
+  
+  // For mobile vertical layout
+  if (isMobile) {
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text 
+          x={-5} 
+          y={0} 
+          dy={4} 
+          textAnchor="end" 
+          fill="currentColor" 
+          fontSize={12}
+          className="font-medium"
+        >
+          {payload.value}
+        </text>
+      </g>
+    );
+  }
+  
+  // For desktop horizontal layout
   return (
     <g transform={`translate(${x},${y})`}>
-      <foreignObject x="-16" y="0" width="32" height="32">
-        <Image
-          src={iconPath}
-          alt={payload?.value || ''}
-          width={32}
-          height={32}
-          style={{ objectFit: 'contain' }}
-        />
-      </foreignObject>
+      <text 
+        x={0} 
+        y={0} 
+        dy={16} 
+        textAnchor="middle" 
+        fill="currentColor"
+        fontSize={12}
+        className="font-medium"
+      >
+        {payload.value}
+      </text>
     </g>
   );
 };
@@ -173,6 +198,9 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
     );
   }
 
+  const { width } = useWindowSize();
+  const isMobile = isMobileView(width);
+
   return (
     <SimpleChartCard
       title="Character Matchup Distribution"
@@ -191,26 +219,48 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
-            margin={{
-              top: 20,
-              right: 30,
-              left: 20,
-              bottom: 40
-            }}
+            layout={isMobile ? "vertical" : "horizontal"}
+            margin={isMobile ? 
+              { top: 10, right: 30, left: 40, bottom: 10 } :
+              { top: 20, right: 30, left: 20, bottom: 40 }
+            }
           >
-            <XAxis 
-              dataKey="characterName"
-              height={40}
-              tick={<CustomXAxisTick />}
-              interval={0}
-            />
-            <YAxis 
-              domain={[0, maxMatches]}
-              ticks={yAxisTicks}
-              fontSize={12}
-              stroke="#666"
-              tickLine={false}
-            />
+            {isMobile ? (
+              <>
+                <XAxis 
+                  type="number"
+                  domain={[0, maxMatches]}
+                  ticks={yAxisTicks}
+                  fontSize={12}
+                  stroke="#666"
+                  tickLine={false}
+                />
+                <YAxis 
+                  dataKey="characterName"
+                  type="category"
+                  width={40}
+                  tick={<CustomAxisTick />}
+                  interval={0}
+                  axisLine={false}
+                />
+              </>
+            ) : (
+              <>
+                <XAxis 
+                  dataKey="characterName"
+                  height={40}
+                  tick={<CustomAxisTick />}
+                  interval={0}
+                />
+                <YAxis 
+                  domain={[0, maxMatches]}
+                  ticks={yAxisTicks}
+                  fontSize={12}
+                  stroke="#666"
+                  tickLine={false}
+                />
+              </>
+            )}
             <Tooltip 
               content={<CustomTooltip />}
               cursor={false}
@@ -218,7 +268,7 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
             <Bar 
               dataKey="totalMatches" 
               name="Total Matches"
-              radius={[8, 8, 0, 0]}
+              radius={isMobile ? [0, 8, 8, 0] : [8, 8, 0, 0]}
               isAnimationActive={false}
             >
               {chartData.map((entry) => {
