@@ -27,14 +27,12 @@ interface PageProps {
   };
 }
 
-// Utility functions
 function validatePlayerStats(data: PlayerStats): void {
   if (!data.polarisId || !data.name || !data.playedCharacters) {
     throw new Error('Invalid player stats data structure');
   }
 }
 
-// Calculate total matches across all characters
 function calculateTotalMatches(playedCharacters: Record<string, PlayedCharacter>): number {
   return Object.values(playedCharacters).reduce(
     (total, stats) => total + stats.wins + stats.losses,
@@ -42,7 +40,6 @@ function calculateTotalMatches(playedCharacters: Record<string, PlayedCharacter>
   );
 }
 
-// Get top 3 most played characters
 function formatFavoriteCharacters(playedCharacters: Record<string, PlayedCharacter>): FormattedCharacter[] {
   return Object.entries(playedCharacters)
     .map(([characterName, stats]) => ({
@@ -55,7 +52,6 @@ function formatFavoriteCharacters(playedCharacters: Record<string, PlayedCharact
 }
 
 function formatCharacterStatsWithVersion(playedCharacters: Record<string, PlayedCharacter>): CharacterStatsWithVersion[] {
-  // Find character IDs from characterIdMap
   const getCharacterId = (characterName: string): number => {
     // eslint-disable-next-line
     const entry = Object.entries(characterIdMap).find(([_, name]) => name === characterName);
@@ -87,7 +83,6 @@ function formatCharacterBattleStats(playedCharacters: Record<string, PlayedChara
     return entry ? parseInt(entry[0]) : 0;
   };
   
-  // Simply map the data without recalculating
   return Object.entries(playedCharacters).map(([characterName, stats]) => {
     const characterId = getCharacterId(characterName);
     const battles = stats.wins + stats.losses;
@@ -96,7 +91,7 @@ function formatCharacterBattleStats(playedCharacters: Record<string, PlayedChara
       characterId,
       characterName,
       totalBattles: battles,
-      percentage: (battles / totalBattles) * 100 // This calculation is still needed as it's not in the payload
+      percentage: (battles / totalBattles) * 100 // This calculation is needed as it's not in the payload
     };
   }).sort((a, b) => b.totalBattles - a.totalBattles);
 }

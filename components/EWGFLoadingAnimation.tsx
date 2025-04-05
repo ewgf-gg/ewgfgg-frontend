@@ -33,7 +33,7 @@ const EWGFLoadingAnimation: React.FC<EWGFLoadingAnimationProps> = ({ className }
       clearInterval(interval);
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [inputs.length]);
 
   const imageSize = Math.min(windowWidth / 16, 50);
 

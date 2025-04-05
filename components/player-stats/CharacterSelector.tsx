@@ -3,18 +3,11 @@ import { Card, CardContent } from "../ui/card";
 import { characterIconMap, rankIconMap, rankOrderMap } from '../../app/state/types/tekkenTypes';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
-
-interface CharacterData {
-  characterName: string;
-  danName: string;
-  wins: number;
-  losses: number;
-  gameVersion: string;
-  previousSeasonDanRank?: number;
-}
+import { PlayedCharacter } from '../../app/state/types/tekkenTypes';
+import Image from 'next/image';
 
 interface CharacterSelectorProps {
-  characters: Record<string, CharacterData>;
+  characters: Record<string, PlayedCharacter>;
   onSelectCharacter: (characterId: string) => void;
   selectedCharacterId: string | null;
 }
@@ -25,46 +18,27 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
   selectedCharacterId
 }) => {
   // Function to get numeric rank value
-  const getRankValue = (rankName: string): number => {
-    // eslint-disable-next-line
-    const entry = Object.entries(rankOrderMap).find(([_, name]) => name === rankName);
-    return entry ? parseInt(entry[0]) : -1;
+  const getRankValue = (rankValue: number | null): number => {
+    return rankValue !== null ? rankValue : -1;
   };
 
-  // Group characters by name to combine stats across versions
-  const characterSummaries = Object.entries(characters).reduce((acc, [id, data]) => {
-    const existing = acc.find(c => c.characterName === data.characterName);
-    if (existing) {
-      existing.totalMatches += data.wins + data.losses;
-      existing.versions.push({ id, ...data });
-      
-      // Update latest version and rank if this version is newer
-      if (parseInt(data.gameVersion) > parseInt(existing.latestVersion)) {
-        existing.latestVersion = data.gameVersion;
-        existing.latestRank = data.danName;
-      }
-    } else {
-      acc.push({
-        characterName: data.characterName,
-        totalMatches: data.wins + data.losses,
-        latestRank: data.danName,
-        latestVersion: data.gameVersion,
-        versions: [{ id, ...data }],
-      });
-    }
-    return acc;
-  }, [] as Array<{
-    characterName: string;
-    totalMatches: number;
-    latestRank: string;
-    latestVersion: string;
-    versions: Array<{ id: string } & CharacterData>;
-  }>);
+  // Create character summaries from the new structure
+  const characterSummaries = Object.entries(characters).map(([characterName, data]) => {
+    return {
+      characterName,
+      totalMatches: data.wins + data.losses,
+      currentSeasonDanRank: data.currentSeasonDanRank,
+      previousSeasonDanRank: data.previousSeasonDanRank,
+      wins: data.wins,
+      losses: data.losses,
+      winRate: data.characterWinrate
+    };
+  });
 
   // Sort by rank first, then by total matches
   characterSummaries.sort((a, b) => {
-    const rankA = getRankValue(a.latestRank);
-    const rankB = getRankValue(b.latestRank);
+    const rankA = getRankValue(a.currentSeasonDanRank);
+    const rankB = getRankValue(b.currentSeasonDanRank);
     
     // If ranks are different, sort by rank (higher rank first)
     if (rankA !== rankB) {
@@ -80,13 +54,14 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
       <h2 className="text-xl font-semibold mb-2">Select a Character</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {characterSummaries.map((character) => {
-          const latestVersion = character.versions.reduce((latest, current) => 
-            parseInt(current.gameVersion) > parseInt(latest.gameVersion) ? current : latest
-          );
+          // Get current season rank
+          const currentSeasonRank = character.currentSeasonDanRank !== null 
+            ? rankOrderMap[character.currentSeasonDanRank] 
+            : 'Beginner';
           
           // Get previous season rank if available
-          const previousSeasonRank = latestVersion.previousSeasonDanRank !== undefined 
-            ? rankOrderMap[latestVersion.previousSeasonDanRank] 
+          const previousSeasonRank = character.previousSeasonDanRank !== undefined 
+            ? rankOrderMap[character.previousSeasonDanRank] 
             : null;
 
           return (
@@ -98,43 +73,52 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
             >
               <Card 
                 className={`cursor-pointer border-2 transition-all duration-200 overflow-hidden ${
-                  latestVersion.id === selectedCharacterId 
+                  character.characterName === selectedCharacterId 
                     ? 'border-primary shadow-lg shadow-primary/20' 
                     : 'border-transparent hover:border-primary/50 hover:shadow-md'
                 }`}
-                onClick={() => onSelectCharacter(latestVersion.id)}
+                onClick={() => onSelectCharacter(character.characterName)}
               >
                 <CardContent className="p-4 relative">
                   {previousSeasonRank && (
                     <div className="absolute top-2 right-2 bg-accent/90 text-xs font-medium px-1.5 py-0.5 rounded-full z-10 shadow-sm">
-                      S1: <img 
+                      S1: <Image 
                         src={rankIconMap[previousSeasonRank]} 
                         alt={previousSeasonRank}
+                        width={40}
+                        height={24}
                         className="w-10 h-6 inline-block ml-0.5"
+                        unoptimized
                       />
                     </div>
                   )}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="relative">
-                        <img
+                        <Image
                           src={characterIconMap[character.characterName]}
                           alt={character.characterName}
+                          width={56}
+                          height={56}
                           className={`w-14 h-14 object-contain rounded-full p-1 ${
-                            latestVersion.id === selectedCharacterId 
+                            character.characterName === selectedCharacterId 
                               ? 'bg-primary/10 ring-2 ring-primary' 
                               : 'bg-accent/10'
                           }`}
+                          unoptimized
                         />
                       </div>
                       <div className="min-w-0 flex-1">
                         <h3 className="font-bold text-base truncate">{character.characterName}</h3>
                         <div className="flex flex-col">
                           <div className="flex items-center">
-                            <img 
-                              src={rankIconMap[character.latestRank]} 
-                              alt={character.latestRank}
+                            <Image 
+                              src={rankIconMap[currentSeasonRank]} 
+                              alt={currentSeasonRank}
+                              width={48}
+                              height={40}
                               className="w-12 h-10 object-contain"
+                              unoptimized
                             />
                           </div>
                           
@@ -145,7 +129,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
                       </div>
                     </div>
                     <ChevronRight className={`h-5 w-5 transition-opacity ${
-                      latestVersion.id === selectedCharacterId ? 'opacity-100 text-primary' : 'opacity-50'
+                      character.characterName === selectedCharacterId ? 'opacity-100 text-primary' : 'opacity-50'
                     }`} />
                   </div>
                 </CardContent>

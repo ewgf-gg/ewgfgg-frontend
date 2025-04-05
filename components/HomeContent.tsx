@@ -49,7 +49,8 @@ export default function HomeContent({ initialData }: HomeContentProps) {
       });
     }
   }, [initialData, setGameVersions, setRankDistribution, setCharacterWinrates, 
-      setCharacterPopularity, setWinrateChanges, setTotalPlayers, setTotalReplays]);
+      setCharacterPopularity, setWinrateChanges, setTotalPlayers, setTotalReplays,
+      setRecentlyActivePlayers]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-white">

@@ -9,45 +9,27 @@ import TekkenPowerChart from './TekkenPowerChart';
 import { CharacterSelector } from '../player-stats/CharacterSelector';
 import { UserInfoCard } from '../player-stats/UserInfoCard';
 import { RecentBattlesCard } from './RecentBattlesCard';
-import { FormattedPlayerStats, CharacterStats } from '../../app/state/types/tekkenTypes';
-
-interface CharacterStatsRecord extends Omit<CharacterStats, 'danRank'> {
-  gameVersion: string;
-}
+import { FormattedPlayerStats, characterIdMap } from '../../app/state/types/tekkenTypes';
 
 export const PlayerProfile: React.FC<{ stats: FormattedPlayerStats }> = ({ stats }) => {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
 
-  // Extract character stats for the selector
-  const characterStats = stats.characterStatsWithVersion.reduce((acc, stat) => {
-    const key = `CharacterStatsId(playerId=0, characterId=${stat.characterId}, gameVersion=${stat.gameVersion})`;
-    
-    // Get previous season rank from playedCharacters if available
-    const playedCharacterData = stats.playedCharacters ? stats.playedCharacters[stat.characterName] : undefined;
-    const previousSeasonDanRank = playedCharacterData?.previousSeasonDanRank;
-    
-    acc[key] = {
-      characterName: stat.characterName,
-      danName: stat.danName,
-      wins: stat.wins,
-      losses: stat.losses,
-      gameVersion: stat.gameVersion,
-      previousSeasonDanRank: previousSeasonDanRank
-    };
-    return acc;
-  }, {} as Record<string, CharacterStatsRecord & { previousSeasonDanRank?: number }>);
+  // Use playedCharacters directly for the selector
+  const characterStats = stats.playedCharacters || {};
 
-  // Get the selected character's ID for charts
+  // Find the character ID for the selected character name
   const selectedCharacterNumericId = selectedCharacterId
-    ? parseInt(selectedCharacterId.match(/characterId=(\d+)/)?.[1] || '0')
+     // eslint-disable-next-line
+    ? parseInt(Object.entries(characterIdMap).find(([_, name]) => name === selectedCharacterId)?.[0] || '0')
     : null;
 
   // Filter battles for charts by selected character
-  const filteredBattlesForCharts = selectedCharacterNumericId 
-    ? stats.battles.filter(battle => 
-        battle.player1CharacterId === selectedCharacterNumericId ||
-        battle.player2CharacterId === selectedCharacterNumericId
-      )
+  const filteredBattlesForCharts = selectedCharacterId 
+    ? stats.battles.filter(battle => {
+        const player1Character = characterIdMap[battle.player1CharacterId];
+        const player2Character = characterIdMap[battle.player2CharacterId];
+        return player1Character === selectedCharacterId || player2Character === selectedCharacterId;
+      })
     : stats.battles;
 
   return (

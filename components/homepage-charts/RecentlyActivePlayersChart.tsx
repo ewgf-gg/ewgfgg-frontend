@@ -51,6 +51,7 @@ export const RecentlyActivePlayersChart: React.FC<RecentlyActivePlayersChartProp
                             width={32}
                             height={32}
                             className="rounded-full"
+                            unoptimized
                           />
                         </div>
                       )}

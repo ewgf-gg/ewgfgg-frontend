@@ -25,7 +25,7 @@ const SearchLoadingAnimation: React.FC<SearchLoadingAnimationProps> = ({ inline 
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, [inputs.length]);
 
   // Create an array of empty slots to maintain consistent width
   const emptySlots = Array(inputs.length - currentStep).fill(null);

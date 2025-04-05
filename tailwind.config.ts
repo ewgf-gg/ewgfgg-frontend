@@ -9,6 +9,11 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    fontFamily: {
+      sans: ['var(--font-geist-sans)'],
+      mono: ['var(--font-geist-mono)'],
+      'russo-one': ['var(--font-russo-one)'],
+    },
   	extend: {
   		colors: {
   			background: 'hsl(var(--background))',

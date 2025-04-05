@@ -59,7 +59,7 @@ export default function StatisticsPage() {
     };
 
     fetchData();
-  }, []);
+  }, [selectedVersion]);
 
   if (loading) {
     return (

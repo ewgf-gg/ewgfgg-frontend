@@ -15,8 +15,8 @@ import {
 } from '../../app/state/atoms/tekkenStatsAtoms';
 import React from 'react';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
-
 import { DistributionMode, GameVersion, rankIconMap, rankOrderMap, RankDistribution } from '../../app/state/types/tekkenTypes';
+import Image from 'next/image';
 
 interface ChartDataPoint {
   rank: string;
@@ -45,7 +45,7 @@ interface CustomXAxisTickProps {
   };
 }
 
-export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.0 }) => {
+export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.2 }) => {
   const [rankDistribution] = useAtom(rankDistributionAtom);
   const [rankColors] = useAtom(rankColorsAtom);
   const [gameVersions] = useAtom(gameVersionsAtom);
@@ -66,10 +66,8 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
     }
   }, [latestVersion]);
 
-  // Only proceed if we have data for the selected version
   const distributionData = rankDistribution[selectedVersion]?.[selectedMode] || [];
 
-  // Calculate top percentage for each rank
   const calculateTopPercentage = (currentRank: string) => {
     // eslint-disable-next-line
     const rankOrder = Object.entries(rankOrderMap).find(([_, rank]) => rank === currentRank)?.[0];
@@ -118,11 +116,14 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
         style={{ overflow: 'visible' }}
       >
         <div className="flex items-center justify-center">
-          <img
+          <Image
             src={rankIconMap[payload?.value || '']}
-            alt={payload?.value}
-            className={`${isMobile ? 'w-6 h-6' : 'w-30 h-8'}`}
+            alt={payload?.value || ''}
+            width={isMobile ? 23 : 40}
+            height={isMobile ? 24 : 32}
+            className={`${isMobile ? 'w-8 h-6' : 'w-30 h-8'}`}
             style={{ transformOrigin: 'center' }}
+            unoptimized
           />
         </div>
       </foreignObject>
@@ -158,10 +159,13 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
       return (
         <div className="bg-background border rounded-lg p-2 shadow-lg">
           <div className="flex items-center gap-2">
-            <img
+            <Image
               src={rankIconMap[label || '']}
-              alt={label}
+              alt={label || ''}
+              width={20}
+              height={20}
               className="w-20 h-10"
+              unoptimized
             />
             <span className="font-medium">{label}</span>
           </div>

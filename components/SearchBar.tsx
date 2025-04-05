@@ -26,7 +26,9 @@ export function SearchBar() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const debouncedFetch = useCallback(
+  // Create a debounced search function
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSearch = useCallback(
     debounce(async (query: string) => {
       if (query.length < 3) {
         setSearchResults([]);
@@ -59,15 +61,16 @@ export function SearchBar() {
         setIsLoading(false);
       }
     }, 300),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
   useEffect(() => {
-    debouncedFetch(searchQuery);
+    debouncedSearch(searchQuery);
     return () => {
-      debouncedFetch.cancel();
+      debouncedSearch.cancel();
     };
-  }, [searchQuery, debouncedFetch]);
+  }, [searchQuery, debouncedSearch]);
 
   const handleSelect = useCallback((currentValue: string) => {
     const selectedPlayer = searchResults.find(
@@ -173,10 +176,13 @@ export function SearchBar() {
                           </div>
                           {/* Rank Icon */}
                           {player.danRankName && (
-                            <img
+                            <Image
                               src={rankIconMap[player.danRankName]}
                               alt={player.danRankName}
-                              className="w-15 h-10"
+                              width={70}
+                              height={40}
+                              className="w-20 h-10"
+                              unoptimized
                             />
                           )}
                         </div>

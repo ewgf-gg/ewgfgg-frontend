@@ -7,6 +7,7 @@ import { CustomYAxisTick } from '../shared/CustomYAxisTick';
 import { ChartProps, ColorMapping } from '../../app/state/types/tekkenTypes';
 import { characterIconMap, characterIdMap } from '../../app/state/types/tekkenTypes';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 
 interface PopularityData {
   character: string;
@@ -29,10 +30,13 @@ const PopularityTooltip: React.FC<PopularityTooltipProps> = ({ active, payload, 
     return (
       <div className="bg-background border rounded-lg p-2 shadow-lg">
         <div className="flex items-center gap-2">
-          <img
+          <Image
             src={characterIconMap[label]}
             alt={label}
+            width={24}
+            height={24}
             className="w-6 h-6"
+            unoptimized
           />
           <span className="font-medium">{label}</span>
         </div>

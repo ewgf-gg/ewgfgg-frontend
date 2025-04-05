@@ -67,11 +67,13 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
   return null;
 };
 
-const CustomAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload }) => {
+const CustomAxisTick: React.FC<CustomXAxisTickProps & { isMobile: boolean }> = ({ 
+  x = 0, 
+  y = 0, 
+  payload,
+  isMobile
+}) => {
   if (!payload) return null;
-  
-  const { width } = useWindowSize();
-  const isMobile = isMobileView(width);
   
   // For mobile vertical layout
   if (isMobile) {
@@ -92,20 +94,48 @@ const CustomAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload 
     );
   }
   
-  // For desktop horizontal layout
+  // For desktop horizontal layout - use character icons
+  const iconPath = characterIconMap[payload.value];
+  if (!iconPath) {
+    // Fallback to text if icon not found
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text 
+          x={0} 
+          y={0} 
+          dy={16} 
+          textAnchor="middle" 
+          fill="currentColor"
+          fontSize={12}
+          className="font-medium"
+        >
+          {payload.value}
+        </text>
+      </g>
+    );
+  }
+
   return (
     <g transform={`translate(${x},${y})`}>
-      <text 
-        x={0} 
-        y={0} 
-        dy={16} 
-        textAnchor="middle" 
-        fill="currentColor"
-        fontSize={12}
-        className="font-medium"
-      >
-        {payload.value}
-      </text>
+      <foreignObject width={24} height={24} x={-12} y={0}>
+        <div 
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center' 
+          }}
+        >
+          <Image
+            src={iconPath}
+            alt={payload.value}
+            width={24}
+            height={24}
+            style={{ objectFit: 'contain' }}
+          />
+        </div>
+      </foreignObject>
     </g>
   );
 };
@@ -113,10 +143,12 @@ const CustomAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload 
 const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
   battles,
   selectedCharacterId,
-  playerName,
   polarisId
 }) => {
   const colors = useAtomValue(characterColors);
+  // Call hooks at the top level, before any conditional logic
+  const { width } = useWindowSize();
+  const isMobile = isMobileView(width);
 
   // Always calculate these values regardless of conditions
   const selectedCharacterName = characterIdMap[selectedCharacterId];
@@ -174,7 +206,7 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
       maxMatches: max,
       yAxisTicks: ticks
     };
-  }, [battles, selectedCharacterId, playerName]);
+  }, [battles, selectedCharacterId, polarisId]);
 
   if (selectedCharacterId === null || selectedCharacterId === undefined || chartData.length === 0) {
     return (
@@ -197,9 +229,6 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
       </SimpleChartCard>
     );
   }
-
-  const { width } = useWindowSize();
-  const isMobile = isMobileView(width);
 
   return (
     <SimpleChartCard
@@ -239,7 +268,7 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
                   dataKey="characterName"
                   type="category"
                   width={40}
-                  tick={<CustomAxisTick />}
+                  tick={<CustomAxisTick isMobile={isMobile} />}
                   interval={0}
                   axisLine={false}
                 />
@@ -249,7 +278,7 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
                 <XAxis 
                   dataKey="characterName"
                   height={40}
-                  tick={<CustomAxisTick />}
+                  tick={<CustomAxisTick isMobile={isMobile} />}
                   interval={0}
                 />
                 <YAxis 

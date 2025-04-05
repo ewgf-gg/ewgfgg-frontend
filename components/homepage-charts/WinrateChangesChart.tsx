@@ -14,7 +14,7 @@ export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> 
 
   useEffect(() => {
     if (isInitialRender) setIsInitialRender(false);
-  }, []);
+  }, [isInitialRender]);
 
   const { data, domain } = useMemo(() => {
     // Map the rank values from the selector to the keys in the winrateChangesAtom

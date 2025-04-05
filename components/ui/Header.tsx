@@ -75,7 +75,7 @@ export function Header() {
 
   return (
     <>
-      <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet" />
+      {/* Font is now loaded via Next.js Font API in app/layout.tsx */}
       <header className="fixed top-0 left-0 right-0 bg-gray-800/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg z-50">
         <nav className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between relative">
@@ -83,7 +83,7 @@ export function Header() {
             <div className="flex items-center space-x-4 md:space-x-8">
               <Link
                 href="/"
-                className="font-['Russo_One'] text-xl md:text-2xl text-white whitespace-nowrap flex items-center"
+                className="font-russo-one text-xl md:text-2xl text-white whitespace-nowrap flex items-center"
               >
                 <div className="relative" style={{ width: '40px', height: '40px', marginRight: '8px' }}>
                     <Image 

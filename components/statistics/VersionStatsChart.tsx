@@ -16,6 +16,7 @@ import {
 import { characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
 import { useAtomValue } from 'jotai';
 import { characterIconMap, characterIdMap } from '../../app/state/types/tekkenTypes';
+import Image from 'next/image';
 
 interface VersionStatsChartProps {
   data: { [character: string]: number };
@@ -54,10 +55,13 @@ const ChartTooltip: React.FC<ChartTooltipProps> = ({ active, payload, label }) =
     return (
       <div className="bg-background border rounded-lg p-2 shadow-lg">
         <div className="flex items-center gap-2">
-          <img
+          <Image
             src={characterIconMap[label] || ''}
             alt={label}
+            width={24}
+            height={24}
             className="w-6 h-6"
+            unoptimized
           />
           <span className="font-medium">{label}</span>
         </div>
@@ -78,11 +82,13 @@ interface CustomXAxisTickProps {
   };
 }
 
-const CustomXAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload }) => {
+const CustomXAxisTick: React.FC<CustomXAxisTickProps & { isMobile: boolean }> = ({ 
+  x = 0, 
+  y = 0, 
+  payload,
+  isMobile
+}) => {
   if (!payload) return null;
-  
-  const { width } = useWindowSize();
-  const isMobile = isMobileView(width);
   
   // For mobile, display character name text instead of portrait
   if (isMobile) {
@@ -114,11 +120,14 @@ const CustomXAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload
         style={{ overflow: 'visible' }}
       >
         <div className="flex items-center justify-center">
-          <img
+          <Image
             src={characterIconMap[payload.value]}
             alt={payload.value}
+            width={48}
+            height={48}
             className="w-12 h-12"
             style={{ transformOrigin: 'center' }}
+            unoptimized
           />
         </div>
       </foreignObject>
@@ -202,7 +211,7 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
               axisLine={false}
               interval={0}
               width={40}
-              tick={<CustomXAxisTick />}
+              tick={<CustomXAxisTick isMobile={isMobile} />}
             />
           </>
         ) : (
@@ -210,7 +219,7 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
             <XAxis
               dataKey="character"
               interval={0}
-              tick={<CustomXAxisTick />}
+              tick={<CustomXAxisTick isMobile={isMobile} />}
               height={60}
             />
             <YAxis

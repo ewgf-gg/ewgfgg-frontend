@@ -266,7 +266,7 @@ export const RANK_OPTIONS: RankOption[] = [
     { 
       value: "advancedRanks", 
       label: "Advanced",
-      description: "from Fujin→ Tekken King"
+      description: "from Fujin → Tekken Emperor"
     },
     { 
       value: "intermediateRanks", 

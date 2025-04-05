@@ -80,10 +80,13 @@ interface CustomAxisTickProps {
   };
 }
 
-const CustomAxisTick: React.FC<CustomAxisTickProps> = ({ x = 0, y = 0, payload }) => {
+const CustomAxisTick: React.FC<CustomAxisTickProps & { isMobile: boolean }> = ({ 
+  x = 0, 
+  y = 0, 
+  payload,
+  isMobile
+}) => {
   if (!payload) return null;
-  const { width } = useWindowSize();
-  const isMobile = isMobileView(width);
 
   // For mobile vertical layout
   if (isMobile) {
@@ -104,20 +107,48 @@ const CustomAxisTick: React.FC<CustomAxisTickProps> = ({ x = 0, y = 0, payload }
     );
   }
 
-  // For desktop horizontal layout
+  // For desktop horizontal layout - use character icons
+  const iconPath = characterIconMap[payload.value];
+  if (!iconPath) {
+    // Fallback to text if icon not found
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text 
+          x={0} 
+          y={0} 
+          dy={16} 
+          textAnchor="middle" 
+          fill="currentColor"
+          fontSize={12}
+          className="font-medium"
+        >
+          {payload.value}
+        </text>
+      </g>
+    );
+  }
+
   return (
     <g transform={`translate(${x},${y})`}>
-      <text 
-        x={0} 
-        y={0} 
-        dy={16} 
-        textAnchor="middle" 
-        fill="currentColor"
-        fontSize={12}
-        className="font-medium"
-      >
-        {payload.value}
-      </text>
+      <foreignObject width={24} height={24} x={-12} y={0}>
+        <div 
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center' 
+          }}
+        >
+          <Image
+            src={iconPath}
+            alt={payload.value}
+            width={24}
+            height={24}
+            style={{ objectFit: 'contain' }}
+          />
+        </div>
+      </foreignObject>
     </g>
   );
 };
@@ -149,6 +180,10 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
   selectedCharacterId,
   playedCharacters
 }) => {
+  // Call hooks at the top level, before any conditional logic
+  const { width } = useWindowSize();
+  const isMobile = isMobileView(width);
+
   // Get the character name from the ID
   const getCharacterName = (characterId: number): string => {
     return characterIdMap[characterId] || `Character ${characterId}`;
@@ -201,9 +236,6 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
     );
   }
 
-  const { width } = useWindowSize();
-  const isMobile = isMobileView(width);
-
   return (
     <SimpleChartCard
       title="Character Matchup Winrates"
@@ -244,7 +276,7 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
                     dataKey="characterName"
                     type="category"
                     width={40}
-                    tick={<CustomAxisTick />}
+                    tick={<CustomAxisTick isMobile={isMobile} />}
                     interval={0}
                     axisLine={false}
                   />
@@ -266,7 +298,7 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
                   <XAxis 
                     dataKey="characterName"
                     height={40}
-                    tick={<CustomAxisTick />}
+                    tick={<CustomAxisTick isMobile={isMobile} />}
                     interval={0}
                   />
                   <YAxis 

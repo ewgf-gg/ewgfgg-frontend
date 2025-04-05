@@ -1,6 +1,7 @@
 // app/layout.tsx
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Russo_One } from "next/font/google";
 import { Providers } from './providers';
 import "./globals.css";
 import React from 'react'
@@ -22,6 +23,13 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+const russoOne = Russo_One({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-russo-one",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "ewgf.gg - TEKKEN 8 Statistics",
   description: "TEKKEN 8 Character and Rank Statistics",
@@ -36,7 +44,7 @@ export default function RootLayout({
     <html 
       lang="en" 
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${russoOne.variable}`}
     >
       <head>
         <script
