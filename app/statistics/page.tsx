@@ -8,8 +8,6 @@ import { VersionSelector } from '@/components/statistics/VersionSelector';
 import { RegionSelector } from '@/components/statistics/RegionSelector';
 import { RankSelector } from '@/components/statistics/RankSelector';
 import { fetchVersionPopularity, fetchVersionWinrates } from '@/lib/api';
-import { useAtom } from 'jotai';
-import { totalPlayersAtom, totalReplaysAtom } from '@/app/state/atoms/tekkenStatsAtoms';
 import { VersionStats } from '@/app/state/types/tekkenTypes';
 import  EWGFLoadingAnimation  from '@/components/EWGFLoadingAnimation';
 import { useState, useEffect } from 'react';
@@ -63,6 +61,7 @@ export default function StatisticsPage() {
     };
 
     fetchData();
+    // eslint-disable-next-line    
   }, []); 
 
   if (loading) {
