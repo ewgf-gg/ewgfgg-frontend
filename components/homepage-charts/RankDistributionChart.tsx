@@ -3,15 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, LabelList, ResponsiveContainer, Cell } from 'recharts';
 import { 
   rankColorsAtom, 
   rankDistributionAtom,
-  gameVersionsAtom,
-  totalPlayersAtom,
-  totalReplaysAtom
+  gameVersionsAtom
 } from '../../app/state/atoms/tekkenStatsAtoms';
 import React from 'react';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
@@ -49,8 +47,6 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
   const [rankDistribution] = useAtom(rankDistributionAtom);
   const [rankColors] = useAtom(rankColorsAtom);
   const [gameVersions] = useAtom(gameVersionsAtom);
-  const [totalPlayers] = useAtom(totalPlayersAtom);
-  const [totalReplays] = useAtom(totalReplaysAtom);
   const { width } = useWindowSize();
   const isMobile = isMobileView(width);
   
@@ -287,18 +283,6 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
             </ResponsiveContainer>
           )}
         </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row justify-between text-sm text-muted-foreground border-t pt-4 gap-4">
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
-            <div>
-              <span className="font-medium">Total Players:</span>{' '}
-              {totalPlayers.toLocaleString()}
-            </div>
-            <div>
-              <span className="font-medium">Total Replays Analyzed:</span>{' '}
-              {totalReplays.toLocaleString()}
-            </div>
-          </div>
-        </CardFooter>
       </Card>
     </motion.div>
   );

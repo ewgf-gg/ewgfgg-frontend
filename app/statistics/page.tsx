@@ -8,6 +8,8 @@ import { VersionSelector } from '@/components/statistics/VersionSelector';
 import { RegionSelector } from '@/components/statistics/RegionSelector';
 import { RankSelector } from '@/components/statistics/RankSelector';
 import { fetchVersionPopularity, fetchVersionWinrates } from '@/lib/api';
+import { useAtom } from 'jotai';
+import { totalPlayersAtom, totalReplaysAtom } from '@/app/state/atoms/tekkenStatsAtoms';
 import { VersionStats } from '@/app/state/types/tekkenTypes';
 import  EWGFLoadingAnimation  from '@/components/EWGFLoadingAnimation';
 import { useState, useEffect } from 'react';
@@ -44,8 +46,10 @@ export default function StatisticsPage() {
           fetchVersionPopularity(),
           fetchVersionWinrates()
         ]);
+        
         setPopularityData(popularity);
         setWinrateData(winrates);
+        
         // Set initial version to the latest version
         if (!selectedVersion && Object.keys(popularity).length > 0) {
           const versions = Object.keys(popularity).sort((a, b) => parseInt(b) - parseInt(a));
@@ -59,7 +63,7 @@ export default function StatisticsPage() {
     };
 
     fetchData();
-  }, [selectedVersion]);
+  }, []); 
 
   if (loading) {
     return (
