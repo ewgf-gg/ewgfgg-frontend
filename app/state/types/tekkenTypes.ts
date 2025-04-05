@@ -194,6 +194,7 @@ export interface InitialData {
 export interface PlayerSearchResult {
     id: string;
     name: string;
+    formattedTekkenId: string;
     tekkenId?: string;
     regionId: number;
     mostPlayedCharacter?: string;

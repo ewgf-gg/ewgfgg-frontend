@@ -167,8 +167,8 @@ export function SearchBar() {
                           )}
                           <div className="flex flex-col flex-grow">
                             <div className="font-medium">{player.name}</div>
-                            <div className="text-sm text-gray-400 flex items-center gap-2">
-                              {player.tekkenId}
+                            <div className="text-xs text-gray-400 flex items-center gap-2">
+                              {player.formattedTekkenId}
                               <span className="text-xs px-2 py-0.5 rounded-full bg-gray-700">
                                 {Regions[player.regionId]}
                               </span>
