@@ -6,6 +6,7 @@ import { Providers } from './providers';
 import "./globals.css";
 import React from 'react'
 import GoogleAnalytics from '../components/GoogleAnalytics';
+import UmamiAnalytics from '../components/UmamiAnalytics';
 import GlobalStatsProvider from '../components/GlobalStatsProvider';
 
 // Apply global revalidation every 30 seconds
@@ -68,6 +69,7 @@ export default function RootLayout({
       >
         <Providers>
           <GoogleAnalytics />
+          <UmamiAnalytics />
           <GlobalStatsProvider />
           <main className="relative flex min-h-screen flex-col">
             {children}
