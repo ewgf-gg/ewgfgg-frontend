@@ -68,7 +68,7 @@ export default function AboutPage() {
               {[
                 <>The MVPs <a href="https://x.com/6weetbix" target="_blank" rel="noopener noreferrer" className="text-blue-400">@6weetbix</a> and <a href="https://x.com/kklaraz" target="_blank" rel="noopener noreferrer" className="text-blue-400">@klaraz</a> for building the <a href="https://wank.wavu.wiki" target="_blank" rel="noopener noreferrer" className="text-blue-400">Wavu Wiki</a> and making the API publicly available.</>,
                 'Gary, my mentor from a previous internship, who helped fuel my enthusiasm for this project and offering technical advice.',
-                'My friends Michael and Daniel, as well as my other friends, for offering their thoughts and listening to me yap about this project nonstop.',
+                'My friends Joe, Michael and Daniel, as well as my other friends, for offering their thoughts and listening to me yap about this project nonstop.',
                 'Members of the ewgf.gg and Tekken Discord/Reddit communities for their feedback and support.'
               ].map((item, index) => (
                 <motion.li
