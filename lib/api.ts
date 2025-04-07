@@ -23,15 +23,13 @@ export const getInitialData = async (): Promise<InitialData> => {
           winrates,
           popularity,
           winrateChanges,
-          rankDistributionData,
-          recentlyActivePlayers
+          rankDistributionData
       ] = await Promise.all([
           fetchStatistics('stats-summary'),
           fetchStatistics('top-winrates'),
           fetchStatistics('top-popularity'),
           fetchStatistics('winrate-changes'),
-          fetchStatistics('rankDistribution'),
-          fetchPlayerData('recentlyActive')
+          fetchStatistics('rankDistribution')
       ]);
 
       const distributionData = {} as GameRankDistribution;
@@ -52,8 +50,7 @@ export const getInitialData = async (): Promise<InitialData> => {
           characterWinrates: winrates,
           characterPopularity: popularity,
           rankDistribution: distributionData,
-          winrateChanges,
-          recentlyActivePlayers
+          winrateChanges
       };
   } catch (error) {
       console.error('Failed to fetch initial data:', error);
