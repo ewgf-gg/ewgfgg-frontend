@@ -188,7 +188,6 @@ export interface InitialData {
     };
     rankDistribution: GameRankDistribution;
     winrateChanges: RankWinrateChanges;
-    recentlyActivePlayers: RecentlyActivePlayer[];
 }
 
 export interface PlayerSearchResult {
