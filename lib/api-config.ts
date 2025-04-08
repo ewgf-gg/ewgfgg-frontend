@@ -54,7 +54,7 @@ export async function fetchWithConfig(endpoint: string, options: RequestInit = {
 export async function fetchPlayerData(username: string) {
   return fetchWithConfig(`/player-stats/${encodeURIComponent(username)}`, {
     next: {
-      revalidate: 0
+      revalidate: 30
     }
   });
 }

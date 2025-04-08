@@ -1,8 +1,7 @@
 import { Metadata } from 'next'
 import { characterIconMap, rankIconMap, Regions, PlayerMetadata } from '@/app/state/types/tekkenTypes'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0;
+export const revalidate = 30;
 
 type Props = {
   params: { polarisId: string }

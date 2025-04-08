@@ -3,8 +3,7 @@ import { fetchPlayerData } from '@/lib/api-config';
 import { PlayerStats } from '../../state/types/tekkenTypes';
 import React from 'react';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 30;
 
 interface PageProps {
   params: {
