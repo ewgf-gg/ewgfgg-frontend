@@ -2,18 +2,17 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, TooltipProps, ResponsiveContainer } from 'recharts';
 import { characterWinratesAtom, characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
-import { ChartCard } from '../shared/ChartCard';
+import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { CustomYAxisTick } from '../shared/CustomYAxisTick';
-import { ChartProps, ColorMapping } from '../../app/state/types/tekkenTypes';
-import { characterIconMap, characterIdMap } from '../../app/state/types/tekkenTypes';
+import { ColorMapping, characterIdMap, characterIconMap } from '../../app/state/types/tekkenTypes';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 
 interface WinrateData {
   character: string;
-  characterId: number;
-  winrate: number;
-  originalWinrate: number;
+  characterId: string;
+  winRate: number;
+  displayRate: string;
 }
 
 interface WinrateTooltipProps extends TooltipProps<number, string> {
@@ -41,7 +40,7 @@ const WinrateTooltip: React.FC<WinrateTooltipProps> = ({ active, payload, label 
           <span className="font-medium">{label}</span>
         </div>
         <div className="text-sm">
-          Winrate: {payload[0].payload.originalWinrate.toFixed(2)}%
+          Winrate: {payload[0].payload.displayRate}
         </div>
       </div>
     );
@@ -95,7 +94,7 @@ const Chart: React.FC<ChartComponentProps> = ({
           cursor={false}
         />
         <Bar
-          dataKey="winrate"
+          dataKey="winRate"
           radius={[0, 4, 4, 0]}
           isAnimationActive={true}
           animationBegin={isInitialRender ? 500 : 100}
@@ -103,9 +102,7 @@ const Chart: React.FC<ChartComponentProps> = ({
           animationEasing="ease"
         >
           {data.map((entry) => {
-            const colorMapping = entry.characterId !== -1 
-              ? colors.find(c => c.id === entry.characterId.toString()) 
-              : null;
+            const colorMapping = colors.find(c => c.id === entry.characterId);
             return (
               <Cell 
                 key={`cell-${entry.character}`} 
@@ -114,9 +111,8 @@ const Chart: React.FC<ChartComponentProps> = ({
             );
           })}
           <LabelList
-            dataKey="originalWinrate"
+            dataKey="displayRate"
             position="right"
-            formatter={(value: number) => `${value.toFixed(2)}%`}
             style={{ fontSize: '14px' }}
           />
         </Bar>
@@ -129,9 +125,14 @@ const ClientSideChart = dynamic(() => Promise.resolve(Chart), {
   ssr: false
 });
 
-export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
+interface WinrateChartProps {
+  title: string;
+  description?: string;
+  delay?: number;
+}
+
+export const WinrateChart: React.FC<WinrateChartProps> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
-  const [rank, setRank] = useState<string>("masterRanks");
   const [characterWinrates] = useAtom(characterWinratesAtom);
   const colors = useAtomValue(characterColors);
 
@@ -140,53 +141,41 @@ export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> =
   }, [isInitialRender]);
 
   const { data, domainMin, domainMax } = useMemo(() => {
-    const rankData = characterWinrates[rank as keyof typeof characterWinrates]?.globalStats || {};
-    
-    // First, create the chart data with original winrates
-    const chartData = Object.entries(rankData)
-      .map(([character, winrate]) => {
-        // Find character ID by looking up the character name in the values
-        const characterId = Object.entries(characterIdMap)
-        // eslint-disable-next-line
-          .find(([_, name]) => name === character)?.[0];
+    // Transform the data for the chart
+    const chartData: WinrateData[] = characterWinrates
+      .map(item => {
+        const characterName = characterIdMap[parseInt(item.characterId)];
         return {
-          character,
-          characterId: characterId ? parseInt(characterId) : -1,
-          winrate: winrate, // Temporary value, will be normalized
-          originalWinrate: winrate
+          character: characterName || `Unknown (${item.characterId})`,
+          characterId: item.characterId,
+          winRate: item.winRate,
+          displayRate: `${item.winRate.toFixed(2)}%`
         };
       })
-      .sort((a, b) => b.originalWinrate - a.originalWinrate);
+      .sort((a, b) => b.winRate - a.winRate)
+      .slice(0, 10); // Only show top 10 characters
     
-    // Find the maximum value (the highest winrate character)
-    const maxOriginalWinrate = Math.max(...chartData.map(d => d.originalWinrate));
-    
-    // Normalize all values as percentage of maximum (0-100 scale)
-    chartData.forEach(item => {
-      item.winrate = (item.originalWinrate / maxOriginalWinrate) * 100;
-    });
-    
-    // Set domain for the normalized values
-    const minWinrate = 0; // Minimum will always be 0 or close to it
-    const maxWinrate = 100; // Maximum will always be 100 for the highest winrate character
-    const domainPadding = 5; // Add a small padding
+    // Set domain for the chart
+    const minRate = 0;
+    const maxRate = Math.max(...chartData.map(d => d.winRate));
+    const domainPadding = maxRate * 0.1; // Add 10% padding
     
     return {
       data: chartData,
-      domainMin: minWinrate,
-      domainMax: maxWinrate + domainPadding
+      domainMin: minRate,
+      domainMax: maxRate + domainPadding
     };
-  }, [characterWinrates, rank]);
+  }, [characterWinrates]);
 
   const ticks = useMemo(() => {
     return Array.from(
       { length: 5 },
-      (_, i) => Math.round(domainMin + (domainMax - domainMin) * (i / 4))
+      (_, i) => Math.round((domainMin + (domainMax - domainMin) * (i / 4)) * 10) / 10
     );
   }, [domainMin, domainMax]);
 
   return (
-    <ChartCard {...props} rank={rank} onRankChange={setRank}>
+    <SimpleChartCard {...props} height={250}>
       <ClientSideChart
         data={data}
         domainMin={domainMin}
@@ -195,6 +184,6 @@ export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> =
         isInitialRender={isInitialRender}
         colors={colors}
       />
-    </ChartCard>
+    </SimpleChartCard>
   );
 };

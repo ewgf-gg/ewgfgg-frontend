@@ -174,18 +174,8 @@ export interface RecentlyActivePlayer {
 export interface InitialData {
     totalReplays: number;
     totalPlayers: number;
-    characterWinrates: {
-        masterRanks: RankStats;
-        advancedRanks: RankStats;
-        intermediateRanks: RankStats;
-        beginnerRanks: RankStats;
-    };
-    characterPopularity: {
-        masterRanks: RankStats;
-        advancedRanks: RankStats;
-        intermediateRanks: RankStats;
-        beginnerRanks: RankStats;
-    };
+    characterWinrates: CharacterWinrates;
+    characterPopularity: CharacterPopularity;
     rankDistribution: GameRankDistribution;
     winrateChanges: RankWinrateChanges;
 }
@@ -218,33 +208,27 @@ export type RankOption = {
     description: string;
 };
   
-export interface CharacterWinrates {
-    masterRanks: RankStats;
-    advancedRanks: RankStats;
-    intermediateRanks: RankStats;
-    beginnerRanks: RankStats;
+export interface CharacterWinrateItem {
+    characterId: string;
+    winRate: number;
 }
+
+export type CharacterWinrates = CharacterWinrateItem[];
   
-export interface CharacterPopularity {
-    masterRanks: RankStats;
-    advancedRanks: RankStats;
-    intermediateRanks: RankStats;
-    beginnerRanks: RankStats;
+export interface CharacterPopularityItem {
+    characterId: string;
+    pickRate: number;
 }
+
+export type CharacterPopularity = CharacterPopularityItem[];
   
 export interface WinrateChange {
     characterId: string;
     change: number;
     trend: 'increase' | 'decrease';
-    rankCategory: string;
 }
   
-export interface RankWinrateChanges {
-    master: WinrateChange[];
-    advanced: WinrateChange[];
-    intermediate: WinrateChange[];
-    beginner: WinrateChange[];
-}
+export type RankWinrateChanges = WinrateChange[];
 
 export interface VersionStats {
     [version: string]: {

@@ -16,26 +16,11 @@ const initialRankStats: RankStats = {
   regionalStats: {}
 };
 
-const initialWinrates: CharacterWinrates = {
-  masterRanks: initialRankStats,
-  advancedRanks: initialRankStats,
-  intermediateRanks: initialRankStats,
-  beginnerRanks: initialRankStats
-};
+const initialWinrates: CharacterWinrates = [];
 
-const initialPopularity: CharacterPopularity = {
-  masterRanks: initialRankStats,
-  advancedRanks: initialRankStats,
-  intermediateRanks: initialRankStats,
-  beginnerRanks: initialRankStats
-};
+const initialPopularity: CharacterPopularity = [];
 
-const initialWinrateChanges: RankWinrateChanges = {
-  master:[],
-  advanced: [],
-  intermediate: [],
-  beginner: []
-};
+const initialWinrateChanges: RankWinrateChanges = [];
 
 export const rankColorsAtom = atom<ColorMapping[]>([
   { id: 'Beginner', color: '#99582A' },
@@ -134,9 +119,9 @@ export const currentModeAtom = atom<'overall' | 'standard'>('overall');
 export const isLoadingAtom = atom(false);
 export const errorMessageAtom = atom('');
 export const searchQueryAtom = atom('');
-export const characterWinratesAtom = atom<CharacterWinrates>(initialWinrates);
-export const characterPopularityAtom = atom<CharacterPopularity>(initialPopularity);
-export const winrateChangesAtom = atom<RankWinrateChanges>(initialWinrateChanges);
+export const characterWinratesAtom = atom<CharacterWinrates>([]);
+export const characterPopularityAtom = atom<CharacterPopularity>([]);
+export const winrateChangesAtom = atom<RankWinrateChanges>([]);
 export const rankDistributionAtom = atom<GameRankDistribution>({} as GameRankDistribution);
 
 export const playerStatsAtom = atom<PlayerStats | null>(null);

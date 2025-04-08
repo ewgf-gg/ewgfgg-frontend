@@ -2,14 +2,19 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, ReferenceLine, ResponsiveContainer } from 'recharts';
 import { winrateChangesAtom } from '@/app/state/atoms/tekkenStatsAtoms';
-import { ChartCard } from '../shared/ChartCard';
+import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { CustomYAxisTick } from '../shared/CustomYAxisTick';
 import { CustomTooltip } from '../shared/CustomTooltip';
-import { ChartProps } from '@/app/state/types/tekkenTypes';
+import { characterIdMap } from '@/app/state/types/tekkenTypes';
 
-export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
+interface WinRateTrendsProps {
+  title: string;
+  description?: string;
+  delay?: number;
+}
+
+export const WinRateTrends: React.FC<WinRateTrendsProps> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState(true);
-  const [rank, setRank] = useState("masterRanks");
   const [winrateChanges] = useAtom(winrateChangesAtom);
 
   useEffect(() => {
@@ -17,25 +22,27 @@ export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> 
   }, [isInitialRender]);
 
   const { data, domain } = useMemo(() => {
-    // Map the rank values from the selector to the keys in the winrateChangesAtom
-    const rankMap: Record<string, keyof typeof winrateChanges> = {
-      "masterRanks": "master",
-      "advancedRanks": "advanced",
-      "intermediateRanks": "intermediate",
-      "beginnerRanks": "beginner"
-    };
-    
-    const mappedRank = rankMap[rank] || "master";
-    const rankData = winrateChanges[mappedRank] || [];
-    
-    const chartData = [...rankData]
+    // Process the data for the chart
+    const chartData = [...winrateChanges]
       .map(entry => ({
         ...entry,
-        change: entry.trend === 'decrease' ? -entry.change : entry.change
+        characterName: characterIdMap[parseInt(entry.characterId)] || `Unknown (${entry.characterId})`,
+        // For decrease trends, make the change negative for the chart
+        displayChange: entry.trend === 'decrease' ? -entry.change : entry.change,
+        // Format the change for display
+        formattedChange: `${entry.trend === 'decrease' ? '-' : '+'}${entry.change.toFixed(2)}%`
       }))
-      .sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
+      // Sort by trend first (increases first), then by magnitude of change
+      .sort((a, b) => {
+        // If trends are different, sort increases first
+        if (a.trend !== b.trend) {
+          return a.trend === 'increase' ? -1 : 1;
+        }
+        // If trends are the same, sort by magnitude (highest first)
+        return b.change - a.change;
+      })
     
-    const changes = chartData.map(d => d.change);
+    const changes = chartData.map(d => d.displayChange);
     const maxAbsChange = Math.ceil(Math.max(...changes.map(Math.abs)));
     const domainPadding = maxAbsChange * 0.1;
     
@@ -43,65 +50,64 @@ export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> 
       data: chartData,
       domain: [-maxAbsChange - domainPadding, maxAbsChange + domainPadding] as [number, number]
     };
-  }, [winrateChanges, rank]);
+  }, [winrateChanges]);
 
   const getBarColor = (change: number) => {
     return change >= 0
-      ? 'hsl(142.1 76.2% 36.3%)' 
-      : 'hsl(0 84.2% 60.2%)'    
+      ? 'hsl(142.1 76.2% 36.3%)' // Green for increases
+      : 'hsl(0 84.2% 60.2%)'     // Red for decreases
   };
 
   return (
-    <ChartCard {...props} rank={rank} onRankChange={setRank}>
+    <SimpleChartCard {...props} height={250}>
       <div className="w-full" style={{ minHeight: "200px" }}>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart
             data={data}
             layout="vertical"
             margin={{ left: 100, right: 58, top: 8, bottom: 8 }}
-      >
-        <YAxis
-          dataKey="characterId"
-          type="category"
-          axisLine={false}
-          tickLine={false}
-          tick={<CustomYAxisTick />}
-          width={60}
-        />
-        <XAxis
-          type="number"
-          domain={domain}
-          tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
-        />
-          <Tooltip 
-            content={<CustomTooltip />}
-            cursor={false}
-          />
-        <ReferenceLine x={0} stroke="hsl(var(--muted-foreground))" strokeWidth={1} />
-        <Bar
-          dataKey="change"
-          radius={[0, 4, 4, 0]}
-          isAnimationActive={true}
-          animationBegin={isInitialRender ? 900 : 100}
-          animationDuration={1000}
-          animationEasing="ease"
-        >
-          {data.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={getBarColor(entry.change)}
+          >
+            <YAxis
+              dataKey="characterName"
+              type="category"
+              axisLine={false}
+              tickLine={false}
+              tick={<CustomYAxisTick />}
+              width={60}
             />
-          ))}
-          <LabelList
-            dataKey="change"
-            position="right"
-            formatter={(value: number) => `${value > 0 ? '+' : ''}${value.toFixed(2)}%`}
-            style={{ fontSize: '14px' }}
-          />
-        </Bar>
+            <XAxis
+              type="number"
+              domain={domain}
+              tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
+            />
+            <Tooltip 
+              content={<CustomTooltip />}
+              cursor={false}
+            />
+            <ReferenceLine x={0} stroke="hsl(var(--muted-foreground))" strokeWidth={1} />
+            <Bar
+              dataKey="displayChange"
+              radius={[0, 4, 4, 0]}
+              isAnimationActive={true}
+              animationBegin={isInitialRender ? 900 : 100}
+              animationDuration={1000}
+              animationEasing="ease"
+            >
+              {data.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={getBarColor(entry.displayChange)}
+                />
+              ))}
+              <LabelList
+                dataKey="formattedChange"
+                position="right"
+                style={{ fontSize: '14px' }}
+              />
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </ChartCard>
+    </SimpleChartCard>
   );
 };
