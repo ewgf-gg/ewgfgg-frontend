@@ -12,7 +12,6 @@ import {
   Battle, 
   FormattedCharacter, 
   FormattedMatch, 
-  FormattedPlayerStats,
   PlayedCharacter,
   characterIdMap,
   rankOrderMap 
