@@ -87,7 +87,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
                         alt={previousSeasonRank}
                         width={40}
                         height={24}
-                        className="w-10 h-6 inline-block ml-0.5"
+                        className="w-12 h-7 inline-block ml-0.5"
                         unoptimized
                       />
                     </div>
@@ -117,7 +117,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
                               alt={currentSeasonRank}
                               width={48}
                               height={40}
-                              className="w-12 h-10 object-contain"
+                              className="w-24 h-12"
                               unoptimized
                             />
                           </div>
