@@ -1,15 +1,17 @@
+"use client";
+
 import React, { useState } from 'react';
-import CharacterWinLossChart from './SelectedCharacterWinrate';
-import CharacterWinrateChart from './CharacterWinrateChart';
-import CharacterDistributionChart from './CharacterDistributionChart';
-import BestMatchupChart from './BestMatchupChart';
-import WorstMatchupChart from './WorstMatchupChart';
-import WinrateOverTimeChart from './WinrateOverTimeChart';
-import TekkenPowerChart from './TekkenPowerChart';
-import { CharacterSelector } from '../player-stats/CharacterSelector';
-import { UserInfoCard } from '../player-stats/UserInfoCard';
-import { RecentBattlesCard } from './RecentBattlesCard';
-import { FormattedPlayerStats, characterIdMap } from '../../app/state/types/tekkenTypes';
+import CharacterWinLossChart from '../../../components/player-charts/SelectedCharacterWinrate';
+import CharacterWinrateChart from '../../../components/player-charts/CharacterWinrateChart';
+import CharacterDistributionChart from '../../../components/player-charts/CharacterDistributionChart';
+import BestMatchupChart from '../../../components/player-charts/BestMatchupChart';
+import WorstMatchupChart from '../../../components/player-charts/WorstMatchupChart';
+import WinrateOverTimeChart from '../../../components/player-charts/WinrateOverTimeChart';
+import TekkenPowerChart from '../../../components/player-charts/TekkenPowerChart';
+import { CharacterSelector } from '../../../components/player-stats/CharacterSelector';
+import { UserInfoCard } from '../../../components/player-stats/UserInfoCard';
+import { RecentBattlesCard } from '../../../components/player-charts/RecentBattlesCard';
+import { FormattedPlayerStats, characterIdMap } from '../../state/types/tekkenTypes';
 
 export const PlayerProfile: React.FC<{ stats: FormattedPlayerStats }> = ({ stats }) => {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);

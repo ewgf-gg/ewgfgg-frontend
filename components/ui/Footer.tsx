@@ -1,4 +1,5 @@
-import * as React from 'react'
+"use client";
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { FaGithub, FaDiscord } from 'react-icons/fa'
