@@ -1,19 +1,100 @@
-# Tekken-Frontend
-Frontend Client for ewgf-gg
+# EWGF.GG - Tekken 8 Statistics Website (Frontend)
 
-## Current front page! 
-![image](https://github.com/user-attachments/assets/eac8fa11-6fa5-4b92-a98e-0bbc2e43744e)
-![image](https://github.com/user-attachments/assets/e1044447-4db9-4a16-aaf8-df54851c4aa1)
+This is the front-end service that runs [ewgf.gg](https://www.ewgf.gg/). It is designed to visualize and display TEKKEN 8 data that has been collected from the Wavu Wank api.
+> **Note: To run this locally, you MUST have the backend server running at the configured API_URL before starting the frontend application. See the backend repository for setup instructions.**
 
-## Player Statistics Page
-![image](https://github.com/user-attachments/assets/400bb8a1-d919-418a-b4e2-a8af0dc7d508)
+## Front Page
+![Front Page](https://github.com/user-attachments/assets/d746c813-7cd1-41a3-b14d-2c6a0ee21807)
+
+## Installation and Setup
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm 
+
+### Installation Steps
+1. Clone the repository
+   ```bash
+   git clone https://github.com/ewgf-gg/ewgfgg-frontend.git
+   ```
+
+2. Install dependencies
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables
+   Create a `.env` file in the root directory with the following variables:
+   ```
+   API_URL=http://localhost:8080
+   ```
+
+4. Start the development server
+   ```bash
+   npm run dev
+   ```
 
 
 
-## Technologies Used
+## Project Structure
 
-![next-js-logo-7929BCD36F-seeklogo com](https://github.com/user-attachments/assets/0ac2e94b-fe5a-45ee-b63b-5278e778bcac)
-![typescript](https://github.com/user-attachments/assets/436c7a67-b1c7-4e4a-adb2-2399ccd892fe)
-![react](https://github.com/user-attachments/assets/6cc837c4-3f8e-4e79-ac7a-faeba3efe087)
-![jotai-mascot](https://github.com/user-attachments/assets/96a8e65e-89bb-44cc-afd6-ecb424de3dae)
+```
+├── app/                  # Next.js app directory
+│   ├── api/              
+│   ├── player/           # Player profile page
+│   ├── statistics/       # Statistics page
+│   ├── state/            
+│   │   ├── atoms/        # Jotai atoms
+│   │   └── types/        # Type definitions
+├── components/           
+│   ├── homepage-charts/  # Chart Components for the homepage
+│   ├── player-charts/    # Chart Components for player statitics page
+│   ├── player-stats/     # Components for player statistics page
+│   ├── shared/           # Shared generic components
+│   ├── statistics/       # Statistics page components
+│   └── ui/               # Shared UI components
+├── lib/                  # Utility functions and API clients
+│   └── hooks/            # Custom React hooks
+├── static/               # Static assets
+│   ├── character-icons/  # Character icons
+│   ├── rank-icons/       # Rank icons
+│   └── tekken-inputs/    # Tekken input icons
+```
 
+## Libraries/Frameworks Used
+
+- **Next.js**
+- **TypeScript**
+- **React**
+- **Jotai**
+- **Recharts**
+- **Framer Motion**
+- **Tailwind CSS**
+- **shadcn/ui**
+
+## API Endpoints
+
+The frontend communicates with the backend API that provides the following endpoints:
+
+- `/player-stats/{polarisId}` - Get detailed stats for a specific player
+- `/player-stats/search` - Search for players by name or TEKKEN-ID
+- `/statistics/stats-summary` - Get summary statistics (total players, replays)
+- `/statistics/top-winrates` - Get top 5 character win rates
+- `/statistics/top-popularity` - Get top 5 character popularity
+- `/statistics/winrate-changes` - Get character win rate changes
+- `/statistics/rankDistribution` - Get rank distribution data
+- `/statistics/version-popularity` - Get character popularity by game version
+- `/statistics/version-winrates` - Get character win rates by game version
+
+## Contributing
+
+Contributions are appreciated and welcome! Please feel free to submit a pull request :) 
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
