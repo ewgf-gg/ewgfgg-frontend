@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { AnnouncementBanner } from './AnnouncementBanner';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAtom } from 'jotai';
@@ -196,7 +195,6 @@ export function Header() {
           
       </header>
       <div className="h-24 md:h-16"></div>
-      <AnnouncementBanner />
     </>
   );
 }
