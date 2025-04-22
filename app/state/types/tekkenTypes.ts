@@ -73,8 +73,24 @@ export interface FormattedPlayerStats {
     playedCharacters?: Record<string, PlayedCharacter>;
 }
 
+export enum BattleType {
+    QUICK_BATTLE = "Quick Battle",
+    RANKED_BATTLE = "Ranked Battle",
+    GROUP_BATTLE = "Group Battle",
+    PLAYER_BATTLE = "Player Battle"
+}
+
+// Map to convert numeric battle type from payload to BattleType enum
+export const battleTypeMap: { [key: number]: BattleType } = {
+    1: BattleType.QUICK_BATTLE,
+    2: BattleType.RANKED_BATTLE,
+    3: BattleType.GROUP_BATTLE,
+    4: BattleType.PLAYER_BATTLE
+};
+
 export interface Battle {
     date: string;
+    battleType: BattleType;
     player1Name: string;
     player1CharacterId: number;
     player1PolarisId: string;

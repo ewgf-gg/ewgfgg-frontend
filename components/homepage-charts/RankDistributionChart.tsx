@@ -5,7 +5,8 @@ import { useAtom } from 'jotai';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, LabelList, ResponsiveContainer, Cell } from 'recharts';
+import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, LabelList, ResponsiveContainer, Cell } from 'recharts';
 import { 
   rankColorsAtom, 
   rankDistributionAtom,
@@ -213,6 +214,23 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
               </Select>
             </div>
           </div>
+          <div className="mt-2 flex justify-end">
+            <TooltipProvider>
+              <UITooltip>
+                <TooltipTrigger className="text-xs text-muted-foreground underline cursor-help">
+                  What is the difference between &apos;Overall&apos; and &apos;Mains Only&apos;?
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs bg-background border text-foreground p-2">
+                  <p>
+                    <strong>Mains Only:</strong> Uses each player&apos;s highest-ranked character; side picks are ignored.
+                  </p>
+                  <p className="mt-1">
+                    <strong>Overall:</strong> Includes every character played by a player.
+                  </p>
+                </TooltipContent>
+              </UITooltip>
+            </TooltipProvider>
+          </div>
         </CardHeader>
         <CardContent>
           {!distributionData.length ? (
@@ -255,7 +273,7 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
                     <YAxis hide />
                   </>
                 )}
-                <Tooltip 
+                <RechartsTooltip 
                   content={<CustomTooltip />}
                   cursor={false}
                 />

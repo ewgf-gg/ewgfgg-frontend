@@ -14,7 +14,9 @@ import {
   FormattedMatch, 
   PlayedCharacter,
   characterIdMap,
-  rankOrderMap 
+  rankOrderMap,
+  BattleType,
+  battleTypeMap
 } from '@/app/state/types/tekkenTypes';
 
 interface PlayerPageContentProps {
@@ -46,7 +48,13 @@ export default function PlayerPageContent({
       recentMatches: formatRecentMatches(playerStats.battles || [], polarisId),
       characterStatsWithVersion: formatCharacterStatsWithVersion(playerStats.playedCharacters),
       characterBattleStats: formatCharacterBattleStats(playerStats.playedCharacters),
-      battles: playerStats.battles || [],
+      battles: (playerStats.battles || []).map(battle => ({
+        ...battle,
+        // Convert numeric battleType to BattleType enum
+        battleType: typeof battle.battleType === 'number' 
+          ? battleTypeMap[battle.battleType as unknown as number] || BattleType.RANKED_BATTLE 
+          : battle.battleType
+      })),
       regionId: playerStats.regionId || 0,
       areaId: playerStats.areaId || 0,
       latestBattle: playerStats.latestBattle || 0,

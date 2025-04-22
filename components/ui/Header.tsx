@@ -8,6 +8,7 @@ import { useAtom } from 'jotai';
 import { useTheme } from 'next-themes';
 import { totalReplaysAtom, totalPlayersAtom } from '@/app/state/atoms/tekkenStatsAtoms'
 import { SearchBar } from '@/components/SearchBar'
+import { getGlobalStats } from '@/components/GlobalStatsServer'
 
 // First, let's keep the custom hook for the animated counter
 const useAnimatedCounter = (endValue: number, duration: number = 1000) => {
@@ -55,9 +56,9 @@ const formatNumber = (num: number): string => {
   return num.toString();
 };
 
-export function Header() {
-  const [totalReplays] = useAtom(totalReplaysAtom);
-  const [totalPlayers] = useAtom(totalPlayersAtom);
+export function Header({ initialStats }: { initialStats?: { totalPlayers: number, totalReplays: number } }) {
+  const [totalReplays, setTotalReplays] = useAtom(totalReplaysAtom);
+  const [totalPlayers, setTotalPlayers] = useAtom(totalPlayersAtom);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -65,6 +66,34 @@ export function Header() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Initialize stats from props or fetch them if not available
+  useEffect(() => {
+    const initializeStats = async () => {
+      // If we have initial stats from the server, use them
+      if (initialStats) {
+        setTotalPlayers(initialStats.totalPlayers);
+        setTotalReplays(initialStats.totalReplays);
+        return;
+      }
+
+      // If we already have stats in the atoms, don't fetch again
+      if (totalPlayers > 0 && totalReplays > 0) {
+        return;
+      }
+
+      // Otherwise, fetch the stats
+      try {
+        const stats = await getGlobalStats();
+        setTotalPlayers(stats.totalPlayers);
+        setTotalReplays(stats.totalReplays);
+      } catch (error) {
+        console.error('Failed to fetch global stats:', error);
+      }
+    };
+
+    initializeStats();
+  }, [initialStats, totalPlayers, totalReplays, setTotalPlayers, setTotalReplays]);
 
   const animatedPlayers = useAnimatedCounter(totalPlayers, 2000);
   const animatedReplays = useAnimatedCounter(totalReplays, 2000);

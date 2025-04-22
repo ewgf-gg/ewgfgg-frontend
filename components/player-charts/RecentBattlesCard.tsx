@@ -44,28 +44,14 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    });
+      minute: '2-digit',
+      hour12: false
+    }) + ' UTC';
   };
 
   const getCharacterName = (characterId: number) => {
     return characterIdMap[characterId] || `Character ${characterId}`;
   };
-
-  const renderCharacterWithIcon = (characterName: string) => (
-    <div className="flex items-center gap-2">
-      <div className="relative w-8 h-8">
-        <Image
-          src={characterIconMap[characterName]}
-          alt={characterName}
-          fill
-          sizes="32px"
-          className="object-contain"
-        />
-      </div>
-      <span>{characterName}</span>
-    </div>
-  );
 
   const renderPaginationControls = () => {
     const buttons = [];
@@ -186,36 +172,70 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
           <TableHeader>
             <TableRow>
               <TableHead>Date</TableHead>
-              <TableHead>Player Character</TableHead>
+              <TableHead>Player</TableHead>
               <TableHead>Opponent</TableHead>
-              <TableHead>Opponent Character</TableHead>
               <TableHead>Result</TableHead>
+              <TableHead>Score</TableHead>
+              <TableHead>Battle Type</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {currentBattles.map((battle, index) => {
               const isPlayer1 = battle.player1PolarisId === polarisId;
               const playerCharacter = getCharacterName(isPlayer1 ? battle.player1CharacterId : battle.player2CharacterId);
+              const playerName = isPlayer1 ? battle.player1Name : battle.player2Name;
               const opponentCharacter = getCharacterName(isPlayer1 ? battle.player2CharacterId : battle.player1CharacterId);
               const opponentName = isPlayer1 ? battle.player2Name : battle.player1Name;
               const opponentPolarisId = isPlayer1 ? battle.player2PolarisId : battle.player1PolarisId;
               const isWinner = (isPlayer1 && battle.winner === 1) || (!isPlayer1 && battle.winner === 2);
+              const playerRoundsWon = isPlayer1 ? battle.player1RoundsWon : battle.player2RoundsWon;
+              const opponentRoundsWon = isPlayer1 ? battle.player2RoundsWon : battle.player1RoundsWon;
+              const scoreDisplay = `${playerRoundsWon}-${opponentRoundsWon}`;
 
               return (
                 <TableRow key={index}>
                   <TableCell>{formatDate(battle.date)}</TableCell>
-                  <TableCell>{renderCharacterWithIcon(playerCharacter)}</TableCell>
                   <TableCell>
-                    <Link 
-                      href={`/player/${opponentPolarisId}`}
-                      className="text-blue-500 hover:text-blue-700 hover:underline"
-                    >
-                      {opponentName}
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-8 h-8">
+                        <Image
+                          src={characterIconMap[playerCharacter]}
+                          alt={playerCharacter}
+                          fill
+                          sizes="32px"
+                          className="object-contain"
+                        />
+                      </div>
+                      <span>{playerName}</span>
+                    </div>
                   </TableCell>
-                  <TableCell>{renderCharacterWithIcon(opponentCharacter)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-8 h-8">
+                        <Image
+                          src={characterIconMap[opponentCharacter]}
+                          alt={opponentCharacter}
+                          fill
+                          sizes="32px"
+                          className="object-contain"
+                        />
+                      </div>
+                      <Link 
+                        href={`/player/${opponentPolarisId}`}
+                        className="text-blue-500 hover:text-blue-700 hover:underline"
+                      >
+                        {opponentName}
+                      </Link>
+                    </div>
+                  </TableCell>
                   <TableCell className={isWinner ? 'text-green-500' : 'text-red-500'}>
                     {isWinner ? 'WIN' : 'LOSS'}
+                  </TableCell>
+                  <TableCell className={isWinner ? 'text-green-500' : 'text-red-500'}>
+                    {scoreDisplay}
+                  </TableCell>
+                  <TableCell>
+                    {battle.battleType}
                   </TableCell>
                 </TableRow>
               );
