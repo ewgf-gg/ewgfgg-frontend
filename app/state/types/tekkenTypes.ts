@@ -450,5 +450,5 @@ export const characterIconMap: { [key: string]: string } = {
     'Xiaoyu': '/static/character-icons/XiaoyuT8.png',
     'Yoshimitsu': '/static/character-icons/YoshimitsuT8.png',
     'Zafina': '/static/character-icons/ZafinaT8.png',
-    'Anna': '/static/character-icons/AnnaT8Temp.png'
+    'Anna': '/static/character-icons/AnnaT8.png'
 };
