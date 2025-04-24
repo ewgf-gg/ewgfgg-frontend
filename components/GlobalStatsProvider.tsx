@@ -2,11 +2,12 @@
 
 import { useEffect } from 'react';
 import { useAtom } from 'jotai';
-import { totalPlayersAtom, totalReplaysAtom } from '@/app/state/atoms/tekkenStatsAtoms';
+import { totalPlayersAtom, totalReplaysAtom, totalUnrankedReplaysAtom } from '@/app/state/atoms/tekkenStatsAtoms';
 
 export default function GlobalStatsProvider() {
   const [, setTotalPlayers] = useAtom(totalPlayersAtom);
   const [, setTotalReplays] = useAtom(totalReplaysAtom);
+  const [, setTotalUnrankedReplays] = useAtom(totalUnrankedReplaysAtom);
 
   useEffect(() => {
     let mounted = true;
@@ -20,6 +21,7 @@ export default function GlobalStatsProvider() {
         if (mounted && stats) {
           setTotalPlayers(stats.totalPlayers);
           setTotalReplays(stats.totalReplays);
+          setTotalUnrankedReplays(stats.totalUnrankedReplays);
         }
       } catch (error) {
         console.error('Failed to fetch global stats:', error);
@@ -33,7 +35,7 @@ export default function GlobalStatsProvider() {
     return () => {
       mounted = false;
     };
-  }, [setTotalPlayers, setTotalReplays]);
+  }, [setTotalPlayers, setTotalReplays, setTotalUnrankedReplays]);
 
   return null;
 }

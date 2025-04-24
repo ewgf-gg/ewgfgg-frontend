@@ -27,9 +27,6 @@ export function useWindowSize(): WindowSize {
   return windowSize;
 }
 
-
-
-
 /**
  * Helper function to determine if the current viewport is mobile-sized
  * @param width Current window width
