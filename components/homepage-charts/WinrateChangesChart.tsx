@@ -9,7 +9,7 @@ import { ChartProps } from '@/app/state/types/tekkenTypes';
 
 export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState(true);
-  const [rank, setRank] = useState("masterRanks");
+  const [rank, setRank] = useState("intermediateRanks");
   const [winrateChanges] = useAtom(winrateChangesAtom);
 
   useEffect(() => {

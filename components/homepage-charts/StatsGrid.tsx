@@ -7,7 +7,7 @@ import { RecentlyActivePlayersChart } from './RecentlyActivePlayersChart';
 export const StatsGrid: React.FC = () => (
   <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
     <PopularityChart
-      title="Most Popular Characters"
+      title="Popular Characters"
       description="Most picked characters"
       delay={0.4}
     />

@@ -131,7 +131,7 @@ const ClientSideChart = dynamic(() => Promise.resolve(Chart), {
 
 export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
-  const [rank, setRank] = useState<string>("masterRanks");
+  const [rank, setRank] = useState<string>("intermediateRanks");
   const [characterWinrates] = useAtom(characterWinratesAtom);
   const colors = useAtomValue(characterColors);
 
