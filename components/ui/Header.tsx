@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAtom } from 'jotai';
 import { useTheme } from 'next-themes';
-import { totalReplaysAtom, totalPlayersAtom } from '@/app/state/atoms/tekkenStatsAtoms'
+import { totalReplaysAtom, totalUnrankedReplaysAtom, totalPlayersAtom } from '@/app/state/atoms/tekkenStatsAtoms'
 import { SearchBar } from '@/components/SearchBar'
 
 // First, let's keep the custom hook for the animated counter
@@ -57,6 +57,7 @@ const formatNumber = (num: number): string => {
 
 export function Header() {
   const [totalReplays] = useAtom(totalReplaysAtom);
+  const [totalUnrankedReplays] = useAtom(totalUnrankedReplaysAtom);
   const [totalPlayers] = useAtom(totalPlayersAtom);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -68,6 +69,7 @@ export function Header() {
 
   const animatedPlayers = useAnimatedCounter(totalPlayers, 2000);
   const animatedReplays = useAnimatedCounter(totalReplays, 2000);
+  const animatedUnrankedReplays = useAnimatedCounter(totalUnrankedReplays, 2000);
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -120,9 +122,15 @@ export function Header() {
                   </span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider mr-1">Replays:</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider mr-1">Ranked:</span>
                   <span className="text-xs font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent font-mono">
                     {formatNumber(animatedReplays)}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider mr-1">Unranked:</span>
+                  <span className="text-xs font-bold bg-gradient-to-r from-green-400 to-teal-300 dark:from-green-500 dark:to-teal-400 bg-clip-text text-transparent font-mono">
+                    {formatNumber(animatedUnrankedReplays)}
                   </span>
                 </div>
               </div>
@@ -153,18 +161,25 @@ export function Header() {
             </div>
 
             {/* Enhanced right-aligned stats with animation and theme toggle */}
-            <div className="hidden md:flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-4">
               <div className="flex flex-col items-end">
                 <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Players</span>
-                <span className="text-base md:text-lg font-bold bg-gradient-to-r from-blue-400 to-cyan-300 dark:from-blue-500 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-sm font-mono min-w-[4ch] inline-block text-right">
+                <span className="text-sm md:text-base font-bold bg-gradient-to-r from-blue-400 to-cyan-300 dark:from-blue-500 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-sm font-mono min-w-[3ch] inline-block text-right">
                   {formatNumber(animatedPlayers)}
                 </span>
               </div>
               <div className="h-8 w-px bg-gray-700 dark:bg-gray-600" />
               <div className="flex flex-col items-end">
-                <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Replays</span>
-                <span className="text-base md:text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent drop-shadow-sm font-mono min-w-[4ch] inline-block text-right">
+                <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Ranked</span>
+                <span className="text-sm md:text-base font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent drop-shadow-sm font-mono min-w-[3ch] inline-block text-right">
                   {formatNumber(animatedReplays)}
+                </span>
+              </div>
+              <div className="h-8 w-px bg-gray-700 dark:bg-gray-600" />
+              <div className="flex flex-col items-end">
+                <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Unranked</span>
+                <span className="text-sm md:text-base font-bold bg-gradient-to-r from-green-400 to-teal-300 dark:from-green-500 dark:to-teal-400 bg-clip-text text-transparent drop-shadow-sm font-mono min-w-[3ch] inline-block text-right">
+                  {formatNumber(animatedUnrankedReplays)}
                 </span>
               </div>
               <div className="h-8 w-px bg-gray-700 dark:bg-gray-600" />

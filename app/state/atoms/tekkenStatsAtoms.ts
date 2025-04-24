@@ -128,6 +128,7 @@ export const rankDivisionColors = atom<ColorMapping[]>([
 ]);
 
 export const totalReplaysAtom = atom<number>(0);
+export const totalUnrankedReplaysAtom = atom<number>(0);
 export const totalPlayersAtom = atom<number>(0);
 export const gameVersionsAtom = atom<string[]>([]);
 export const currentVersionAtom = atom<string>('');
