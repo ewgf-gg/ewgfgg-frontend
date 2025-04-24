@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useLayoutEffect } from 'react';
 
 interface WindowSize {
   width: number;
@@ -12,33 +12,23 @@ interface WindowSize {
  * @returns Current window dimensions (width and height)
  */
 export function useWindowSize(): WindowSize {
-  const [windowSize, setWindowSize] = useState<WindowSize>({
-    width: typeof window !== 'undefined' ? window.innerWidth : 0,
-    height: typeof window !== 'undefined' ? window.innerHeight : 0,
-  });
+  const [windowSize, setWindowSize] = useState<WindowSize>({ width: 0, height: 0 });
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
+  useLayoutEffect(() => {
     const handleResize = () => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
     };
-
-    // Add event listener
-    window.addEventListener('resize', handleResize);
-    
-    // Call handler right away so state gets updated with initial window size
+    // measure & paint before first render
     handleResize();
-
-    // Remove event listener on cleanup
+    window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return windowSize;
 }
+
+
+
 
 /**
  * Helper function to determine if the current viewport is mobile-sized
