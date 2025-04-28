@@ -30,13 +30,12 @@ export async function generateMetadata(
   const mainChar = playerData.mainCharacterAndRank?.characterName || ''
   const rank = playerData.mainCharacterAndRank?.danRank || ''
   const region = playerData.regionId !== undefined ? Regions[playerData.regionId] : ''
-  const area = playerData.areaId ? `${playerData.areaId}` : ''
   const polarisId = playerData.polarisId ? `${playerData.polarisId}` : ''
   const characterIcon = characterIconMap[mainChar] || ''
   const rankIcon = rankIconMap[rank] || ''
   
   const title = `${playerData.playerName}'s Tekken 8 Profile`
-  const description = `Tekken-ID: ${polarisId}'s \n Tekken 8 Stats\n🥋 Main: ${mainChar}\n👑 Rank: ${rank}\n🌎 Region: ${region} ${area}`
+  const description = `Tekken-ID: ${polarisId}'s \n Tekken 8 Stats\n🥋 Main: ${mainChar}\n👑 Rank: ${rank}\n🌎 Region: ${region}}`
 
   return {
     title,

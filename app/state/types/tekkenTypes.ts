@@ -23,7 +23,6 @@ export interface PlayerMetadata{
     playerName: string;
     polarisId: string;
     regionId: number;
-    areaId: number;
     latestBattleDate: string;
     tekkenPower: number;
     mainCharacterAndRank: Record<string, string>;
@@ -67,7 +66,6 @@ export interface FormattedPlayerStats {
     characterBattleStats: CharacterBattleStats[];
     battles: Battle[];
     regionId: number;
-    areaId: number;
     latestBattle: number;
     mainCharacterAndRank: MainCharacterAndRank;
     playedCharacters?: Record<string, PlayedCharacter>;
@@ -146,7 +144,6 @@ export interface PlayerStats {
     tekkenPower: number;
     latestBattle: number;
     regionId: number;
-    areaId: number;
     mainCharacterAndRank: MainCharacterAndRank;
     playedCharacters: Record<string, PlayedCharacter>;
     battles: Battle[];
@@ -188,8 +185,9 @@ export interface RecentlyActivePlayer {
 }
 
 export interface InitialData {
-    totalReplays: number;
+    totalRankedReplays: number;
     totalPlayers: number;
+    totalUnrankedReplays: number;
     characterWinrates: {
         masterRanks: RankStats;
         advancedRanks: RankStats;
@@ -336,7 +334,24 @@ export const rankOrderMap: { [key: number]: string } = {
     26: 'Tekken Emperor',
     27: 'Tekken God',
     28: 'Tekken God Supreme',
-    29: 'God of Destruction'
+    29: 'God of Destruction',
+    30: 'God of Destruction I',
+    31: 'God Of Destruction II',
+    32: 'God of Destruction III',
+    33: 'God of Destruction IV',
+    34: 'God of Destruction V',
+    35: 'God of Destruction VI',
+    36: 'God of Destruction VII',
+    37: 'God of Destruction Infinity',
+    100: 'God of Destruction',
+    101: 'God of Destruction I',
+    102: 'God Of Destruction II',
+    103: 'God of Destruction III',
+    104: 'God of Destruction IV',
+    105: 'God of Destruction V',
+    106: 'God of Destruction VI',
+    107: 'God of Destruction VII',
+    765: 'God of Destruction Infinity'
 };
   
 export const rankIconMap: { [key: string]: string } = {
@@ -369,7 +384,15 @@ export const rankIconMap: { [key: string]: string } = {
     'Tekken Emperor': '/static/rank-icons/TekkenEmperorT8.png',
     'Tekken God': '/static/rank-icons/TekkenGodT8.png',
     'Tekken God Supreme': '/static/rank-icons/TekkenGodSupremeT8.png',
-    'God of Destruction': '/static/rank-icons/GodOfDestructionT8.png'
+    'God of Destruction': '/static/rank-icons/GodOfDestructionT8.png',
+    'God of Destruction I': '/static/rank-icons/GodOfDestruction1T8.png',
+    'God Of Destruction II': '/static/rank-icons/GodOfDestruction2T8.png',
+    'God of Destruction III': '/static/rank-icons/GodOfDestruction3T8.png',
+    'God of Destruction IV': '/static/rank-icons/GodOfDestruction4T8.png',
+    'God of Destruction V': '/static/rank-icons/GodOfDestruction5T8.png',
+    'God of Destruction VI': '/static/rank-icons/GodOfDestruction6T8.png',
+    'God of Destruction VII': '/static/rank-icons/GodOfDestruction7T8.png',
+    'God of Destruction Infinity': '/static/rank-icons/GodOfDestructionInfT8.png'
 };
 
 export const characterIdMap: { [key: number]: string} = {

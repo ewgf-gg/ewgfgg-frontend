@@ -56,7 +56,6 @@ export default function PlayerPageContent({
           : battle.battleType
       })),
       regionId: playerStats.regionId || 0,
-      areaId: playerStats.areaId || 0,
       latestBattle: playerStats.latestBattle || 0,
       mainCharacterAndRank: playerStats.mainCharacterAndRank,
       playedCharacters: playerStats.playedCharacters

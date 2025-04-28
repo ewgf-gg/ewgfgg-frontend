@@ -5,11 +5,12 @@ import Image from 'next/image'
 import { FaGithub, FaDiscord } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import { useAtom } from 'jotai'
-import { totalPlayersAtom, totalReplaysAtom } from '@/app/state/atoms/tekkenStatsAtoms'
+import { totalPlayersAtom, totalRankedReplaysAtom, totalUnrankedReplaysAtom } from '@/app/state/atoms/tekkenStatsAtoms'
 
 export default function Footer() {
   const [totalPlayers] = useAtom(totalPlayersAtom);
-  const [totalReplays] = useAtom(totalReplaysAtom);
+  const [totalRankedReplays] = useAtom(totalRankedReplaysAtom);
+  const [totalUnrankedReplays] = useAtom(totalUnrankedReplaysAtom)
   return (
     <footer className="bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg mt-8 border-t border-gray-700">
       <div className="container mx-auto px-6 py-8 text-white">
@@ -71,10 +72,13 @@ export default function Footer() {
         <div className="pt-4 border-t border-gray-700 text-center text-xs text-gray-400">
           <div className="flex flex-col sm:flex-row justify-center sm:space-x-6 space-y-2 sm:space-y-0 mb-2">
             <div>
-              <span className="font-semibold text-blue-400">Total Players:</span> {totalPlayers.toLocaleString()}
+              <span className="font-semibold text-blue-400">Total Players:</span> {totalPlayers ? totalPlayers.toLocaleString() : '0'}
             </div>
             <div>
-              <span className="font-semibold text-blue-400">Total Replays:</span> {totalReplays.toLocaleString()}
+              <span className="font-semibold text-blue-400">Total Ranked Replays:</span> {totalRankedReplays ? totalRankedReplays.toLocaleString() : '0'}
+            </div>
+            <div>
+              <span className="font-semibold text-blue-400">Total Unranked Replays:</span> {totalUnrankedReplays ? totalUnrankedReplays.toLocaleString() : '0'}
             </div>
           </div>
         </div>
