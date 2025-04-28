@@ -40,7 +40,6 @@ export const PlayerProfile: React.FC<{ stats: FormattedPlayerStats }> = ({ stats
         username={stats.username}
         regionId={stats.regionId}
         polarisId={stats.polarisId}
-        areaId={stats.areaId}
         latestBattle={stats.latestBattle}
         mainCharacterAndRank={stats.mainCharacterAndRank}
       />

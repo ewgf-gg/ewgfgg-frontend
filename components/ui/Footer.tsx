@@ -5,11 +5,12 @@ import Image from 'next/image'
 import { FaGithub, FaDiscord } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import { useAtom } from 'jotai'
-import { totalPlayersAtom, totalReplaysAtom } from '@/app/state/atoms/tekkenStatsAtoms'
+import { totalPlayersAtom, totalRankedReplaysAtom, totalUnrankedReplaysAtom } from '@/app/state/atoms/tekkenStatsAtoms'
 
 export default function Footer() {
   const [totalPlayers] = useAtom(totalPlayersAtom);
-  const [totalReplays] = useAtom(totalReplaysAtom);
+  const [totalRankedReplays] = useAtom(totalRankedReplaysAtom);
+  const [totalUnrankedReplays] = useAtom(totalUnrankedReplaysAtom)
   return (
     <footer className="bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg mt-8 border-t border-gray-700">
       <div className="container mx-auto px-6 py-8 text-white">
@@ -74,7 +75,10 @@ export default function Footer() {
               <span className="font-semibold text-blue-400">Total Players:</span> {totalPlayers.toLocaleString()}
             </div>
             <div>
-              <span className="font-semibold text-blue-400">Total Replays:</span> {totalReplays.toLocaleString()}
+              <span className="font-semibold text-blue-400">Total Ranked Replays:</span> {totalRankedReplays.toLocaleString()}
+            </div>
+            <div>
+              <span className="font-semibold text-blue-400">Total Unranked Replays:</span> {totalUnrankedReplays.toLocaleString()}
             </div>
           </div>
         </div>

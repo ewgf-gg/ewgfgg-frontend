@@ -12,7 +12,6 @@ import { CalendarIcon, MapPinIcon, UserIcon } from 'lucide-react'
 interface UserInfoCardProps {
   username: string
   regionId: number
-  areaId: number
   polarisId: string
   latestBattle: number
   mainCharacterAndRank: MainCharacterAndRank
@@ -44,7 +43,6 @@ const formatPolarisId = (id: string): string => {
 export const UserInfoCard: React.FC<UserInfoCardProps> = ({
   username,
   regionId,
-  areaId,
   polarisId,
   latestBattle,
   mainCharacterAndRank,
@@ -79,7 +77,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
               <TooltipTrigger asChild>
                 <div className="flex items-center space-x-2">
                   <MapPinIcon className="w-4 h-4 text-muted-foreground" />
-                  <span>{Regions[regionId]} {areaId}</span>
+                  <span>{Regions[regionId]}</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent>

@@ -127,7 +127,7 @@ export const rankDivisionColors = atom<ColorMapping[]>([
   { id: '12', color: '#9e0059'}
 ]);
 
-export const totalReplaysAtom = atom<number>(0);
+export const totalRankedReplaysAtom = atom<number>(0);
 export const totalUnrankedReplaysAtom = atom<number>(0);
 export const totalPlayersAtom = atom<number>(0);
 export const gameVersionsAtom = atom<string[]>([]);

@@ -23,7 +23,6 @@ export interface PlayerMetadata{
     playerName: string;
     polarisId: string;
     regionId: number;
-    areaId: number;
     latestBattleDate: string;
     tekkenPower: number;
     mainCharacterAndRank: Record<string, string>;
@@ -67,7 +66,6 @@ export interface FormattedPlayerStats {
     characterBattleStats: CharacterBattleStats[];
     battles: Battle[];
     regionId: number;
-    areaId: number;
     latestBattle: number;
     mainCharacterAndRank: MainCharacterAndRank;
     playedCharacters?: Record<string, PlayedCharacter>;
@@ -146,7 +144,6 @@ export interface PlayerStats {
     tekkenPower: number;
     latestBattle: number;
     regionId: number;
-    areaId: number;
     mainCharacterAndRank: MainCharacterAndRank;
     playedCharacters: Record<string, PlayedCharacter>;
     battles: Battle[];
