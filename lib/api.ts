@@ -47,7 +47,7 @@ export const getInitialData = async (): Promise<InitialData> => {
       });
 
       return {
-          totalRankedReplays: statsSummary.totalReplays,
+          totalRankedReplays: statsSummary.totalRankedReplays,
           totalPlayers: statsSummary.totalPlayers,
           totalUnrankedReplays: statsSummary.totalUnrankedReplays || 0,
           characterWinrates: winrates,

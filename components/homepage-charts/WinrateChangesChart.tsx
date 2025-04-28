@@ -33,7 +33,14 @@ export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> 
         ...entry,
         change: entry.trend === 'decrease' ? -entry.change : entry.change
       }))
-      .sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
+      .sort((a, b) => {
+        // If one is positive and one is negative, positive comes first
+        if (a.change >= 0 && b.change < 0) return -1;
+        if (a.change < 0 && b.change >= 0) return 1;
+        
+        // If both are positive or both are negative, sort by absolute magnitude
+        return Math.abs(b.change) - Math.abs(a.change);
+      });
     
     const changes = chartData.map(d => d.change);
     const maxAbsChange = Math.ceil(Math.max(...changes.map(Math.abs)));
