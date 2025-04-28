@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAtom } from 'jotai';
 import { useTheme } from 'next-themes';
-import { totalReplaysAtom, totalUnrankedReplaysAtom, totalPlayersAtom } from '@/app/state/atoms/tekkenStatsAtoms'
+import { totalRankedReplaysAtom, totalUnrankedReplaysAtom, totalPlayersAtom } from '@/app/state/atoms/tekkenStatsAtoms'
 import { SearchBar } from '@/components/SearchBar'
 
 // First, let's keep the custom hook for the animated counter
@@ -56,7 +56,7 @@ const formatNumber = (num: number): string => {
 };
 
 export function Header() {
-  const [totalReplays] = useAtom(totalReplaysAtom);
+  const [totalRankedReplays] = useAtom(totalRankedReplaysAtom);
   const [totalUnrankedReplays] = useAtom(totalUnrankedReplaysAtom);
   const [totalPlayers] = useAtom(totalPlayersAtom);
   const { theme, setTheme } = useTheme();
@@ -68,7 +68,7 @@ export function Header() {
   }, []);
 
   const animatedPlayers = useAnimatedCounter(totalPlayers, 2000);
-  const animatedReplays = useAnimatedCounter(totalReplays, 2000);
+  const animatedReplays = useAnimatedCounter(totalRankedReplays, 2000);
   const animatedUnrankedReplays = useAnimatedCounter(totalUnrankedReplays, 2000);
 
   const toggleTheme = () => {

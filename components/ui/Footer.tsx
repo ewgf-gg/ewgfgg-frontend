@@ -72,13 +72,13 @@ export default function Footer() {
         <div className="pt-4 border-t border-gray-700 text-center text-xs text-gray-400">
           <div className="flex flex-col sm:flex-row justify-center sm:space-x-6 space-y-2 sm:space-y-0 mb-2">
             <div>
-              <span className="font-semibold text-blue-400">Total Players:</span> {totalPlayers.toLocaleString()}
+              <span className="font-semibold text-blue-400">Total Players:</span> {totalPlayers ? totalPlayers.toLocaleString() : '0'}
             </div>
             <div>
-              <span className="font-semibold text-blue-400">Total Ranked Replays:</span> {totalRankedReplays.toLocaleString()}
+              <span className="font-semibold text-blue-400">Total Ranked Replays:</span> {totalRankedReplays ? totalRankedReplays.toLocaleString() : '0'}
             </div>
             <div>
-              <span className="font-semibold text-blue-400">Total Unranked Replays:</span> {totalUnrankedReplays.toLocaleString()}
+              <span className="font-semibold text-blue-400">Total Unranked Replays:</span> {totalUnrankedReplays ? totalUnrankedReplays.toLocaleString() : '0'}
             </div>
           </div>
         </div>

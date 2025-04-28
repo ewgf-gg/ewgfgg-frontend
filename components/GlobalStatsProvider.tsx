@@ -2,11 +2,11 @@
 
 import { useEffect } from 'react';
 import { useAtom } from 'jotai';
-import { totalPlayersAtom, totalReplaysAtom, totalUnrankedReplaysAtom } from '@/app/state/atoms/tekkenStatsAtoms';
+import { totalPlayersAtom, totalRankedReplaysAtom, totalUnrankedReplaysAtom } from '@/app/state/atoms/tekkenStatsAtoms';
 
 export default function GlobalStatsProvider() {
   const [, setTotalPlayers] = useAtom(totalPlayersAtom);
-  const [, setTotalReplays] = useAtom(totalReplaysAtom);
+  const [, setTotalRankedReplays] = useAtom(totalRankedReplaysAtom);
   const [, setTotalUnrankedReplays] = useAtom(totalUnrankedReplaysAtom);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export default function GlobalStatsProvider() {
         
         if (mounted && stats) {
           setTotalPlayers(stats.totalPlayers);
-          setTotalReplays(stats.totalReplays);
+          setTotalRankedReplays(stats.totalRankedReplays);
           setTotalUnrankedReplays(stats.totalUnrankedReplays);
         }
       } catch (error) {
@@ -35,7 +35,7 @@ export default function GlobalStatsProvider() {
     return () => {
       mounted = false;
     };
-  }, [setTotalPlayers, setTotalReplays, setTotalUnrankedReplays]);
+  }, [setTotalPlayers, setTotalRankedReplays, setTotalUnrankedReplays]);
 
   return null;
 }

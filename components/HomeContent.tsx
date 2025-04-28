@@ -13,8 +13,9 @@ import {
   characterPopularityAtom,
   winrateChangesAtom,
   totalPlayersAtom,
-  totalReplaysAtom,
-  recentlyActivePlayersAtom
+  totalRankedReplaysAtom,
+  recentlyActivePlayersAtom,
+  totalUnrankedReplaysAtom
 } from '../app/state/atoms/tekkenStatsAtoms';
 import { HomeContentProps } from '../app/state/types/tekkenTypes';
 import React from 'react'
@@ -26,7 +27,8 @@ export default function HomeContent({ initialData }: HomeContentProps) {
   const [, setCharacterPopularity] = useAtom(characterPopularityAtom);
   const [, setWinrateChanges] = useAtom(winrateChangesAtom);
   const [, setTotalPlayers] = useAtom(totalPlayersAtom);
-  const [, setTotalReplays] = useAtom(totalReplaysAtom);
+  const [, setTotalReplays] = useAtom(totalRankedReplaysAtom);
+  const [, setTotalUnrankedReplays] = useAtom(totalUnrankedReplaysAtom);
   const [, setRecentlyActivePlayers] = useAtom(recentlyActivePlayersAtom);
 
   // Use ref to ensure we only initialize once
@@ -44,7 +46,8 @@ export default function HomeContent({ initialData }: HomeContentProps) {
         setCharacterPopularity(initialData.characterPopularity);
         setWinrateChanges(initialData.winrateChanges);
         setTotalPlayers(initialData.totalPlayers);
-        setTotalReplays(initialData.totalReplays);
+        setTotalReplays(initialData.totalRankedReplays);
+        setTotalUnrankedReplays(initialData.totalUnrankedReplays)
         setRecentlyActivePlayers(initialData.recentlyActivePlayers);
       });
     }
