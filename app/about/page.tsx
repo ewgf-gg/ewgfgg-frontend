@@ -48,7 +48,7 @@ export default function AboutPage() {
             <ul className="space-y-4 text-gray-300 text-center">
               <li>
                 Global winrates are being polluted using my current methodology due to <strong>mirror matchups</strong> and <strong>cross-category</strong> battles being included.
-                This means that if there is a match between a player within the Advanced tier, and one from the 'Master' tier the match outcome is counted towards each categories&apos; winrate. This effect seems to be more
+                This means that if there is a match between a player within the &apos;Advanced&apos; tier, and one from the &apos;Master&apos; tier the match outcome is counted towards each categories&apos; winrate. This effect seems to be more
                 pronounced in the Tekken King and above rank categories. I&apos;m working implementing a better way to analyze these battles and exclude both these types of matches. 
               </li>
               <li>Currently, only <strong>ranked matches</strong> are included in the analysis.</li>
