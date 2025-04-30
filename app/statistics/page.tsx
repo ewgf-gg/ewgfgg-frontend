@@ -6,8 +6,7 @@ import EWGFLoadingAnimation from '@/components/EWGFLoadingAnimation';
 import { Header } from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 30;
 
 export default async function StatisticsPage() {
   let popularityData: VersionStats | null = null;
