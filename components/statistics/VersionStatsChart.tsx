@@ -50,6 +50,10 @@ const formatNumber = (value: number): string => {
   return value.toString();
 };
 
+const nameToId: Record<string, number> = Object.fromEntries(
+  Object.entries(characterIdMap).map(([id, name]) => [name, +id])
+);
+
 const ChartTooltip: React.FC<ChartTooltipProps> = ({ active, payload, label }) => {
   if (active && payload && payload.length && label) {
     return (
@@ -148,20 +152,12 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
 
   const chartData = useMemo(() => {
     return Object.entries(data)
-      .map(([character, value]) => {
-        // Find the character ID by matching the name
-        const characterId = Object.entries(characterIdMap)
-                // eslint-disable-next-line
-          .find(([_, name]) => name === character)?.[0];
-        return {
-          character,
-          characterId: characterId ? parseInt(characterId) : -1,
-          value,
-          originalValue: value,
-          valueLabel
-        };
-      })
-      .sort((a, b) => b.originalValue - a.originalValue);
+      .map(([character, value]) => ({
+        character,
+        characterId: nameToId[character] ?? -1,
+        value, originalValue: value, valueLabel
+      }))
+      .sort((a,b) => b.originalValue - a.originalValue);
   }, [data, valueLabel]);
 
   const { domainMin, domainMax } = useMemo(() => {
