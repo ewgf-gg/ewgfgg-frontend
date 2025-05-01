@@ -27,7 +27,7 @@ export default function AboutPage() {
               <em>State of Tekken 8</em> Reddit posts authored by /u/NotQuiteFactual.
             </p>
             <p className="text-gray-300 text-center">
-              The application works by pulling historical battle data from the {' '}
+              The website works by pulling historical battle data from the {' '}
               <a
                 href="https://wank.wavu.wiki"
                 target="_blank"
@@ -36,7 +36,7 @@ export default function AboutPage() {
               >
                 Wavu Wiki
               </a>
-              , storing it, and analyzing the data to present the statistics you see here.
+              , storing it, and analyzing the data to present the statistics you see here. We also collect Quick matches, Player matches, and Group matches as well.
             </p>
           </section>
 
@@ -46,10 +46,9 @@ export default function AboutPage() {
               Limitations
             </h2>
             <ul className="space-y-4 text-gray-300 text-center">
-              <li>Approximately <strong>6%</strong> of players do not have assigned regions. These players are excluded from region-based statistics.</li>
               <li>
                 Global winrates are being polluted using my current methodology due to <strong>mirror matchups</strong> and <strong>cross-category</strong> battles being included.
-                This means that if there is a match between a Tekken King and a Fujin, the match outcome is counted towards each categories&apos; winrate. This effect seems to be more
+                This means that if there is a match between a player within the &apos;Advanced&apos; tier, and one from the &apos;Master&apos; tier the match outcome is counted towards each categories&apos; winrate. This effect seems to be more
                 pronounced in the Tekken King and above rank categories. I&apos;m working implementing a better way to analyze these battles and exclude both these types of matches. 
               </li>
               <li>Currently, only <strong>ranked matches</strong> are included in the analysis.</li>
