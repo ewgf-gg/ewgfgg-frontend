@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import { Card, CardContent } from '../ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
-import { rankIconMap, characterIconMap, Regions, MainCharacterAndRank } from '../../app/state/types/tekkenTypes'
+import { rankIconMap, circularCharacterIconMap, Regions, MainCharacterAndRank } from '../../app/state/types/tekkenTypes'
 import { CalendarIcon, MapPinIcon, UserIcon } from 'lucide-react'
 
 interface UserInfoCardProps {
@@ -57,8 +57,8 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center space-y-4"
           >
-            <Avatar className="w-24 h-24">
-              <AvatarImage src={characterIconMap[mainCharacterAndRank.characterName]} alt={mainCharacterAndRank.characterName} />
+            <Avatar className="size-32">
+              <AvatarImage src={circularCharacterIconMap[mainCharacterAndRank.characterName]} alt={mainCharacterAndRank.characterName} />
               <AvatarFallback>{username[0]}</AvatarFallback>
             </Avatar>
             <div className="text-center">

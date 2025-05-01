@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from "../ui/card";
-import { characterIconMap, rankIconMap, rankOrderMap } from '../../app/state/types/tekkenTypes';
+import { circularCharacterIconMap, rankIconMap, rankOrderMap } from '../../app/state/types/tekkenTypes';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { PlayedCharacter } from '../../app/state/types/tekkenTypes';
@@ -96,11 +96,11 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
                     <div className="flex items-center space-x-3">
                       <div className="relative">
                         <Image
-                          src={characterIconMap[character.characterName]}
+                          src={circularCharacterIconMap[character.characterName]}
                           alt={character.characterName}
-                          width={56}
-                          height={56}
-                          className={`w-14 h-14 object-contain rounded-full p-1 ${
+                          width={76}
+                          height={76}
+                          className={`w-16 h-16 object-contain rounded-full ${
                             character.characterName === selectedCharacterId 
                               ? 'bg-primary/10 ring-2 ring-primary' 
                               : 'bg-accent/10'
