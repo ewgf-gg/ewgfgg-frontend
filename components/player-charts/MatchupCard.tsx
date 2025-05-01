@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { characterIconMap } from '../../app/state/types/tekkenTypes';
+import { circularCharacterIconMap } from '../../app/state/types/tekkenTypes';
 
 interface MatchupCardProps {
   characterName: string;
@@ -16,7 +16,7 @@ const MatchupCard: React.FC<MatchupCardProps> = ({
   title,
   description
 }) => {
-  const iconPath = characterIconMap[characterName] || `/static/character-icons/${characterName.replace(/[\s-]/g, '')}T8.png`;
+  const iconPath = circularCharacterIconMap[characterName] || `/static/character-icons/${characterName.replace(/[\s-]/g, '')}T8.png`;
   
   return (
     <Card className="flex flex-col items-center">
@@ -25,7 +25,7 @@ const MatchupCard: React.FC<MatchupCardProps> = ({
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       <CardContent className="flex flex-col items-center">
-        <div className="relative w-24 h-24 mb-2">
+        <div className="relative w-40 h-40 mb-2">
           <Image
             src={iconPath}
             alt={characterName}

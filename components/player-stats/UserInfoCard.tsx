@@ -57,10 +57,18 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center space-y-4"
           >
-            <Avatar className="size-32">
-              <AvatarImage src={circularCharacterIconMap[mainCharacterAndRank.characterName]} alt={mainCharacterAndRank.characterName} />
-              <AvatarFallback>{username[0]}</AvatarFallback>
-            </Avatar>
+            <div className="flex justify-center items-center">
+              <Avatar className="size-36 flex justify-center items-center overflow-visible">
+                <AvatarImage 
+                  src={circularCharacterIconMap[mainCharacterAndRank.characterName]} 
+                  alt={mainCharacterAndRank.characterName} 
+                  className="object-contain w-auto h-full scale-110"
+                />
+                <AvatarFallback className="flex justify-center items-center">
+                  {username[0]}
+                </AvatarFallback>
+              </Avatar>
+            </div>
             <div className="text-center">
               <h2 className="text-2xl font-bold">{username}</h2>
               <p className="text-sm text-muted-foreground">{formatPolarisId(polarisId)}</p>

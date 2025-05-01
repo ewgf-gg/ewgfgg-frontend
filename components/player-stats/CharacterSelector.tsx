@@ -69,16 +69,21 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
               key={character.characterName}
               whileHover={{ scale: 1.03, y: -5 }}
               whileTap={{ scale: 0.98 }}
-              className="transform transition-all duration-200"
+              className={`transform transition-all duration-200 ${
+                character.characterName === selectedCharacterId 
+                  ? 'border-blue-500 shadow-lg shadow-blue/20' 
+                  : 'border-transparent hover:shadow-md'
+              }`}
             >
-              <Card 
-                className={`cursor-pointer border-2 transition-all duration-200 overflow-hidden ${
-                  character.characterName === selectedCharacterId 
-                    ? 'border-primary shadow-lg shadow-primary/20' 
-                    : 'border-transparent hover:border-primary/50 hover:shadow-md'
+             <Card 
+                className={`cursor-pointer transition-all duration-200 overflow-hidden ${
+                  character.characterName === selectedCharacterId
+                    ? 'border-[#c157f8] border-[3px] shadow-lg shadow-primary/20'
+                    : 'border-transparent border-2 hover:border-primary/50 hover:shadow-md'
                 }`}
                 onClick={() => onSelectCharacter(character.characterName)}
               >
+
                 <CardContent className="p-4 relative">
                   {previousSeasonRank && (
                     <div className="absolute top-2 right-2 bg-accent/90 text-xs font-medium px-1.5 py-0.5 rounded-full z-10 shadow-sm">
@@ -100,11 +105,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
                           alt={character.characterName}
                           width={76}
                           height={76}
-                          className={`w-16 h-16 object-contain rounded-full ${
-                            character.characterName === selectedCharacterId 
-                              ? 'bg-primary/10 ring-2 ring-primary' 
-                              : 'bg-accent/10'
-                          }`}
+                          className={`w-18 h-18 object-contain rounded-full`}
                           unoptimized
                         />
                       </div>
