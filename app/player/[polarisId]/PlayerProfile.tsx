@@ -10,10 +10,18 @@ import WinrateOverTimeChart from '../../../components/player-charts/WinrateOverT
 import TekkenPowerChart from '../../../components/player-charts/TekkenPowerChart';
 import { CharacterSelector } from '../../../components/player-stats/CharacterSelector';
 import { UserInfoCard } from '../../../components/player-stats/UserInfoCard';
+import { StatPentagonChart } from '../../../components/player-stats/StatPentagonChart';
 import { RecentBattlesCard } from '../../../components/player-charts/RecentBattlesCard';
 import { FormattedPlayerStats, characterIdMap } from '../../state/types/tekkenTypes';
+import { StatPentagonData } from '../../state/types/tekkenTypes';
 
-export const PlayerProfile: React.FC<{ stats: FormattedPlayerStats }> = ({ stats }) => {
+
+interface PlayerProfileProps {
+  stats: FormattedPlayerStats;
+  statPentagonData?: StatPentagonData | null;
+}
+
+export const PlayerProfile: React.FC<PlayerProfileProps> = ({ stats, statPentagonData }) => {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
 
   // Use playedCharacters directly for the selector
@@ -36,20 +44,36 @@ export const PlayerProfile: React.FC<{ stats: FormattedPlayerStats }> = ({ stats
 
   return (
     <div className="space-y-8">
-      <UserInfoCard
-        username={stats.username}
-        regionId={stats.regionId}
-        polarisId={stats.polarisId}
-        latestBattle={stats.latestBattle}
-        mainCharacterAndRank={stats.mainCharacterAndRank}
-      />
-
-      <CharacterSelector
-        characters={characterStats}
-        onSelectCharacter={setSelectedCharacterId}
-        selectedCharacterId={selectedCharacterId}
-      />
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="h-auto">
+          <UserInfoCard
+            username={stats.username}
+            regionId={stats.regionId}
+            polarisId={stats.polarisId}
+            latestBattle={stats.latestBattle}
+            mainCharacterAndRank={stats.mainCharacterAndRank}
+          />
+        </div>
+        <div className="h-auto flex md:row-span-1">
+          {statPentagonData ? (
+            <StatPentagonChart stats={statPentagonData} />
+          ) : (
+            <div className="w-full max-w-md mx-auto overflow-visible h-full max-h-[350px] flex flex-col relative">
+              <div className="w-full h-full flex items-center justify-center bg-gray-800/50 rounded-lg border border-gray-700">
+                <p className="text-amber-400 font-medium">Unable to fetch stat pentagon; Server busy</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <div className="w-full">
+        <CharacterSelector
+          characters={characterStats}
+          onSelectCharacter={setSelectedCharacterId}
+          selectedCharacterId={selectedCharacterId}
+        />
+      </div>
       {selectedCharacterId !== null && selectedCharacterNumericId !== null && (
         <div className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

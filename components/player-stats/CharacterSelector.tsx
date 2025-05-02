@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Card, CardContent } from "../ui/card";
 import { circularCharacterIconMap, rankIconMap, rankOrderMap } from '../../app/state/types/tekkenTypes';
 import { motion } from 'framer-motion';
@@ -17,127 +17,124 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
   onSelectCharacter,
   selectedCharacterId
 }) => {
-  // Function to get numeric rank value
-  const getRankValue = (rankValue: number | null): number => {
-    return rankValue !== null ? rankValue : -1;
-  };
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Create character summaries from the new structure
-  const characterSummaries = Object.entries(characters).map(([characterName, data]) => {
-    return {
-      characterName,
-      totalMatches: data.wins + data.losses,
-      currentSeasonDanRank: data.currentSeasonDanRank,
-      previousSeasonDanRank: data.previousSeasonDanRank,
-      wins: data.wins,
-      losses: data.losses,
-      winRate: data.characterWinrate
-    };
-  });
+  const getRankValue = (rankValue: number | null): number =>
+    rankValue !== null ? rankValue : -1;
 
-  // Sort by rank first, then by total matches
+  const characterSummaries = Object.entries(characters).map(([characterName, data]) => ({
+    characterName,
+    totalMatches: data.wins + data.losses,
+    currentSeasonDanRank: data.currentSeasonDanRank,
+    previousSeasonDanRank: data.previousSeasonDanRank,
+    wins: data.wins,
+    losses: data.losses,
+    winRate: data.characterWinrate
+  }));
+
   characterSummaries.sort((a, b) => {
     const rankA = getRankValue(a.currentSeasonDanRank);
     const rankB = getRankValue(b.currentSeasonDanRank);
-    
-    // If ranks are different, sort by rank (higher rank first)
-    if (rankA !== rankB) {
-      return rankB - rankA;
-    }
-    
-    // If ranks are the same, sort by total matches
+    if (rankA !== rankB) return rankB - rankA;
     return b.totalMatches - a.totalMatches;
   });
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold mb-2">Select a Character</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {characterSummaries.map((character) => {
-          // Get current season rank
-          const currentSeasonRank = character.currentSeasonDanRank !== null 
-            ? rankOrderMap[character.currentSeasonDanRank] 
-            : 'Beginner';
-          
-          // Get previous season rank if available
-          const previousSeasonRank = character.previousSeasonDanRank !== undefined 
-            ? rankOrderMap[character.previousSeasonDanRank] 
-            : null;
+    <div className="space-y-2 h-full">
+      <h2 className="text-lg font-semibold">Characters</h2>
+      <div className="relative">
+        <div
+          ref={scrollRef}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 bg-accent/10 rounded-lg p-2"
+        >
+          {characterSummaries.map(character => {
+            const currentSeasonRank = character.currentSeasonDanRank !== null
+              ? rankOrderMap[character.currentSeasonDanRank]
+              : 'Beginner';
+            const previousSeasonRank = character.previousSeasonDanRank !== undefined
+              ? rankOrderMap[character.previousSeasonDanRank]
+              : null;
 
-          return (
-            <motion.div
-              key={character.characterName}
-              whileHover={{ scale: 1.03, y: -5 }}
-              whileTap={{ scale: 0.98 }}
-              className={`transform transition-all duration-200 ${
-                character.characterName === selectedCharacterId 
-                  ? 'border-blue-500 shadow-lg shadow-blue/20' 
-                  : 'border-transparent hover:shadow-md'
-              }`}
-            >
-             <Card 
-                className={`cursor-pointer transition-all duration-200 overflow-hidden ${
+            return (
+              <motion.div
+                key={character.characterName}
+                whileHover={{ scale: 1.03, y: -5 }}
+                whileTap={{ scale: 0.98 }}
+                className={`transform transition-all duration-200 ${
                   character.characterName === selectedCharacterId
-                    ? 'border-[#c157f8] border-[3px] shadow-lg shadow-primary/20'
-                    : 'border-transparent border-2 hover:border-primary/50 hover:shadow-md'
+                    ? 'border-blue-500 shadow-lg shadow-blue/20'
+                    : 'border-transparent hover:shadow-md'
                 }`}
-                onClick={() => onSelectCharacter(character.characterName)}
               >
-
-                <CardContent className="p-4 relative">
-                  {previousSeasonRank && (
-                    <div className="absolute top-2 right-2 bg-accent/90 text-xs font-medium px-1.5 py-0.5 rounded-full z-10 shadow-sm">
-                      S1: <Image 
-                        src={rankIconMap[previousSeasonRank]} 
-                        alt={previousSeasonRank}
-                        width={40}
-                        height={24}
-                        className="w-12 h-7 inline-block ml-0.5"
-                        unoptimized
-                      />
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="relative">
+                <Card
+                  className={`cursor-pointer transition-all duration-200 overflow-hidden ${
+                    character.characterName === selectedCharacterId
+                      ? 'border-[#c157f8] border-[3px] shadow-lg shadow-primary/20'
+                      : 'border-transparent border-2 hover:border-primary/50 hover:shadow-md'
+                  }`}
+                  onClick={() => onSelectCharacter(character.characterName)}
+                >
+                  <CardContent className="p-3 relative">
+                    {previousSeasonRank && (
+                      <div className="absolute top-2 right-2 bg-accent/90 text-xs font-medium px-1.5 py-0.5 rounded-full z-10 shadow-sm">
+                        S1:{' '}
                         <Image
-                          src={circularCharacterIconMap[character.characterName]}
-                          alt={character.characterName}
-                          width={76}
-                          height={76}
-                          className={`w-18 h-18 object-contain rounded-full`}
+                          src={rankIconMap[previousSeasonRank]}
+                          alt={previousSeasonRank}
+                          width={40}
+                          height={24}
+                          className="inline-block w-12 h-7 ml-0.5"
                           unoptimized
                         />
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-bold text-base truncate">{character.characterName}</h3>
-                        <div className="flex flex-col">
-                          <div className="flex items-center">
-                            <Image 
-                              src={rankIconMap[currentSeasonRank]} 
-                              alt={currentSeasonRank}
-                              width={48}
-                              height={40}
-                              className="w-24 h-12"
-                              unoptimized
-                            />
+                    )}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="relative">
+                          <Image
+                            src={circularCharacterIconMap[character.characterName]}
+                            alt={character.characterName}
+                            width={76}
+                            height={76}
+                            className="object-contain rounded-full w-18 h-18"
+                            unoptimized
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-bold text-base truncate">
+                            {character.characterName}
+                          </h3>
+                          <div className="flex flex-col">
+                            <div className="flex items-center">
+                              <Image
+                                src={rankIconMap[currentSeasonRank]}
+                                alt={currentSeasonRank}
+                                width={48}
+                                height={40}
+                                className="w-24 h-12"
+                                unoptimized
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Matches: {character.totalMatches}
+                            </p>
                           </div>
-                          
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Matches: {character.totalMatches}
-                          </p>
                         </div>
                       </div>
+                      <ChevronRight
+                        className={`h-5 w-5 transition-opacity ${
+                          character.characterName === selectedCharacterId
+                            ? 'opacity-100 text-primary'
+                            : 'opacity-50'
+                        }`}
+                      />
                     </div>
-                    <ChevronRight className={`h-5 w-5 transition-opacity ${
-                      character.characterName === selectedCharacterId ? 'opacity-100 text-primary' : 'opacity-50'
-                    }`} />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

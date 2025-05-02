@@ -32,6 +32,7 @@ const MatchupCard: React.FC<MatchupCardProps> = ({
             fill
             sizes="96px"
             className="object-contain"
+            unoptimized
           />
         </div>
         <div className="text-lg font-semibold">{characterName}</div>

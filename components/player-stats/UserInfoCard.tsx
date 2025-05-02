@@ -2,12 +2,11 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
 import { Card, CardContent } from '../ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { rankIconMap, circularCharacterIconMap, Regions, MainCharacterAndRank } from '../../app/state/types/tekkenTypes'
-import { CalendarIcon, MapPinIcon, UserIcon } from 'lucide-react'
+import { CalendarIcon, MapPinIcon } from 'lucide-react'
 
 interface UserInfoCardProps {
   username: string
@@ -49,14 +48,34 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
 }) => {
   return (
     <TooltipProvider>
-      <Card className="w-full max-w-md mx-auto overflow-hidden">
-        <CardContent className="p-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col items-center space-y-4"
-          >
+      <Card className="w-full max-w-3xl mx-auto overflow-hidden shadow-md">
+        <CardContent className="p-6 relative">
+          {/* Dan Rank in top right */}
+          <div className="absolute top-4 right-4">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center space-x-2">
+                  <div className="flex-shrink-0">
+                    <Image
+                      src={rankIconMap[mainCharacterAndRank.danRank]}
+                      alt={`${mainCharacterAndRank.danRank} rank icon`}
+                      width={32}
+                      height={32}
+                      className="object-contain"
+                      unoptimized
+                    />
+                  </div>
+                  <span>{mainCharacterAndRank.danRank}</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Highest rank</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          
+          <div className="flex flex-col md:flex-row gap-6 items-center">
+            {/* Left side - Avatar only */}
             <div className="flex justify-center items-center">
               <Avatar className="size-36 flex justify-center items-center overflow-visible">
                 <AvatarImage 
@@ -69,72 +88,29 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
                 </AvatarFallback>
               </Avatar>
             </div>
-            <div className="text-center">
-              <h2 className="text-2xl font-bold">{username}</h2>
-              <p className="text-sm text-muted-foreground">{formatPolarisId(polarisId)}</p>
-            </div>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="mt-6 grid grid-cols-2 gap-4 text-sm"
-          >
-            <Tooltip>
-              <TooltipTrigger asChild>
+            {/* Right side - Player info */}
+            <div className="flex-1 flex flex-col justify-center space-y-4">
+              {/* Name and ID */}
+              <div>
+                <h2 className="text-2xl font-bold">{username}</h2>
+                <p className="text-sm text-muted-foreground">{formatPolarisId(polarisId)}</p>
+              </div>
+              
+              {/* Location and Last Seen */}
+              <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <MapPinIcon className="w-4 h-4 text-muted-foreground" />
                   <span>{Regions[regionId]}</span>
                 </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Player&apos;s region</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
+                
                 <div className="flex items-center space-x-2">
                   <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                   <span>{formatTimestamp(latestBattle)}</span>
                 </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Latest battle timestamp</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center space-x-2">
-                  <UserIcon className="w-4 h-4 text-muted-foreground" />
-                  <span>{mainCharacterAndRank.characterName}</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Main character</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center space-x-2">
-                  <Image
-                    src={rankIconMap[mainCharacterAndRank.danRank]}
-                    alt={`${mainCharacterAndRank.danRank} rank icon`}
-                    width={80}
-                    height={80}
-                    className="object-contain"
-                  />
-                  <span>{mainCharacterAndRank.danRank}</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Highest rank</p>
-              </TooltipContent>
-            </Tooltip>
-          </motion.div>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </TooltipProvider>
