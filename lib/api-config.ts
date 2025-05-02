@@ -59,6 +59,14 @@ export async function fetchPlayerData(username: string) {
   });
 }
 
+export async function fetchStatPentagon(polarisId: string) {
+  return fetchWithConfig(`/player-stats/getStatPentagon?polarisId=${encodeURIComponent(polarisId)}`, {
+    next: {
+      revalidate: 86400
+    }
+  });
+}
+
 export async function fetchStatistics(endpoint: string) {
   return fetchWithConfig(`/statistics/${endpoint}`);
 }

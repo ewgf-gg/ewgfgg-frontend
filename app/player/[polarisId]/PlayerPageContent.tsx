@@ -18,17 +18,20 @@ import {
   BattleType,
   battleTypeMap
 } from '@/app/state/types/tekkenTypes';
+import { StatPentagonData } from '../../state/types/tekkenTypes';
 
 interface PlayerPageContentProps {
   error: string | null;
   playerStats: PlayerStats | null;
   polarisId: string;
+  statPentagonData?: StatPentagonData | null;
 }
 
 export default function PlayerPageContent({ 
   error, 
   playerStats, 
-  polarisId 
+  polarisId,
+  statPentagonData
 }: PlayerPageContentProps) {
   // Client-side data transformation
   const formattedPlayerStats = useMemo(() => {
@@ -110,7 +113,7 @@ export default function PlayerPageContent({
               transition={{ duration: 0.5 }}
               className="max-w-6xl mx-auto"
             >
-              <PlayerProfile stats={formattedPlayerStats} />
+              <PlayerProfile stats={formattedPlayerStats} statPentagonData={statPentagonData} />
             </motion.div>
           ) : (
             <motion.div 

@@ -113,6 +113,44 @@ export interface CharacterStatsWithVersion extends CharacterStats {
     characterId: number;
 }
 
+export interface StatPentagonData {
+    defense: number;
+    attack: number;
+    technique: number;
+    appeal: number;
+    spirit: number;
+    attackComponents: {
+      heavyDamage: number;
+      aggressiveness: number;
+      dominance: number;
+      attackFrequency: number;
+    };
+    defenseComponents: {
+      composure: number;
+      block: number;
+      evasion: number;
+      throwEscape: number;
+    };
+    techniqueComponents: {
+      judgement: number;
+      stageUse: number;
+      retaliation: number;
+      accuracy: number;
+    };
+    spiritComponents: {
+      closeBattles: number;
+      concentration: number;
+      fightingSpirit: number;
+      comeback: number;
+    };
+    appealComponents: {
+      fairness: number;
+      ambition: number;
+      versatility: number;
+      respect: number;
+    };
+  }
+
 export interface CharacterBattleStats {
     characterId: number;
     characterName: string;

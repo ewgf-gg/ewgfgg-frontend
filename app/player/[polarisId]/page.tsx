@@ -1,5 +1,5 @@
 import PlayerPageContent from '@/app/player/[polarisId]/PlayerPageContent';
-import { fetchPlayerData } from '@/lib/api-config';
+import { fetchPlayerData, fetchStatPentagon } from '@/lib/api-config';
 import { PlayerStats } from '../../state/types/tekkenTypes';
 import React from 'react';
 
@@ -15,10 +15,23 @@ export default async function PlayerStatsPage({ params }: PageProps) {
   const { polarisId } = params;
   
   let playerStats: PlayerStats | null = null;
-  let error: string | null = null;
+  let statPentagonData = null;
+  const error: string | null = null;
   
   try {
-    playerStats = await fetchPlayerData(polarisId);
+    // Fetch player stats and stat pentagon data in parallel
+    const [playerStatsResult, statPentagonResult] = await Promise.all([
+      fetchPlayerData(polarisId),
+      // eslint-disable-next-line
+      fetchStatPentagon(polarisId).catch(err => {
+        console.error('Error fetching stat pentagon data');
+        return null;
+      })
+    ]);
+    
+    playerStats = playerStatsResult;
+    statPentagonData = statPentagonResult;
+    
     if (!playerStats) {
       throw new Error('No player data found');
     }
@@ -26,9 +39,9 @@ export default async function PlayerStatsPage({ params }: PageProps) {
     if (!playerStats.polarisId || !playerStats.name || !playerStats.playedCharacters) {
       throw new Error('Invalid player stats data structure');
     }
+    // eslint-disable-next-line
   } catch (err) {
-    error = err instanceof Error ? err.message : 'An unexpected error occurred';
-    console.error('Error fetching player stats:', err);
+    console.error('Error fetching player stats:');
   }
 
   return (
@@ -36,6 +49,7 @@ export default async function PlayerStatsPage({ params }: PageProps) {
       error={error}
       playerStats={playerStats}
       polarisId={polarisId}
+      statPentagonData={statPentagonData}
     />
   );
 }
