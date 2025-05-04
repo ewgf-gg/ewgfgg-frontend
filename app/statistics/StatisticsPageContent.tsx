@@ -76,9 +76,9 @@ export default function StatisticsPageContent({
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-8">Character Statistics</h1>
-        <div className="flex justify-end gap-4 mb-8">
+      <main className="flex-grow container mx-auto px-4 pt-12 sm:pt-8">
+        <h1 className="text-4xl font-bold mb-8 text-center sm:text-left">Character Statistics</h1>
+        <div className="flex flex-wrap justify-start sm:justify-end gap-4 mb-8">
           <VersionSelector
             versions={versions}
             selectedVersion={selectedVersion}

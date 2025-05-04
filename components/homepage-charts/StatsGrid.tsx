@@ -5,7 +5,7 @@ import { WinRateTrends } from './WinrateChangesChart';
 import { RecentlyActivePlayersChart } from './RecentlyActivePlayersChart';
 
 export const StatsGrid: React.FC = () => (
-  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6 sm:mb-16">
     <PopularityChart
       title="Popular Characters"
       description="Most picked characters"

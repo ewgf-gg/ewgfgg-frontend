@@ -49,6 +49,17 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
     }) + ' UTC';
   };
 
+  const formatDateMobile = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: '2-digit',
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }) + ' UTC';
+  };
+
   const getCharacterName = (characterId: number) => {
     return characterIdMap[characterId] || `Character ${characterId}`;
   };
@@ -194,9 +205,13 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
 
               return (
                 <TableRow key={index}>
-                  <TableCell>{formatDate(battle.date)}</TableCell>
+                  <TableCell> 
+                    <div>
+                      <span className="hidden sm:inline">{formatDate(battle.date)}</span>
+                      <span className="inline sm:hidden">{formatDateMobile(battle.date)}</span>
+                    </div></TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-center gap-2">
                       <div className="relative w-8 h-8">
                         <Image
                           src={characterIconMap[playerCharacter]}
@@ -210,7 +225,7 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-center gap-2">
                       <div className="relative w-8 h-8">
                         <Image
                           src={characterIconMap[opponentCharacter]}
