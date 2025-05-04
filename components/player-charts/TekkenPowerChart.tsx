@@ -100,21 +100,24 @@ const TimeRangeButtons = React.memo(({
       onClick={() => setTimeSpan('7d')}
       size="sm"
     >
-      Last 7 Days
+      <span className="inline sm:hidden">7D</span>
+      <span className="hidden sm:inline">Last 7 Days</span>
     </Button>
     <Button
       variant={timeSpan === '30d' ? 'default' : 'outline'}
       onClick={() => setTimeSpan('30d')}
       size="sm"
     >
-      Last 30 Days
+      <span className="inline sm:hidden">30D</span>
+      <span className="hidden sm:inline">Last 30 Days</span>
     </Button>
     <Button
       variant={timeSpan === 'all' ? 'default' : 'outline'}
       onClick={() => setTimeSpan('all')}
       size="sm"
     >
-      All Time
+      <span className="inline sm:hidden">All</span>
+      <span className="hidden sm:inline">All Time</span>
     </Button>
   </div>
 ));
