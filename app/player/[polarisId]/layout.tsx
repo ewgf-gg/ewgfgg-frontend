@@ -1,6 +1,18 @@
 import { Metadata } from 'next'
 import { characterIconMap, rankIconMap, Regions, PlayerMetadata } from '@/app/state/types/tekkenTypes'
 
+// Format Tekken ID with hyphens (e.g., 4rTJ-82Rr-r366)
+function formatPolarisId(rawPolarisId: string): string {
+  if (!rawPolarisId || rawPolarisId.length < 12) return rawPolarisId;
+  
+  try {
+    return `${rawPolarisId.substring(0, 4)}-${rawPolarisId.substring(4, 8)}-${rawPolarisId.substring(8)}`;
+  } catch (error) {
+    console.error("Error formatting Polaris ID:", error);
+    return rawPolarisId;
+  }
+}
+
 export const revalidate = 30;
 
 type Props = {
@@ -30,12 +42,12 @@ export async function generateMetadata(
   const mainChar = playerData.mainCharacterAndRank?.characterName || ''
   const rank = playerData.mainCharacterAndRank?.danRank || ''
   const region = playerData.regionId !== undefined ? Regions[playerData.regionId] : ''
-  const polarisId = playerData.polarisId ? `${playerData.polarisId}` : ''
+  const polarisId = playerData.polarisId ? formatPolarisId(playerData.polarisId) : ''
   const characterIcon = characterIconMap[mainChar] || ''
   const rankIcon = rankIconMap[rank] || ''
   
   const title = `${playerData.playerName}'s Tekken 8 Profile`
-  const description = `Tekken-ID: ${polarisId}'s \n Tekken 8 Stats\n🥋 Main: ${mainChar}\n👑 Rank: ${rank}\n🌎 Region: ${region}}`
+  const description = `Tekken-ID: ${polarisId} \n Tekken 8 Stats\n \n🥋 Main: ${mainChar}\n👑 Rank: ${rank}\n🌎 Region: ${region}`
 
   return {
     title,

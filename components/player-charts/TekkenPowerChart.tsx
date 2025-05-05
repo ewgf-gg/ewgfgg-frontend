@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
-import { Battle } from '../../app/state/types/tekkenTypes';
+import { Battle, BattleType } from '../../app/state/types/tekkenTypes';
 import { format, subDays } from 'date-fns';
 import { Button } from '../ui/button';
 import { rankDivisionColors } from '../../app/state/atoms/tekkenStatsAtoms';
@@ -134,8 +134,15 @@ const TekkenPowerChart: React.FC<TekkenPowerChartProps> = ({
   const allTimeData = useMemo(() => {
     if (battles.length === 0) return [];
     
+    // Filter for ranked battles only
+    const rankedBattles = battles.filter(battle => 
+      battle.battleType === BattleType.RANKED_BATTLE
+    );
+    
+    if (rankedBattles.length === 0) return [];
+    
     // Sort battles by date (oldest first)
-    const sortedBattles = battles.slice().sort((a, b) => 
+    const sortedBattles = rankedBattles.slice().sort((a, b) => 
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
     

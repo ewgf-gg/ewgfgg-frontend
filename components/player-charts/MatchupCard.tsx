@@ -8,13 +8,15 @@ interface MatchupCardProps {
   winRate: number;
   title: string;
   description?: string;
+  hasLimitedData?: boolean;
 }
 
 const MatchupCard: React.FC<MatchupCardProps> = ({
   characterName,
   winRate,
   title,
-  description
+  description,
+  hasLimitedData
 }) => {
   const iconPath = circularCharacterIconMap[characterName] || `/static/character-icons/${characterName.replace(/[\s-]/g, '')}T8.png`;
   
@@ -37,8 +39,11 @@ const MatchupCard: React.FC<MatchupCardProps> = ({
         </div>
         <div className="text-lg font-semibold">{characterName}</div>
         <div className={`text-2xl font-bold mt-1 ${winRate >= 50 ? 'text-green-500' : 'text-red-500'}`}>
-          {winRate.toFixed(1)}%
+          {winRate.toFixed(2)}%
         </div>
+        {hasLimitedData && (
+          <div className="text-xs text-amber-400 mt-2 italic">* limited match data</div>
+        )}
       </CardContent>
     </Card>
   );
