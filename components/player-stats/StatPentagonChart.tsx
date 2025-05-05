@@ -20,8 +20,8 @@ export const StatPentagonChart: React.FC<StatPentagonChartProps> = ({ stats }) =
   const chartData = useMemo(() => [
     { subject: 'Attack', value: stats.attack, fullMark: 100 },
     { subject: 'Technique', value: stats.technique, fullMark: 100 },
-    { subject: 'Spirit', value: stats.spirit, fullMark: 100 },
     { subject: 'Appeal', value: stats.appeal, fullMark: 100 },
+    { subject: 'Spirit', value: stats.spirit, fullMark: 100 },
     { subject: 'Defense', value: stats.defense, fullMark: 100 },
   ], [stats]);
 
