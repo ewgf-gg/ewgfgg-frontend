@@ -24,6 +24,10 @@ interface PlayerProfileProps {
 export const PlayerProfile: React.FC<PlayerProfileProps> = ({ stats, statPentagonData }) => {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
 
+  const handleSelectCharacter = (id: string) => {
+    setSelectedCharacterId(prev => (prev === id ? null : id));
+  };
+
   // Use playedCharacters directly for the selector
   const characterStats = stats.playedCharacters || {};
 
@@ -70,7 +74,7 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({ stats, statPentago
       <div className="w-full">
         <CharacterSelector
           characters={characterStats}
-          onSelectCharacter={setSelectedCharacterId}
+          onSelectCharacter={handleSelectCharacter}
           selectedCharacterId={selectedCharacterId}
         />
       </div>

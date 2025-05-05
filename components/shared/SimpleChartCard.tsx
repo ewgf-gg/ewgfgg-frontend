@@ -32,7 +32,7 @@ export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
     >
       <Card className="h-full">
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center sm:flex-row flex-col gap-2">
             <div>
               <CardTitle className="text-lg">{title}</CardTitle>
               {description && (
