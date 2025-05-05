@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
-import { Battle } from '../../app/state/types/tekkenTypes';
+import { Battle, BattleType } from '../../app/state/types/tekkenTypes';
 import { format, subDays } from 'date-fns';
 import { Button } from '../ui/button';
 
@@ -55,13 +55,14 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
 
   // Calculate all-time winrate data with bucketing to reduce data points
   const allTimeData = useMemo(() => {
-    // Filter battles for selected character if specified
-    const filteredBattles = selectedCharacterId 
-      ? battles.filter(battle => 
-          battle.player1CharacterId === selectedCharacterId ||
-          battle.player2CharacterId === selectedCharacterId
-        )
-      : battles;
+    // Filter battles for ranked battles and selected character if specified
+    const filteredBattles = battles.filter(battle => 
+      battle.battleType === BattleType.RANKED_BATTLE && 
+      (selectedCharacterId 
+        ? (battle.player1CharacterId === selectedCharacterId ||
+           battle.player2CharacterId === selectedCharacterId)
+        : true)
+    );
 
     if (filteredBattles.length === 0) return [];
     
