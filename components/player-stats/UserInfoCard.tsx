@@ -47,7 +47,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
   latestBattle,
   mainCharacterAndRank,
 }) => {
-  const { polarisId: currentPolarisId, setPolarisId } = usePolarisId(); // ✅ use the hook
+  const { polarisId: currentPolarisId, setPolarisId } = usePolarisId(); 
   const [isFollowing, setIsFollowing] = useState(false)
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
     setIsFollowing(following.includes(polarisId))
   }, [polarisId])
 
-  const isProfile = currentPolarisId === polarisId // ✅ dynamic check
+  const isProfile = currentPolarisId === polarisId 
 
   const handleProfileToggle = () => {
     if (isProfile) {
@@ -65,6 +65,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
     }
   }
 
+  // eslint-disable-next-line
   const handleFollowToggle = () => {
     let following = JSON.parse(localStorage.getItem('following') || '[]')
     if (following.includes(polarisId)) {

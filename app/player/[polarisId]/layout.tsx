@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import { characterIconMap, rankIconMap, Regions, PlayerMetadata } from '@/app/state/types/tekkenTypes'
 
-// Format Tekken ID with hyphens (e.g., 4rTJ-82Rr-r366)
 function formatPolarisId(rawPolarisId: string): string {
   if (!rawPolarisId || rawPolarisId.length < 12) return rawPolarisId;
   

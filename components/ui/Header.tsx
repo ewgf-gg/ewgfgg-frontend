@@ -72,6 +72,7 @@ export function Header() {
   const animatedUnrankedReplays = useAnimatedCounter(totalUnrankedReplays, 2000);
 
   const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
+  // eslint-disable-next-line
   const goToProfile = () => {
     if (storedPolarisId) router.push(`/player/${storedPolarisId}`);
   };

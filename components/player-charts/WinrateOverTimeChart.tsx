@@ -55,7 +55,7 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
 
   // Calculate all-time winrate data with bucketing to reduce data points
   const allTimeData = useMemo(() => {
-    // Filter battles for ranked battles and selected character if specified
+
     const filteredBattles = battles.filter(battle => 
       battle.battleType === BattleType.RANKED_BATTLE && 
       (selectedCharacterId 

@@ -14,16 +14,13 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
   selectedCharacterId, 
   playedCharacters
 }) => {
-  // Get the character name from the ID
   const getCharacterName = (characterId: number): string => {
     return characterIdMap[characterId] || `Character ${characterId}`;
   };
 
   const selectedCharacterName = getCharacterName(selectedCharacterId);
   
-  // Use the bestMatchup data directly from the playedCharacters if available
   const bestMatchup = React.useMemo(() => {
-    // Return null if selectedCharacterId is null or undefined (but not 0)
     if (selectedCharacterId === null || selectedCharacterId === undefined || !playedCharacters) {
       return null;
     }
@@ -36,19 +33,16 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
 
     const [, characterData] = character;
     
-    // If there's no best matchup data or it's empty, return null
     if (!characterData.bestMatchup || Object.keys(characterData.bestMatchup).length === 0) {
       return null;
     }
 
-    // Get all matchups with their data
     const matchupsWithData = Object.entries(characterData.matchups).map(([opponentName, matchupData]) => ({
       opponentName,
-      winRate: matchupData.winRate, // Already in percentage form
+      winRate: matchupData.winRate, 
       totalMatches: matchupData.totalMatches
     }));
 
-    // First, try to find matchups with at least 20 matches
     const matchupsWithEnoughData = matchupsWithData.filter(m => m.totalMatches >= 20);
     
     let bestMatchupData;
@@ -59,8 +53,7 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
       bestMatchupData = matchupsWithEnoughData.reduce((best, current) => 
         current.winRate > best.winRate ? current : best, matchupsWithEnoughData[0]);
     } else {
-      // For limited data, prioritize match count more while still considering winrate
-      // Group matchups by match count ranges to find ones with similar counts
+      // For limited data, prioritize match count more
       const matchGroups = matchupsWithData.reduce((groups, matchup) => {
         // Create groups of matchups with similar match counts (within 5 matches of each other)
         const existingGroup = groups.find(group => 
@@ -75,7 +68,6 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
         return groups;
       }, [] as Array<typeof matchupsWithData>);
       
-      // Sort groups by highest match count
       matchGroups.sort((a, b) => {
         const aMaxMatches = Math.max(...a.map(m => m.totalMatches));
         const bMaxMatches = Math.max(...b.map(m => m.totalMatches));
@@ -88,7 +80,6 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
       // From that group, find the matchup with the highest winrate
       bestMatchupData = bestGroup.sort((a, b) => b.winRate - a.winRate)[0];
       
-      // Mark as limited data if we have a matchup but with fewer than 20 matches
       if (bestMatchupData && bestMatchupData.totalMatches < 20) {
         hasLimitedData = true;
       }
