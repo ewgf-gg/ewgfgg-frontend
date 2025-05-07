@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { rankIconMap, circularCharacterIconMap, Regions, MainCharacterAndRank } from '../../app/state/types/tekkenTypes'
 import { CalendarIcon, MapPinIcon } from 'lucide-react'
-import { usePolarisId } from '@/lib/hooks/usePolarisId' // ✅ import the hook
+import { usePolarisId } from '@/lib/hooks/usePolarisId' 
 
 interface UserInfoCardProps {
   username: string

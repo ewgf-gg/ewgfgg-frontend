@@ -16,7 +16,6 @@ export function usePolarisId() {
     }
   }, [polarisId])
 
-  // Hook API
   const setPolarisId = (id: string | null) => {
     setPolarisIdAtom(id)
   }
