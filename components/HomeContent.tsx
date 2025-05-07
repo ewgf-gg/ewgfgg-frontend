@@ -58,7 +58,7 @@ export default function HomeContent({ initialData }: HomeContentProps) {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Header />
-      <main className="flex-grow container mx-auto px-4 pt-12 sm:pt-8">
+      <main className="flex-grow container mx-auto px-4 pt-16 sm:pt-12">
         <StatsGrid />
         <RankDistributionChart />
       </main>

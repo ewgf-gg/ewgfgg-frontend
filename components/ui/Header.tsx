@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAtom } from 'jotai';
@@ -59,6 +59,7 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
   const [storedPolarisId, setStoredPolarisId] = useState<string | null>(null);
   const { polarisId } = usePolarisId();
+  const [profileAnimationPlayed, setProfileAnimationPlayed] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -66,6 +67,19 @@ export function Header() {
     const id = localStorage.getItem("polarisId");
     if (id) setStoredPolarisId(id);
   }, []);
+
+  // Initialize animation state on mount
+  useEffect(() => {
+    // On first mount, set animation to play if polarisId exists
+    if (mounted && polarisId && !profileAnimationPlayed) {
+      // Set a small delay to ensure the animation plays after the component is fully mounted
+      const timer = setTimeout(() => {
+        setProfileAnimationPlayed(true);
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [mounted, polarisId, profileAnimationPlayed]);
 
   const animatedPlayers = useAnimatedCounter(totalPlayers, 2000);
   const animatedReplays = useAnimatedCounter(totalRankedReplays, 2000);
@@ -80,68 +94,23 @@ export function Header() {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 bg-gray-800/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg z-50">
-        <nav className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between relative">
-            <div className="flex items-center space-x-4 md:space-x-8">
-              <Link href="/" className="font-russo-one text-xl md:text-2xl text-white whitespace-nowrap flex items-center">
-                <div className="relative" style={{ width: '40px', height: '40px', marginRight: '8px' }}>
+        <nav className="container mx-auto px-3 py-2">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between relative">
+            {/* Logo centered on mobile, left-aligned on desktop */}
+            <div className="flex justify-center md:justify-start md:items-center md:space-x-6 mb-1 md:mb-0">
+              <Link href="/" className="font-russo-one text-lg md:text-xl text-white whitespace-nowrap flex items-center">
+                <div className="relative" style={{ width: '32px', height: '32px', marginRight: '6px' }}>
                   <Image 
                     src="/static/EWGF_ICON@2x.png" 
                     alt="EWGF Logo" 
                     fill
                     className="object-contain"
-                    style={{ transform: 'scale(1.7)' }}
+                    style={{ transform: 'scale(1.5)' }}
                   />
                 </div>
                 ewgf<span className="text-blue-400 dark:text-blue-500">.gg</span>
               </Link>
-              <div className="flex space-x-3 md:space-x-6">
-                <Link href="/statistics" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-xs md:text-sm font-semibold">
-                  Statistics
-                </Link>
-                <Link href="/about" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-xs md:text-sm font-semibold">
-                  About
-                </Link>
-                <div className="w-[100px] flex justify-end">
-                  <AnimatePresence>
-                    {polarisId && (
-                      <motion.button
-                        key="my-profile"
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        transition={{ duration: 0.3 }}
-                        onClick={() => router.push(`/player/${polarisId}`)}
-                        className="text-sm font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent font-mono"
-                      >
-                        My Profile
-                      </motion.button>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-
-              <div className="flex md:hidden flex-col ml-4">
-                <div className="flex items-center">
-                  <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider mr-1">Players:</span>
-                  <span className="text-xs font-bold bg-gradient-to-r from-blue-400 to-cyan-300 dark:from-blue-500 dark:to-cyan-400 bg-clip-text text-transparent font-mono">
-                    {formatNumber(animatedPlayers)}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider mr-1">Ranked:</span>
-                  <span className="text-xs font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent font-mono">
-                    {formatNumber(animatedReplays)}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider mr-1">Unranked:</span>
-                  <span className="text-xs font-bold bg-gradient-to-r from-green-400 to-teal-300 dark:from-green-500 dark:to-teal-400 bg-clip-text text-transparent font-mono">
-                    {formatNumber(animatedUnrankedReplays)}
-                  </span>
-                </div>
-              </div>
-
+              
               {mounted && (
                 <button onClick={toggleTheme} className="md:hidden p-2 ml-3 rounded-lg bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" aria-label="Toggle theme">
                   {theme === 'dark' ? (
@@ -155,6 +124,31 @@ export function Header() {
                   )}
                 </button>
               )}
+            </div>
+            
+            {/* Menu links on their own line on mobile, inline on desktop */}
+            <div className="flex justify-center md:justify-start space-x-6 md:space-x-6 mb-0.5 md:mb-0">
+              <Link href="/statistics" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-xs md:text-sm font-semibold">
+                Statistics
+              </Link>
+              <Link href="/about" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-xs md:text-sm font-semibold">
+                About
+              </Link>
+              <AnimatePresence>
+                {polarisId && (
+                  <motion.button
+                    key="my-profile"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.3 }}
+                    onClick={() => router.push(`/player/${polarisId}`)}
+                    className="text-xs md:text-sm font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent font-semibold"
+                  >
+                    My Profile
+                  </motion.button>
+                )}
+              </AnimatePresence>
             </div>
 
             <div className="hidden md:block flex-1 max-w-xl mx-4">
@@ -207,11 +201,11 @@ export function Header() {
             </div>
           </div>
         </nav>
-        <div className="md:hidden w-full px-4 py-2 bg-gray-800/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-700">
+        <div className="md:hidden w-full px-3 py-1.5 bg-gray-800/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-700">
           <SearchBar />
         </div>
       </header>
-      <div className="h-24 md:h-16"></div>
+      <div className="h-20 md:h-14"></div>
     </>
   );
 }
