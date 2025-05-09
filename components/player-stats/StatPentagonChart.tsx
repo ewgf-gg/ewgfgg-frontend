@@ -8,14 +8,21 @@ import { TooltipProvider, Tooltip, TooltipTrigger } from '../ui/tooltip';
 import { ChartContainer } from '../ui/chart';
 import { StatPentagonTooltip } from './StatPentagonTooltip';
 import { StatPentagonData } from '@/app/state/types/tekkenTypes';
+import { Button } from '../ui/button';
 
 
 interface StatPentagonChartProps {
   stats: StatPentagonData;
+  onToggleDetails?: (visible: boolean) => void;
+  showDetails?: boolean;
   isLoading?: boolean;
 }
 
-export const StatPentagonChart: React.FC<StatPentagonChartProps> = ({ stats }) => {
+export const StatPentagonChart: React.FC<StatPentagonChartProps> = ({ 
+  stats,
+  showDetails = false,
+  onToggleDetails, 
+}) => {
   // Transform stats into the format needed for the radar chart
   const chartData = useMemo(() => [
     { subject: 'Attack', value: stats.attack, fullMark: 100 },
@@ -43,12 +50,19 @@ export const StatPentagonChart: React.FC<StatPentagonChartProps> = ({ stats }) =
 
   return (
     <TooltipProvider>
-      <Card className="w-full max-w-md mx-auto overflow-visible h-full max-h-[350px] flex flex-col relative">
-        <CardHeader className="pb-0 pt-1">
-          <CardTitle className="text-base">Stat Pentagon</CardTitle>
-          <p className="text-xs text-muted-foreground">Hover to see breakdown</p>
-        </CardHeader>
-        <CardContent className="p-2 pt-0 pb-2 flex-grow">
+      <Card className="w-full max-w-full mx-auto overflow-visible h-full max-h-[350px] flex flex-col relative">
+        <div className='flex items-center justify-between px-4 py-2 w-full'>
+          <CardHeader className="pb-0 pt-1 flex items-center">
+            <CardTitle className="text-base">Stat Pentagon</CardTitle>
+          </CardHeader>
+          <span
+            onClick={() => onToggleDetails?.(!showDetails)}
+            className="text-sm pb-0 pt-1 text-purple-500 italic cursor-pointer"
+          >
+            {showDetails ? "Hide Details" : "View Details"}
+          </span>
+        </div>
+        <CardContent className="p-2 pt-0 pb-2 flex-grow max-h-[300px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -57,7 +71,7 @@ export const StatPentagonChart: React.FC<StatPentagonChartProps> = ({ stats }) =
           >
             <div className="w-full h-full relative">
               
-              <ChartContainer config={chartConfig} className="!aspect-square relative z-10">
+              <ChartContainer config={chartConfig} className="!aspect-square relative z-10 max-h-[450px] mx-auto">
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart 
                     cx="50%" 
