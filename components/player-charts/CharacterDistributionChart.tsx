@@ -4,7 +4,6 @@
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
-import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { Battle, characterIdMap, characterIconMap } from '../../app/state/types/tekkenTypes';
 import Image from 'next/image';
 import { useAtomValue } from 'jotai';
@@ -97,8 +96,6 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
   const colors = useAtomValue(characterColors);
   const { width } = useWindowSize();
   const isMobile = isMobileView(width);
-  const selectedCharacterName = characterIdMap[selectedCharacterId];
-  const selectedCharacterIcon = selectedCharacterName ? characterIconMap[selectedCharacterName] : null;
 
   const { chartData, maxMatches, yAxisTicks } = useMemo(() => {
     if (selectedCharacterId === null || selectedCharacterId === undefined) {

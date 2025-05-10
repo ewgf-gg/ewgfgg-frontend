@@ -8,12 +8,35 @@ import { SimpleChartCard } from '../shared/SimpleChartCard';
 import Image from 'next/image';
 import { characterIdMap, characterIconMap } from '../../app/state/types/tekkenTypes';
 
+
+export interface Battle {
+    id: string;
+    timestamp: number;
+    player1PolarisId: string;
+    player2PolarisId: string;
+    player1CharacterId: number;
+    player2CharacterId: number;
+    winnerPolarisId: string;
+  }
+
+  export interface MatchupData {
+    wins: number;
+    losses: number;
+    winRate: number;
+    totalMatches: number;
+  }
+  
+  export interface PlayedCharacter {
+    id: string;
+    name: string;
+    matchups: Record<string, MatchupData>; // key = opponent character name
+  }
 interface CombinedChartProps {
-  battles: any[];
+  battles: Battle;
   selectedCharacterId: number;
   playerName: string;
   polarisId: string;
-  playedCharacters?: Record<string, any>;
+  playedCharacters?: PlayedCharacter;
 }
 
 const TabButton: React.FC<{

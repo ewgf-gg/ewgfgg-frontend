@@ -1,13 +1,10 @@
 // Modified winrate chart to reduce padding and height to 300px
 /* eslint-disable react/prop-types */
 import React, { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell, TextProps } from 'recharts';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
-import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { Battle, characterIdMap, characterIconMap, PlayedCharacter } from '../../app/state/types/tekkenTypes';
 import Image from 'next/image';
-import { useAtomValue } from 'jotai';
-import { characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
 
 interface CharacterWinrateChartProps {
   battles: Battle[];
@@ -72,9 +69,17 @@ const CustomTooltip = React.memo<CustomTooltipProps>(({ active, payload }) => {
   return null;
 });
 
+interface CustomAxisTickProps extends TextProps {
+  payload: {
+    value: string;
+  };
+  isMobile: boolean;
+}
+
+
 CustomTooltip.displayName = 'CustomTooltip';
 
-const CustomAxisTick: React.FC<any & { isMobile: boolean }> = ({ x = 0, y = 0, payload, isMobile }) => {
+const CustomAxisTick: React.FC<CustomAxisTickProps> = ({ x = 0, y = 0, payload, isMobile }) => {
   if (!payload) return null;
   const iconPath = characterIconMap[payload.value];
 
@@ -105,22 +110,6 @@ const getBarColor = (winrate: number): string => {
   return '#ef4444';
 };
 
-const WinrateLegend = () => (
-  <div className="flex justify-center items-center gap-2 text-xs text-muted-foreground mt-1">
-    <div className="flex items-center gap-1">
-      <div className="w-2 h-2 bg-[#4ade80]"></div>
-      <span>&gt;52%</span>
-    </div>
-    <div className="flex items-center gap-1">
-      <div className="w-2 h-2 bg-[#facc15]"></div>
-      <span>48-52%</span>
-    </div>
-    <div className="flex items-center gap-1">
-      <div className="w-2 h-2 bg-[#ef4444]"></div>
-      <span>&lt;48%</span>
-    </div>
-  </div>
-);
 
 const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({ selectedCharacterId, playedCharacters }) => {
   const { width } = useWindowSize();
@@ -132,7 +121,7 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({ selectedC
     if (!character?.matchups) return [];
     return Object.entries(character.matchups).map(([opponentName, matchup]) => ({
       characterName: opponentName,
-      characterId: Object.entries(characterIdMap).find(([_, name]) => name === opponentName)?.[0] || 0,
+      characterId: Object.entries(characterIdMap).find((entry) => entry[1] === opponentName)?.[0] || 0,
       wins: matchup.wins,
       losses: matchup.losses,
       winRate: matchup.winRate,
@@ -173,7 +162,6 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({ selectedC
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-      {/* <WinrateLegend /> */}
     </div>
   );
 };

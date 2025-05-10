@@ -2,8 +2,6 @@
 
 import React, { useState } from 'react';
 import CharacterWinLossChart from '../../../components/player-charts/SelectedCharacterWinrate';
-import CharacterWinrateChart from '../../../components/player-charts/CharacterWinrateChart';
-import CharacterDistributionChart from '../../../components/player-charts/CharacterDistributionChart';
 import CombinedCharacterChart from '../../../components/player-charts/CharacterCombinedChart';
 import BestMatchupChart from '../../../components/player-charts/BestMatchupChart';
 import WorstMatchupChart from '../../../components/player-charts/WorstMatchupChart';
@@ -113,23 +111,6 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({ stats, statPentago
               playedCharacters={stats.playedCharacters}
             />
           </div>
-          {/* <div className="w-full">
-            <CharacterWinrateChart
-              battles={filteredBattlesForCharts}
-              selectedCharacterId={selectedCharacterNumericId}
-              polarisId={stats.polarisId}
-              playerName={stats.username}
-              playedCharacters={stats.playedCharacters}
-            />
-          </div>
-          <div className="w-full">
-            <CharacterDistributionChart
-              battles={filteredBattlesForCharts}
-              selectedCharacterId={selectedCharacterNumericId}
-              playerName={stats.username}
-              polarisId={stats.polarisId}
-            />
-          </div> */}
           <div className="w-full">
             <WinrateOverTimeChart
               battles={filteredBattlesForCharts}
