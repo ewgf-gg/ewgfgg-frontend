@@ -8,7 +8,6 @@ import { TooltipProvider, Tooltip, TooltipTrigger } from '../ui/tooltip';
 import { ChartContainer } from '../ui/chart';
 import { StatPentagonTooltip } from './StatPentagonTooltip';
 import { StatPentagonData } from '@/app/state/types/tekkenTypes';
-import { Button } from '../ui/button';
 
 
 interface StatPentagonChartProps {
