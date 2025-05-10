@@ -45,7 +45,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
       <div className="relative">
         <div
           ref={scrollRef}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 bg-accent/10 rounded-lg p-2"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-1 rounded-lg p-2"
         >
           {characterSummaries.map(character => {
             const currentSeasonRank = character.currentSeasonDanRank !== null
@@ -74,16 +74,16 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
                   }`}
                   onClick={() => onSelectCharacter(character.characterName)}
                 >
-                  <CardContent className="p-3 relative">
+                  <CardContent className="p-2 relative">
                     {previousSeasonRank && (
-                      <div className="absolute top-2 right-2 bg-accent/90 text-xs font-medium px-1.5 py-0.5 rounded-full z-10 shadow-sm">
+                      <div className="absolute top-1.5 right-1.5 bg-accent/90 text-xs font-medium px-1.5 py-0.5 rounded-full z-10 shadow-sm">
                         S1:{' '}
                         <Image
                           src={rankIconMap[previousSeasonRank]}
                           alt={previousSeasonRank}
-                          width={40}
-                          height={24}
-                          className="inline-block w-12 h-7 ml-0.5"
+                          width={32}
+                          height={20}
+                          className="inline-block w-10 h-5 ml-0.5"
                           unoptimized
                         />
                       </div>
@@ -96,22 +96,20 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
                             alt={character.characterName}
                             width={76}
                             height={76}
-                            className="object-contain rounded-full w-18 h-18"
+                            className="object-contain rounded-full w-[76px] h-[76px]"
                             unoptimized
                           />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-bold text-base truncate">
-                            {character.characterName}
-                          </h3>
+                          <h3 className="font-bold text-sm truncate">{character.characterName}</h3>
                           <div className="flex flex-col">
                             <div className="flex items-center">
                               <Image
                                 src={rankIconMap[currentSeasonRank]}
                                 alt={currentSeasonRank}
-                                width={48}
-                                height={40}
-                                className="w-24 h-12"
+                                width={40}
+                                height={32}
+                                className="w-20 h-8"
                                 unoptimized
                               />
                             </div>
@@ -122,7 +120,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
                         </div>
                       </div>
                       <ChevronRight
-                        className={`h-5 w-5 transition-opacity ${
+                        className={`h-4 w-4 transition-opacity ${
                           character.characterName === selectedCharacterId
                             ? 'opacity-100 text-primary'
                             : 'opacity-50'
