@@ -45,7 +45,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
       <div className="relative">
         <div
           ref={scrollRef}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-1 bg-accent/10 rounded-lg p-2"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-1 rounded-lg p-2"
         >
           {characterSummaries.map(character => {
             const currentSeasonRank = character.currentSeasonDanRank !== null
