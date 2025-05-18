@@ -11,9 +11,11 @@ import TekkenPowerChart from '../../../components/player-charts/TekkenPowerChart
 import { CharacterSelector } from '../../../components/player-stats/CharacterSelector';
 import { UserInfoCard } from '../../../components/player-stats/UserInfoCard';
 import { StatPentagonChart } from '../../../components/player-stats/StatPentagonChart';
+import { StatPentagonTiles } from '../../../components/player-stats/StatPentagonTiles';
 import { RecentBattlesCard } from '../../../components/player-charts/RecentBattlesCard';
 import { FormattedPlayerStats, characterIdMap } from '../../state/types/tekkenTypes';
 import { StatPentagonData } from '../../state/types/tekkenTypes';
+import { AnimatePresence, motion } from 'framer-motion';
 
 
 interface PlayerProfileProps {
@@ -23,6 +25,7 @@ interface PlayerProfileProps {
 
 export const PlayerProfile: React.FC<PlayerProfileProps> = ({ stats, statPentagonData }) => {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   const handleSelectCharacter = (id: string) => {
     setSelectedCharacterId(prev => (prev === id ? null : id));
@@ -58,9 +61,13 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({ stats, statPentago
             mainCharacterAndRank={stats.mainCharacterAndRank}
           />
         </div>
-        <div className="h-auto flex md:row-span-1">
+        <div className="h-auto">
           {statPentagonData ? (
-            <StatPentagonChart stats={statPentagonData} />
+            <StatPentagonChart 
+              stats={statPentagonData} 
+              showDetails={showDetails}
+              onToggleDetails={setShowDetails} 
+            />
           ) : (
             <div className="w-full max-w-md mx-auto overflow-visible h-full max-h-[350px] flex flex-col relative">
               <div className="w-full h-full flex items-center justify-center bg-gray-800/50 rounded-lg border border-gray-700">
@@ -69,6 +76,33 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({ stats, statPentago
             </div>
           )}
         </div>
+        
+      </div>
+      <div className="w-full">
+        <AnimatePresence initial={false} mode="wait">
+          {statPentagonData && showDetails && (
+            <motion.div
+              key="tiles"
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={{
+                hidden: { opacity: 0, y: -10 },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  transition: {
+                    when: "beforeChildren",
+                    staggerChildren: 0.1,
+                  },
+                },
+              }}
+              className="w-full flex justify-center"
+            >
+              <StatPentagonTiles stats={statPentagonData} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       
       <div className="w-full">
