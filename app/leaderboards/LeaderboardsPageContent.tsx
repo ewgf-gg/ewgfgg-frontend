@@ -63,6 +63,7 @@ export default function LeaderboardsPageContent({ leaderboardData }: Leaderboard
             <SimpleChartCard 
               title="Top Players by Rank Points" 
               description="Players with the highest rank points in the game."
+              height="700px"
             >
               <div className="overflow-x-auto h-full">
                 <table className="w-full border-collapse table-auto">
@@ -143,6 +144,7 @@ export default function LeaderboardsPageContent({ leaderboardData }: Leaderboard
             <SimpleChartCard 
               title="Top Players by Tekken Prowess" 
               description="Players with the highest Tekken Prowess scores."
+              height="700px"
             >
               <div className="overflow-x-auto h-full">
                 <table className="w-full border-collapse table-auto">
