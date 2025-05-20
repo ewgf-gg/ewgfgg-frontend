@@ -19,12 +19,45 @@ export const StatPentagonTiles: React.FC<StatPentagonTilesProps> = ({ stats, cla
       .replace(/^./, (str) => str.toUpperCase());
   };
 
+  // Custom order for each category's components
+  const attackOrder = ['attackFrequency', 'heavyDamage', 'aggressiveness', 'dominance'];
+  const defenseOrder = ['block', 'evasion', 'throwEscape', 'composure'];
+  const techniqueOrder = ['accuracy', 'judgement', 'retaliation', 'stageUse'];
+  const spiritOrder = ['closeBattles', 'comeback', 'fightingSpirit', 'concentration'];
+  const appealOrder = ['respect', 'ambition', 'fairness', 'versatility'];
+
+  // Function to reorder components based on specified order
+  const reorderComponents = (components: Record<string, number>, order: string[]) => {
+    const orderedComponents: Record<string, number> = {};
+    order.forEach(key => {
+      if (key in components) {
+        orderedComponents[key] = components[key];
+      }
+    });
+    return orderedComponents;
+  };
+
   const allCategories = [
-    { label: 'Attack', components: stats.attackComponents },
-    { label: 'Defense', components: stats.defenseComponents },
-    { label: 'Technique', components: stats.techniqueComponents },
-    { label: 'Spirit', components: stats.spiritComponents },
-    { label: 'Appeal', components: stats.appealComponents },
+    { 
+      label: 'Attack', 
+      components: reorderComponents(stats.attackComponents, attackOrder) 
+    },
+    { 
+      label: 'Defense', 
+      components: reorderComponents(stats.defenseComponents, defenseOrder) 
+    },
+    { 
+      label: 'Technique', 
+      components: reorderComponents(stats.techniqueComponents, techniqueOrder) 
+    },
+    { 
+      label: 'Spirit', 
+      components: reorderComponents(stats.spiritComponents, spiritOrder) 
+    },
+    { 
+      label: 'Appeal', 
+      components: reorderComponents(stats.appealComponents, appealOrder) 
+    },
   ];
 
   const containerVariants = {
