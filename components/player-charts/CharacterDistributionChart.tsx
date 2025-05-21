@@ -1,9 +1,22 @@
+// Optimized character distribution chart with full-width desktop and 348px max-width mobile
 'use client';
 
 import React, { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell
+} from 'recharts';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
-import { Battle, characterIdMap, characterIconMap } from '../../app/state/types/tekkenTypes';
+import {
+  Battle,
+  characterIdMap,
+  characterIconMap
+} from '../../app/state/types/tekkenTypes';
 import Image from 'next/image';
 import { useAtomValue } from 'jotai';
 import { characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
@@ -117,28 +130,38 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
 
     const characterBattles = battles.filter(battle => {
       const isPlayer1 = battle.player1PolarisId === polarisId;
-      return isPlayer1 ? battle.player1CharacterId === selectedCharacterId : battle.player2CharacterId === selectedCharacterId;
+      return isPlayer1
+        ? battle.player1CharacterId === selectedCharacterId
+        : battle.player2CharacterId === selectedCharacterId;
     });
 
-    const distributionData = characterBattles.reduce<Record<string, DistributionData>>((acc, battle) => {
-      const isPlayer1 = battle.player1PolarisId === polarisId;
-      const opponentCharId = isPlayer1 ? battle.player2CharacterId : battle.player1CharacterId;
-      const characterName = characterIdMap[opponentCharId] || `Character ${opponentCharId}`;
+    const distributionData = characterBattles.reduce<Record<string, DistributionData>>(
+      (acc, battle) => {
+        const isPlayer1 = battle.player1PolarisId === polarisId;
+        const opponentCharId = isPlayer1 ? battle.player2CharacterId : battle.player1CharacterId;
+        const characterName = characterIdMap[opponentCharId] || `Character ${opponentCharId}`;
 
-      if (!acc[characterName]) {
-        acc[characterName] = {
-          characterName,
-          characterId: opponentCharId,
-          totalMatches: 0
-        };
-      }
+        if (!acc[characterName]) {
+          acc[characterName] = {
+            characterName,
+            characterId: opponentCharId,
+            totalMatches: 0
+          };
+        }
 
-      acc[characterName].totalMatches++;
-      return acc;
-    }, {});
+        acc[characterName].totalMatches++;
+        return acc;
+      },
+      {}
+    );
 
-    const sortedData = Object.values(distributionData).sort((a, b) => b.totalMatches - a.totalMatches);
-    const max = sortedData.length > 0 ? Math.ceil(Math.max(...sortedData.map(d => d.totalMatches)) / 5) * 5 : 10;
+    const sortedData = Object.values(distributionData).sort(
+      (a, b) => b.totalMatches - a.totalMatches
+    );
+    const max =
+      sortedData.length > 0
+        ? Math.ceil(Math.max(...sortedData.map(d => d.totalMatches)) / 5) * 5
+        : 10;
     const ticks = Array.from({ length: 6 }, (_, i) => Math.round((max / 5) * i));
 
     return { chartData: sortedData, maxMatches: max, yAxisTicks: ticks };
@@ -153,7 +176,7 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
   }
 
   return (
-    <div className={`h-[360px] ${isMobile ? 'max-w-[348px] mx-auto' : 'w-full'}`}>
+    <div className={`h-[360px] ${isMobile ? 'max-w-[348px] overflow-hidden w-full' : 'w-full'}`}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={chartData}

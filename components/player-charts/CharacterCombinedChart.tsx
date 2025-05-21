@@ -95,7 +95,7 @@ const CombinedCharacterChart: React.FC<CombinedChartProps> = ({
       </div>
 
       <div className="h-[550px] w-full max-w-full overflow-x-auto">
-        <div className="min-w-[700px] h-full">
+        <div className="min-w-[348px] md:min-w-[700px] h-full">
           {activeTab === 'winrate' ? (
             <CharacterWinrateChart
               selectedCharacterId={selectedCharacterId}
