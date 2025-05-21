@@ -14,6 +14,7 @@ interface SimpleChartCardProps {
   delay?: number;
   children: React.ReactNode;
   action?: React.ReactNode;
+  height?: string;
 }
 
 export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
@@ -21,7 +22,8 @@ export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
   description,
   delay = 0,
   children,
-  action
+  action,
+  height = "400px"
 }) => {
   return (
     <motion.div
@@ -50,7 +52,7 @@ export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="w-full h-[400px]">
+          <div className="w-full" style={{ height }}>
             {children}
           </div>
         </CardContent>
