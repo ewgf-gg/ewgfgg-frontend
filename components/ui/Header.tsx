@@ -123,9 +123,12 @@ export function Header() {
               <div className="w-[100px]"></div>
               
               {/* Center links */}
-              <div className="flex justify-center space-x-6">
+              <div className="flex justify-center space-x-4">
                 <Link href="/statistics" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-xs font-semibold">
                   Statistics
+                </Link>
+                <Link href="/leaderboards" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-xs font-semibold">
+                  Leaderboards
                 </Link>
                 <Link href="/about" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-xs font-semibold">
                   About
@@ -156,6 +159,9 @@ export function Header() {
             <div className="hidden md:flex md:justify-start space-x-6 md:mb-0">
               <Link href="/statistics" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-sm font-semibold">
                 Statistics
+              </Link>
+              <Link href="/leaderboards" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-sm font-semibold">
+                Leaderboards
               </Link>
               <Link href="/about" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-sm font-semibold">
                 About

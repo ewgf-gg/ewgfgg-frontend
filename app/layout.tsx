@@ -33,7 +33,7 @@ const russoOne = Russo_One({
 
 export const metadata: Metadata = {
   title: "ewgf.gg - TEKKEN 8 Statistics",
-  description: "TEKKEN 8 Character and Rank Statistics",
+  description: "TEKKEN 8 Character Statistics, Player Profiles, Leaderboards, and Rank Distribution",
 };
 
 export default function RootLayout({

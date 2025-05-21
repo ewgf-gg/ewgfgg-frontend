@@ -1,5 +1,20 @@
 // types/tekkenTypes.ts
 
+export interface LeaderboardEntry {
+  ranking: number;
+  playerName: string;
+  polarisId: string;
+  platform: number;
+  score: number;
+  rank: number;
+  charaId: string;
+}
+
+export interface LeaderboardData {
+  rankPointsLeaderboard: LeaderboardEntry[];
+  tekkenProwessLeaderboard: LeaderboardEntry[];
+}
+
 export interface ColorMapping {
     id: string;
     color: string;
