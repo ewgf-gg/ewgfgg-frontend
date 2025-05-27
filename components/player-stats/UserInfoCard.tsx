@@ -9,6 +9,13 @@ import { rankIconMap, circularCharacterIconMap, Regions, MainCharacterAndRank } 
 import { CalendarIcon, MapPinIcon } from 'lucide-react'
 import { usePolarisId } from '@/lib/hooks/usePolarisId' 
 
+interface FollowedUser {
+  polarisId: string
+  username: string
+  rank: string
+  characterImage: string
+}
+
 interface UserInfoCardProps {
   username: string
   regionId: number
@@ -66,7 +73,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
 
   useEffect(() => {
     const following = JSON.parse(localStorage.getItem('following') || '[]');
-    setIsFollowing(following.some((user: any) => user.polarisId === polarisId));
+    setIsFollowing((following as FollowedUser[]).some((user) => user.polarisId === polarisId));
   }, [polarisId]);
 
   const isProfile = currentPolarisId === polarisId 
@@ -90,11 +97,11 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
       characterImage: circularCharacterIconMap[mainCharacterAndRank.characterName]
     };
   
-    const isAlreadyFollowing = existing.some((user: any) => user.polarisId === polarisId);
+    const isAlreadyFollowing = (existing as FollowedUser[]).some((user) => user.polarisId === polarisId);
   
     let updatedFollowing;
     if (isAlreadyFollowing) {
-      updatedFollowing = existing.filter((user: any) => user.polarisId !== polarisId);
+      updatedFollowing = (existing as FollowedUser[]).filter((user) => user.polarisId !== polarisId);
     } else {
       updatedFollowing = [...existing, userObj];
     }
