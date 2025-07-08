@@ -486,7 +486,8 @@ export const characterIdMap: { [key: number]: string} = {
     39: 'Lidia',
     40: 'Heihachi',
     41: 'Clive',
-    42: 'Anna'
+    42: 'Anna',
+    43: 'Fahkumram'
 };
 
 export const characterIconMap: { [key: string]: string } = {
@@ -527,7 +528,8 @@ export const characterIconMap: { [key: string]: string } = {
     'Xiaoyu': '/static/character-icons/XiaoyuT8.webp',
     'Yoshimitsu': '/static/character-icons/YoshimitsuT8.webp',
     'Zafina': '/static/character-icons/ZafinaT8.webp',
-    'Anna': '/static/character-icons/AnnaT8.webp'
+    'Anna': '/static/character-icons/AnnaT8.webp',
+    'Fahkumram': '/static/character-icons/FahkumramT8.webp'
 };
 
 export const circularCharacterIconMap: { [key: string]: string } = {
@@ -567,5 +569,6 @@ export const circularCharacterIconMap: { [key: string]: string } = {
     'Xiaoyu': '/static/circular_character_icons/xiaoyu.webp',
     'Yoshimitsu': '/static/circular_character_icons/yoshimitsu.webp',
     'Zafina': '/static/circular_character_icons/zafina.webp',
-    'Anna': '/static/circular_character_icons/anna.webp'
+    'Anna': '/static/circular_character_icons/anna.webp',
+    'Fahkumram': '/static/circular_character_icons/fahkumram'
 };
