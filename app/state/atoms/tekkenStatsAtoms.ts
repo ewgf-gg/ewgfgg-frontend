@@ -108,7 +108,8 @@ export const characterColors = atom<ColorMapping[]>([
   { id: '39', color: '#CD5C5C' }, // Lidia - Indian Red
   { id: '40', color: '#808080' }, // Heihachi - Gray
   { id: '41', color: '#6a040f' }, // Clive - Dark Red.
-  { id: '42', color: '#14213d'} // Anna - Pale Dark Blue
+  { id: '42', color: '#14213d'}, // Anna - Pale Dark Blue
+  { id: '43', color: '#e36414'} // Fahkumram - Orange
 ]);
 
 export const rankDivisionColors = atom<ColorMapping[]>([
