@@ -59,6 +59,8 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({ stats, statPentago
             polarisId={stats.polarisId}
             latestBattle={stats.latestBattle}
             mainCharacterAndRank={stats.mainCharacterAndRank}
+            battles={stats.battles}
+            stats={statPentagonData} 
           />
         </div>
         <div className="h-auto">
@@ -66,7 +68,8 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({ stats, statPentago
             <StatPentagonChart 
               stats={statPentagonData} 
               showDetails={showDetails}
-              onToggleDetails={setShowDetails} 
+              onToggleDetails={setShowDetails}
+               
             />
           ) : (
             <div className="w-full max-w-md mx-auto overflow-visible h-full max-h-[350px] flex flex-col relative">

@@ -131,6 +131,9 @@ export function Header() {
                   Leaderboards
                 </Link>
                 <Link href="/about" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-xs font-semibold">
+                  Game Activity
+                </Link>
+                <Link href="/about" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-xs font-semibold">
                   About
                 </Link>
               </div>
@@ -162,6 +165,9 @@ export function Header() {
               </Link>
               <Link href="/leaderboards" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-sm font-semibold">
                 Leaderboards
+              </Link>
+              <Link href="/leaderboards" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-sm font-semibold">
+                Game Activity
               </Link>
               <Link href="/about" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-sm font-semibold">
                 About
