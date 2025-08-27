@@ -570,5 +570,5 @@ export const circularCharacterIconMap: { [key: string]: string } = {
     'Yoshimitsu': '/static/circular_character_icons/yoshimitsu.webp',
     'Zafina': '/static/circular_character_icons/zafina.webp',
     'Anna': '/static/circular_character_icons/anna.webp',
-    'Fahkumram': '/static/circular_character_icons/fahkumram'
+    'Fahkumram': '/static/circular_character_icons/fahkumram.webp'
 };
