@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image'
-import { Search } from 'lucide-react';
+import { Search, CheckCircle, XCircle, Gift } from 'lucide-react';
 import { Input } from './ui/input';
 import {
   Command,
@@ -16,8 +16,9 @@ import {
 } from './ui/popover';
 import { useRouter } from 'next/navigation';
 import debounce from 'lodash/debounce';
-import { PlayerSearchResult, Regions, characterIconMap, rankIconMap } from '../app/state/types/tekkenTypes';
-import SearchLoadingAnimation from './SearchLoadingAnimation';
+import { PlayerSearchResult, characterIconMap, rankIconMap, rankEnumToLabel } from '../app/state/types/tekkenTypes';
+import EWGFLoadingAnimation from './EWGFLoadingAnimation';
+import { formatTimeAgo } from '@/lib/time-utils';
 
 export function SearchBar() {
   const [open, setOpen] = useState(false);
@@ -72,14 +73,14 @@ export function SearchBar() {
     };
   }, [searchQuery, debouncedSearch]);
 
-  const handleSelect = useCallback((currentValue: string) => {
+  const handleSelect = useCallback((polarisId: string) => {
     const selectedPlayer = searchResults.find(
-      player => player.id === currentValue
+      player => player.polarisId === polarisId
     );
     if (selectedPlayer) {
       setOpen(false);
       setSearchQuery('');
-      router.push(`/player/${encodeURIComponent(selectedPlayer.tekkenId || selectedPlayer.name)}`);
+      router.push(`/player/${encodeURIComponent(selectedPlayer.polarisId)}`);
     }
   }, [searchResults, router]);
 
@@ -89,6 +90,18 @@ export function SearchBar() {
       setSearchQuery(newValue);
       setOpen(newValue.length >= 3);
     }
+  };
+
+  // Helper function to get main character and rank from mainChar map
+  const getMainCharacterInfo = (mainChar: Record<string, string>) => {
+    const entries = Object.entries(mainChar);
+    if (entries.length === 0) return null;
+    
+    const [characterName, rankEnumName] = entries[0];
+    // Convert backend enum name (e.g., "BUSHIN") to display label (e.g., "Bushin")
+    const rankName = rankEnumToLabel[rankEnumName] || rankEnumName;
+    
+    return { characterName, rankName };
   };
 
   return (
@@ -116,10 +129,10 @@ export function SearchBar() {
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   const selectedResult = searchResults.find(
-                    player => document.querySelector(`[data-value="${player.id}"][data-selected="true"]`)
+                    player => document.querySelector(`[data-value="${player.polarisId}"][data-selected="true"]`)
                   );
                   if (selectedResult) {
-                    handleSelect(selectedResult.id);
+                    handleSelect(selectedResult.polarisId);
                   }
                 }
               }}
@@ -137,7 +150,7 @@ export function SearchBar() {
             <CommandList>
               {isLoading ? (
                 <div className="py-2">
-                  <SearchLoadingAnimation />
+                  <EWGFLoadingAnimation variant="searching" size="small" className="py-6" />
                 </div>
               ) : (
                 <>
@@ -147,47 +160,66 @@ export function SearchBar() {
                     </div>
                   </CommandEmpty>
                   <CommandGroup heading="Players">
-                    {searchResults.map((player) => (
-                      <CommandItem
-                        key={player.id}
-                        value={player.id}
-                        onSelect={handleSelect}
-                        className="flex flex-col items-start py-3 cursor-pointer hover:bg-gray-100/10"
-                      >
-                        <div className="flex items-center gap-2 w-full">
-                          {/* Main Character Icon */}
-                          {player.mostPlayedCharacter && (
-                            <Image
-                              src={characterIconMap[player.mostPlayedCharacter]}
-                              alt={player.mostPlayedCharacter}
-                              width={40}
-                              height={60}
-                              className="w-10 h-15"
-                            />
-                          )}
-                          <div className="flex flex-col flex-grow">
-                            <div className="font-medium">{player.name}</div>
-                            <div className="text-xs text-gray-400 flex items-center gap-2">
-                              {player.formattedTekkenId}
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-gray-700">
-                                {Regions[player.regionId]}
-                              </span>
+                    {searchResults.map((player) => {
+                      const mainCharInfo = getMainCharacterInfo(player.mainChar);
+                      
+                      return (
+                        <CommandItem
+                          key={player.polarisId}
+                          value={player.polarisId}
+                          onSelect={handleSelect}
+                          className="flex flex-col items-start py-3 cursor-pointer hover:bg-gray-100/10"
+                        >
+                          <div className="flex items-center gap-2 w-full">
+                            {/* Main Character Icon */}
+                            {mainCharInfo && (
+                              <Image
+                                src={characterIconMap[mainCharInfo.characterName]}
+                                alt={mainCharInfo.characterName}
+                                width={40}
+                                height={60}
+                                className="w-10 h-15"
+                              />
+                            )}
+                            <div className="flex flex-col flex-grow">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-medium">{player.name}</span>
+                                {/* Status Indicators */}
+                                {player.isVerified && (
+                                  <CheckCircle className="w-4 h-4 text-blue-500" />
+                                )}
+                                {player.isBanned && (
+                                  <XCircle className="w-4 h-4 text-red-500" />
+                                )}
+                                {player.isDonor && (
+                                  <Gift className="w-4 h-4 text-yellow-500" />
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-400 flex items-center gap-2">
+                                <span>{player.polarisId}</span>
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-700">
+                                  {player.region}
+                                </span>
+                              </div>
+                              <div className="text-xs text-gray-500 mt-0.5">
+                                {formatTimeAgo(player.lastSeen)}
+                              </div>
                             </div>
+                            {/* Rank Icon */}
+                            {mainCharInfo && mainCharInfo.rankName && (
+                              <Image
+                                src={rankIconMap[mainCharInfo.rankName]}
+                                alt={mainCharInfo.rankName}
+                                width={70}
+                                height={40}
+                                className="w-20 h-10"
+                                unoptimized
+                              />
+                            )}
                           </div>
-                          {/* Rank Icon */}
-                          {player.danRankName && (
-                            <Image
-                              src={rankIconMap[player.danRankName]}
-                              alt={player.danRankName}
-                              width={70}
-                              height={40}
-                              className="w-20 h-10"
-                              unoptimized
-                            />
-                          )}
-                        </div>
-                      </CommandItem>
-                    ))}
+                        </CommandItem>
+                      );
+                    })}
                   </CommandGroup>
                 </>
               )}

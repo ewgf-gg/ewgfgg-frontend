@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, TooltipProps, ResponsiveContainer } from 'recharts';
-import { characterPopularityAtom, characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
-import { ChartCard } from '../shared/ChartCard';
+import { pickratesAtom, characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
+import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { CustomYAxisTick } from '../shared/CustomYAxisTick';
-import { ChartProps, ColorMapping } from '../../app/state/types/tekkenTypes';
 import { characterIconMap, characterIdMap } from '../../app/state/types/tekkenTypes';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 
 interface PopularityData {
   character: string;
-  characterId: number;
   count: number;
   originalCount: number;
+  pickRate: number;
 }
 
 interface PopularityTooltipProps extends TooltipProps<number, string> {
@@ -41,7 +40,10 @@ const PopularityTooltip: React.FC<PopularityTooltipProps> = ({ active, payload, 
           <span className="font-medium">{label}</span>
         </div>
         <div className="text-sm">
-          {payload[0].payload.originalCount.toLocaleString()} character picks
+          {payload[0].payload.originalCount.toLocaleString()} battles
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Pick rate: {(payload[0].payload.pickRate * 100).toFixed(2)}%
         </div>
       </div>
     );
@@ -55,7 +57,7 @@ interface ChartComponentProps {
   domainMax: number;
   ticks: number[];
   isInitialRender: boolean;
-  colors: ColorMapping[];
+  colors: any[];
 }
 
 const Chart: React.FC<ChartComponentProps> = ({ 
@@ -72,62 +74,56 @@ const Chart: React.FC<ChartComponentProps> = ({
         data={data}
         layout="vertical"
         margin={{ left: 100, right: 58, top: 2, bottom: -12 }}
-  >
-    <YAxis
-      dataKey="character"
-      type="category"
-      axisLine={false}
-      tickLine={false}
-      tick={<CustomYAxisTick />}
-      width={60}
-    />
-    <XAxis 
-      type="number"
-      domain={[domainMin, domainMax]}
-      tickFormatter={(value: number) => value.toLocaleString()}
-      ticks={ticks}
-      axisLine={false}
-      tickLine={false}
-      tick={false}
-    />
-      <Tooltip 
-        content={<PopularityTooltip />}
-        cursor={false}
-      />
-    <Bar
-      dataKey="count"
-      radius={[0, 4, 4, 0]}
-      isAnimationActive={true}
-      animationBegin={isInitialRender ? 500 : 100}
-      animationDuration={1000}
-      animationEasing="ease"
-    >
-      {data.map((entry) => {
-        const colorMapping = entry.characterId !== -1 
-          ? colors.find(c => c.id === entry.characterId.toString()) 
-          : null;
-        return (
-          <Cell 
-            key={`cell-${entry.character}`} 
-            fill={colorMapping?.color || 'hsl(var(--primary))'}
+      >
+        <YAxis
+          dataKey="character"
+          type="category"
+          axisLine={false}
+          tickLine={false}
+          tick={<CustomYAxisTick />}
+          width={60}
+        />
+        <XAxis 
+          type="number"
+          domain={[domainMin, domainMax]}
+          tickFormatter={(value: number) => value.toLocaleString()}
+          ticks={ticks}
+          axisLine={false}
+          tickLine={false}
+          tick={false}
+        />
+        <Tooltip 
+          content={<PopularityTooltip />}
+          cursor={false}
+        />
+        <Bar
+          dataKey="count"
+          radius={[0, 4, 4, 0]}
+          isAnimationActive={true}
+          animationBegin={isInitialRender ? 500 : 100}
+          animationDuration={1000}
+          animationEasing="ease"
+        >
+          {data.map((entry) => {
+            const charName = entry.character;
+            // Find character ID by looking up the character name in characterIdMap
+            const charId = Object.entries(characterIdMap)
+              .find(([_, name]) => name === charName)?.[0];
+            const colorMapping = colors.find(c => c.id === charId);
+            return (
+              <Cell 
+                key={`cell-${entry.character}`} 
+                fill={colorMapping?.color || 'hsl(var(--primary))'}
+              />
+            );
+          })}
+          <LabelList
+            dataKey="pickRate"
+            position="right"
+            formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
+            style={{ fontSize: '14px' }}
           />
-        );
-      })}
-      <LabelList
-        dataKey="originalCount"
-        position="right"
-        formatter={(value: number) => {
-          if (value >= 1000000) {
-            return `${(value / 1000000).toFixed(2)}M`;
-          }
-          if (value >= 1000) {
-            return `${(value / 1000).toFixed(1)}K`;
-          }
-          return value.toLocaleString();
-        }}
-        style={{ fontSize: '14px' }}
-      />
-    </Bar>
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   </div>
@@ -137,10 +133,9 @@ const ClientSideChart = dynamic(() => Promise.resolve(Chart), {
   ssr: false
 });
 
-export const PopularityChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
+export const PopularityChart: React.FC<{ title: string; description?: string; delay?: number }> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
-  const [rank, setRank] = useState<string>("intermediateRanks");
-  const [characterPopularity] = useAtom(characterPopularityAtom);
+  const pickrates = useAtomValue(pickratesAtom);
   const colors = useAtomValue(characterColors);
 
   useEffect(() => {
@@ -148,54 +143,38 @@ export const PopularityChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>
   }, [isInitialRender]);
 
   const { data, domainMin, domainMax } = useMemo(() => {
-    const rankStats = characterPopularity[rank as keyof typeof characterPopularity];
-    const rankData = rankStats?.globalStats || {};
+    // Get top 5 pickrates
+    const top5 = pickrates.slice(0, 5);
     
-    // First, create the chart data with original counts
-    const chartData: PopularityData[] = Object.entries(rankData)
-      .map(([character, totalBattles]) => {
-        // Find character ID by looking up the character name in the values
-        const characterId = Object.entries(characterIdMap)
-        // eslint-disable-next-line
-          .find(([_, name]) => name === character)?.[0];
-        return {
-          character,
-          characterId: characterId ? parseInt(characterId) : -1,
-          count: totalBattles, // Temporary value, will be normalized
-          originalCount: totalBattles
-        };
-      })
-      .sort((a, b) => b.originalCount - a.originalCount);
+    // Create chart data
+    const chartData: PopularityData[] = top5.map(item => ({
+      character: item.tkChar,
+      count: item.total_battles,
+      originalCount: item.total_battles,
+      pickRate: item.pick_rate
+    }));
     
-    // Find the maximum value (the most popular character)
-    const maxOriginalCount = Math.max(...chartData.map(d => d.originalCount));
+    // Find the maximum value for normalization
+    const maxCount = Math.max(...chartData.map(d => d.count));
     
     // Normalize all values as percentage of maximum (0-100 scale)
     chartData.forEach(item => {
-      item.count = (item.originalCount / maxOriginalCount) * 100;
+      item.count = (item.originalCount / maxCount) * 100;
     });
-    
-    // Set domain for the normalized values
-    const minCount = 0; // Minimum will always be 0 or close to it
-    const maxCount = 100; // Maximum will always be 100 for the most popular character
-    const domainPadding = 5; // Add a small padding
     
     return {
       data: chartData,
-      domainMin: minCount,
-      domainMax: maxCount + domainPadding
+      domainMin: 0,
+      domainMax: 105 // Add padding
     };
-  }, [characterPopularity, rank]);
+  }, [pickrates]);
 
   const ticks = useMemo(() => {
-    return Array.from(
-      { length: 5 },
-      (_, i) => Math.round(domainMin + (domainMax - domainMin) * (i / 4))
-    );
-  }, [domainMin, domainMax]);
+    return [0, 25, 50, 75, 100];
+  }, []);
 
   return (
-    <ChartCard {...props} rank={rank} onRankChange={setRank}>
+    <SimpleChartCard {...props}>
       <ClientSideChart
         data={data}
         domainMin={domainMin}
@@ -204,6 +183,6 @@ export const PopularityChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>
         isInitialRender={isInitialRender}
         colors={colors}
       />
-    </ChartCard>
+    </SimpleChartCard>
   );
 };

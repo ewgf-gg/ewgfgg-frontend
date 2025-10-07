@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, TooltipProps, ResponsiveContainer } from 'recharts';
-import { characterWinratesAtom, characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
-import { ChartCard } from '../shared/ChartCard';
+import { winratesAtom, characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
+import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { CustomYAxisTick } from '../shared/CustomYAxisTick';
-import { ChartProps, ColorMapping } from '../../app/state/types/tekkenTypes';
 import { characterIconMap, characterIdMap } from '../../app/state/types/tekkenTypes';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 
 interface WinrateData {
   character: string;
-  characterId: number;
-  winrate: number;
-  originalWinrate: number;
+  winRate: number;
+  totalGames: number;
+  wins: number;
 }
 
 interface WinrateTooltipProps extends TooltipProps<number, string> {
@@ -27,6 +26,7 @@ interface WinrateTooltipProps extends TooltipProps<number, string> {
 
 const WinrateTooltip: React.FC<WinrateTooltipProps> = ({ active, payload, label }) => {
   if (active && payload && payload.length && label && label in characterIconMap) {
+    const data = payload[0].payload;
     return (
       <div className="bg-background border rounded-lg p-2 shadow-lg">
         <div className="flex items-center gap-2">
@@ -41,7 +41,10 @@ const WinrateTooltip: React.FC<WinrateTooltipProps> = ({ active, payload, label 
           <span className="font-medium">{label}</span>
         </div>
         <div className="text-sm">
-          Winrate: {payload[0].payload.originalWinrate.toFixed(2)}%
+          Win rate: {data.winRate.toFixed(2)}%
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {data.wins.toLocaleString()}W / {data.totalGames.toLocaleString()} games
         </div>
       </div>
     );
@@ -55,7 +58,7 @@ interface ChartComponentProps {
   domainMax: number;
   ticks: number[];
   isInitialRender: boolean;
-  colors: ColorMapping[];
+  colors: any[];
 }
 
 const Chart: React.FC<ChartComponentProps> = ({ 
@@ -81,10 +84,10 @@ const Chart: React.FC<ChartComponentProps> = ({
           tick={<CustomYAxisTick />}
           width={60}
         />
-        <XAxis
+        <XAxis 
           type="number"
           domain={[domainMin, domainMax]}
-          tickFormatter={(value) => `${value.toFixed(1)}%`}
+          tickFormatter={(value: number) => `${value}%`}
           ticks={ticks}
           axisLine={false}
           tickLine={false}
@@ -95,7 +98,7 @@ const Chart: React.FC<ChartComponentProps> = ({
           cursor={false}
         />
         <Bar
-          dataKey="winrate"
+          dataKey="winRate"
           radius={[0, 4, 4, 0]}
           isAnimationActive={true}
           animationBegin={isInitialRender ? 500 : 100}
@@ -103,9 +106,11 @@ const Chart: React.FC<ChartComponentProps> = ({
           animationEasing="ease"
         >
           {data.map((entry) => {
-            const colorMapping = entry.characterId !== -1 
-              ? colors.find(c => c.id === entry.characterId.toString()) 
-              : null;
+            const charName = entry.character;
+            // Find character ID by looking up the character name in characterIdMap
+            const charId = Object.entries(characterIdMap)
+              .find(([_, name]) => name === charName)?.[0];
+            const colorMapping = colors.find(c => c.id === charId);
             return (
               <Cell 
                 key={`cell-${entry.character}`} 
@@ -114,9 +119,9 @@ const Chart: React.FC<ChartComponentProps> = ({
             );
           })}
           <LabelList
-            dataKey="originalWinrate"
+            dataKey="winRate"
             position="right"
-            formatter={(value: number) => `${value.toFixed(2)}%`}
+            formatter={(value: number) => `${value.toFixed(1)}%`}
             style={{ fontSize: '14px' }}
           />
         </Bar>
@@ -129,10 +134,9 @@ const ClientSideChart = dynamic(() => Promise.resolve(Chart), {
   ssr: false
 });
 
-export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
+export const WinrateChart: React.FC<{ title: string; description?: string; delay?: number }> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
-  const [rank, setRank] = useState<string>("intermediateRanks");
-  const [characterWinrates] = useAtom(characterWinratesAtom);
+  const winrates = useAtomValue(winratesAtom);
   const colors = useAtomValue(characterColors);
 
   useEffect(() => {
@@ -140,53 +144,44 @@ export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> =
   }, [isInitialRender]);
 
   const { data, domainMin, domainMax } = useMemo(() => {
-    const rankData = characterWinrates[rank as keyof typeof characterWinrates]?.globalStats || {};
+
     
-    // First, create the chart data with original winrates
-    const chartData = Object.entries(rankData)
-      .map(([character, winrate]) => {
-        // Find character ID by looking up the character name in the values
-        const characterId = Object.entries(characterIdMap)
-        // eslint-disable-next-line
-          .find(([_, name]) => name === character)?.[0];
-        return {
-          character,
-          characterId: characterId ? parseInt(characterId) : -1,
-          winrate: winrate, // Temporary value, will be normalized
-          originalWinrate: winrate
-        };
-      })
-      .sort((a, b) => b.originalWinrate - a.originalWinrate);
+    // Create chart data with winRate as percentage
+    const chartData: WinrateData[] = winrates.map(item => ({
+      character: item.tkChar,
+      winRate: item.win_rate * 100, // Convert to percentage
+      totalGames: item.total_games,
+      wins: item.total_wins
+    }));
     
-    // Find the maximum value (the highest winrate character)
-    const maxOriginalWinrate = Math.max(...chartData.map(d => d.originalWinrate));
+    // Calculate domain for percentage display (0-100)
+    const rates = chartData.map(d => d.winRate);
+    const minRate = Math.min(...rates);
+    const maxRate = Math.max(...rates);
     
-    // Normalize all values as percentage of maximum (0-100 scale)
-    chartData.forEach(item => {
-      item.winrate = (item.originalWinrate / maxOriginalWinrate) * 100;
-    });
-    
-    // Set domain for the normalized values
-    const minWinrate = 0; // Minimum will always be 0 or close to it
-    const maxWinrate = 100; // Maximum will always be 100 for the highest winrate character
-    const domainPadding = 5; // Add a small padding
+    // Add padding
+    const padding = 2;
     
     return {
       data: chartData,
-      domainMin: minWinrate,
-      domainMax: maxWinrate + domainPadding
+      domainMin: Math.max(0, minRate - padding),
+      domainMax: Math.min(100, maxRate + padding)
     };
-  }, [characterWinrates, rank]);
+  }, [winrates]);
 
   const ticks = useMemo(() => {
-    return Array.from(
-      { length: 5 },
-      (_, i) => Math.round(domainMin + (domainMax - domainMin) * (i / 4))
-    );
+    // Generate appropriate ticks based on domain
+    const range = domainMax - domainMin;
+    const step = range > 20 ? 5 : range > 10 ? 2 : 1;
+    const ticks = [];
+    for (let i = Math.floor(domainMin); i <= Math.ceil(domainMax); i += step) {
+      ticks.push(i);
+    }
+    return ticks;
   }, [domainMin, domainMax]);
 
   return (
-    <ChartCard {...props} rank={rank} onRankChange={setRank}>
+    <SimpleChartCard {...props}>
       <ClientSideChart
         data={data}
         domainMin={domainMin}
@@ -195,6 +190,6 @@ export const WinrateChart: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> =
         isInitialRender={isInitialRender}
         colors={colors}
       />
-    </ChartCard>
+    </SimpleChartCard>
   );
 };

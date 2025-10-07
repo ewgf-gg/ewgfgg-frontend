@@ -15,6 +15,7 @@ interface SimpleChartCardProps {
   children: React.ReactNode;
   action?: React.ReactNode;
   height?: string;
+  headerClassName?: string;
 }
 
 export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
@@ -23,7 +24,8 @@ export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
   delay = 0,
   children,
   action,
-  height = "400px"
+  height = "200px",
+  headerClassName
 }) => {
   return (
     <motion.div
@@ -33,7 +35,7 @@ export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
       className="w-full"
     >
       <Card className="h-full">
-        <CardHeader>
+        <CardHeader className={headerClassName}>
           <div className="flex justify-between items-center sm:flex-row flex-col gap-2">
             <div>
               <CardTitle className="text-lg">{title}</CardTitle>

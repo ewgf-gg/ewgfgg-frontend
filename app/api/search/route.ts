@@ -19,12 +19,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid response format' }, { status: 500 });
     }
 
-    // Validate each result has required fields
+    // Validate each result has required fields for the new PlayerSearchDTO structure
     const validResults = results.filter(result => 
       result && 
       typeof result === 'object' && 
-      'id' in result && 
-      'name' in result
+      'polarisId' in result && 
+      'name' in result &&
+      'region' in result &&
+      'mainChar' in result &&
+      'lastSeen' in result &&
+      typeof result.isBanned === 'boolean' &&
+      typeof result.isVerified === 'boolean' &&
+      typeof result.isDonor === 'boolean'
     );
 
     return NextResponse.json(validResults);

@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { motion } from 'framer-motion';
-import EWGFLoadingBarAnimation from '@/components/EWGFLoadingAnimation';
+import EWGFLoadingAnimation from '@/components/EWGFLoadingAnimation';
 import { SearchFormProps } from "@/app/state/types/tekkenTypes";
 import React from 'react'
 
@@ -20,7 +20,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({
     transition={{ duration: 0.5, delay: 0.2 }}
   >
     {isLoading ? (
-      <EWGFLoadingBarAnimation />
+      <EWGFLoadingAnimation size="large" />
     ) : (
       <form onSubmit={handleSearch} className="flex items-center">
         <Input
