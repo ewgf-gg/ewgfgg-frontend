@@ -1,27 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, LabelList, ResponsiveContainer, Cell } from 'recharts';
 import { 
   rankColorsAtom, 
-  rankDistributionAtom,
-  gameVersionsAtom
+  rankDistributionNewAtom
 } from '../../app/state/atoms/tekkenStatsAtoms';
 import React from 'react';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
-import { DistributionMode, GameVersion, rankIconMap, rankOrderMap, RankDistribution } from '../../app/state/types/tekkenTypes';
+import { rankIconMap, rankOrderMap } from '../../app/state/types/tekkenTypes';
 import Image from 'next/image';
 
 interface ChartDataPoint {
   rank: string;
   percentage: number;
-  topPercentage: number;
+  cumulativePercentage: number;
   fill: string;
+  playerCount: number;
 }
 
 interface CustomTooltipProps {
@@ -30,7 +27,8 @@ interface CustomTooltipProps {
     payload: {
       rank: string;
       percentage: number;
-      topPercentage: number;
+      cumulativePercentage: number;
+      playerCount: number;
     };
   }>;
   label?: string;
@@ -45,63 +43,22 @@ interface CustomXAxisTickProps {
 }
 
 export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.2 }) => {
-  const [rankDistribution] = useAtom(rankDistributionAtom);
-  const [rankColors] = useAtom(rankColorsAtom);
-  const [gameVersions] = useAtom(gameVersionsAtom);
+  const rankDistribution = useAtomValue(rankDistributionNewAtom);
+  const rankColors = useAtomValue(rankColorsAtom);
   const { width } = useWindowSize();
   const isMobile = isMobileView(width);
-  
-  // Get the latest version immediately
-  const latestVersion = [...gameVersions].sort((a, b) => parseInt(b) - parseInt(a))[0];
-  const [selectedVersion, setSelectedVersion] = useState<GameVersion>(latestVersion);
-  const [selectedMode, setSelectedMode] = useState<DistributionMode>('standard');
 
-  // Update selected version when latest version changes
-  useEffect(() => {
-    if (latestVersion) {
-      setSelectedVersion(latestVersion);
-    }
-  }, [latestVersion]);
-
-  const distributionData = rankDistribution[selectedVersion]?.[selectedMode] || [];
-
-  const calculateTopPercentage = (currentRank: string) => {
-    // eslint-disable-next-line
-    const rankOrder = Object.entries(rankOrderMap).find(([_, rank]) => rank === currentRank)?.[0];
-    if (!rankOrder) return 0;
-
-    const currentRankIndex = parseInt(rankOrder);
-    return distributionData
-      .filter((data: RankDistribution) => {
-        // eslint-disable-next-line
-        const dataRankOrder = Object.entries(rankOrderMap).find(([_, rank]) => rank === data.rank)?.[0];
-        return dataRankOrder && parseInt(dataRankOrder) >= currentRankIndex;
-      })
-      .reduce((sum: number, data: RankDistribution) => sum + data.percentage, 0);
-  };
-
-  const chartData = distributionData.map((rank: RankDistribution): ChartDataPoint => {
-    const colorEntry = rankColors.find((rc) => rc.id === rank.rank);
-    const topPercentage = calculateTopPercentage(rank.rank);
+  const chartData: ChartDataPoint[] = rankDistribution.map((entry) => {
+    const rankName = rankOrderMap[entry.dan_rank] || 'Unknown';
+    const colorEntry = rankColors.find((rc) => rc.id === rankName);
     return {
-      rank: rank.rank,
-      percentage: rank.percentage,
-      topPercentage: topPercentage,
+      rank: rankName,
+      percentage: entry.percentage,
+      cumulativePercentage: entry.cumulative_percentage,
       fill: colorEntry?.color || '#3182ce',
+      playerCount: entry.player_count,
     };
   });
-
-  const formatVersion = (version: string) => {
-    const major = Math.floor(parseInt(version) / 10000);
-    const minor = Math.floor((parseInt(version) % 10000) / 100);
-    const patch = parseInt(version) % 100;
-    return `Version ${major}.${minor}.${patch}`;
-  };
-
-  const getVersionLabel = (version: string) => {
-    const formattedVersion = formatVersion(version);
-    return version === latestVersion ? `${formattedVersion} (Latest)` : formattedVersion;
-  };
 
   const CustomXAxisTick: React.FC<CustomXAxisTickProps> = ({ x = 0, y = 0, payload }) => (
     <g transform={`translate(${x},${y})`}>
@@ -152,7 +109,7 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
 
   const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
-      const { percentage, topPercentage } = payload[0].payload;
+      const { percentage, cumulativePercentage, playerCount } = payload[0].payload;
       return (
         <div className="bg-background border rounded-lg p-2 shadow-lg">
           <div className="flex items-center gap-2">
@@ -166,8 +123,9 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
             />
             <span className="font-medium">{label}</span>
           </div>
-          <div className="text-sm">{`Top ${formatPercentage(topPercentage)} of players`}</div>
-          <div className="text-sm">{`${formatPercentage(percentage)} of the playerbase is here`}</div>
+          <div className="text-sm">{`${playerCount.toLocaleString()} players`}</div>
+          <div className="text-sm text-muted-foreground">{`${formatPercentage(percentage)} of the playerbase`}</div>
+          <div className="text-sm text-muted-foreground">{`Top ${formatPercentage(100 - cumulativePercentage + percentage)}`}</div>
         </div>
       );
     }
@@ -183,59 +141,15 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
     >
       <Card>
         <CardHeader>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <CardTitle className="text-2xl font-bold">Rank Distribution</CardTitle>
-              <CardDescription>Showing rank distribution among players</CardDescription>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <Select value={selectedVersion} onValueChange={(v) => setSelectedVersion(v)}>
-                <SelectTrigger className="w-full sm:w-[180px]">
-                  <SelectValue placeholder="Select game version" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[...gameVersions]
-                    .sort((b, a) => parseInt(a) - parseInt(b))
-                    .map((version) => (
-                      <SelectItem key={version} value={version}>
-                        {getVersionLabel(version)}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-              <Select value={selectedMode} onValueChange={(v) => setSelectedMode(v as DistributionMode)}>
-                <SelectTrigger className="w-full sm:w-[180px]">
-                  <SelectValue placeholder="Select mode" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="overall">Overall</SelectItem>
-                  <SelectItem value="standard">Mains Only</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="mt-2 flex justify-end">
-            <TooltipProvider>
-              <UITooltip>
-                <TooltipTrigger className="text-xs text-muted-foreground underline cursor-help">
-                  What is the difference between &apos;Overall&apos; and &apos;Mains Only&apos;?
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs bg-background border text-foreground p-2">
-                  <p>
-                    <strong>Mains Only:</strong> Uses each player&apos;s highest-ranked character; side picks are ignored.
-                  </p>
-                  <p className="mt-1">
-                    <strong>Overall:</strong> Includes every character played by a player.
-                  </p>
-                </TooltipContent>
-              </UITooltip>
-            </TooltipProvider>
+          <div>
+            <CardTitle className="text-2xl font-bold">Rank Distribution</CardTitle>
+            <CardDescription>Distribution of players across all ranks</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
-          {!distributionData.length ? (
+          {!chartData.length ? (
             <div className="flex justify-center items-center h-[400px]">
-              <p className="text-gray-500">No data available for this version</p>
+              <p className="text-gray-500">No data available</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={isMobile ? 600 : 400}>
@@ -253,7 +167,7 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
                     <YAxis 
                       dataKey="rank"
                       type="category"
-                      tickLine={isMobile ? false : true}
+                      tickLine={false}
                       axisLine={false}
                       interval={0}
                       width={40}

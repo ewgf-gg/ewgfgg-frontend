@@ -1,23 +1,25 @@
 import React from 'react';
+import { useAtomValue } from 'jotai';
 import { PieChart, Pie, Label } from 'recharts';
-import { Battle, characterIdMap, PlayedCharacter } from '../../app/state/types/tekkenTypes';
+import { characterIdMap } from '../../app/state/types/tekkenTypes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../ui/chart';
+import { selectedBattleTypeAtom } from '../../app/state/atoms/tekkenStatsAtoms';
+import { PlayerMatchupSummary } from '../../app/state/types/PlayerPageTypes';
 
 interface CharacterWinLossChartProps {
-  battles: Battle[];
   selectedCharacterId: number;
   playerName: string;
   polarisId: string;
-  playedCharacters?: Record<string, PlayedCharacter>;
+  playedCharacters?: Record<string, Record<string, PlayerMatchupSummary>>;
 }
 
 const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({ 
   selectedCharacterId,
-  // eslint-disable-next-line
-  playerName,
   playedCharacters
 }) => {
+  const selectedBattleType = useAtomValue(selectedBattleTypeAtom);
+
   // Return null if selectedCharacterId is null or undefined (but not 0)
   if (selectedCharacterId === null || selectedCharacterId === undefined) {
     return null;
@@ -30,13 +32,14 @@ const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({
 
   const selectedCharName = getCharacterName(selectedCharacterId);
 
-  // Get data directly from playedCharacters
-  const characterData = playedCharacters?.[selectedCharName];
+  // Get data from playedCharacters using the new structure
+  // playedCharacters[characterName][battleType]
+  const characterData = playedCharacters?.[selectedCharName]?.[selectedBattleType];
   
   // Use data directly from the payload
   const totalWins = characterData?.wins || 0;
   const totalLosses = characterData?.losses || 0;
-  const winRate = characterData?.characterWinrate.toFixed(1) || '0.0';
+  const winRate = characterData?.characterWinrate?.toFixed(1) || '0.0';
 
   const data = [
     { name: 'Wins', value: totalWins, fill: '#4ade80' },  // Green color
@@ -54,11 +57,14 @@ const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({
     }
   };
 
+  // Get battle type display name
+  const battleTypeDisplay = selectedBattleType === 'RANKED_BATTLE' ? 'Ranked' : 'Quick Match';
+
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
         <CardTitle>Character Winrate</CardTitle>
-        <CardDescription>Your overall winrate</CardDescription>
+        <CardDescription>{battleTypeDisplay} winrate</CardDescription>
       </CardHeader>
       <CardContent className="flex-1">
         <ChartContainer

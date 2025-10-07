@@ -5,22 +5,22 @@ import Image from 'next/image'
 import { Card, CardContent } from '../ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
-import { rankIconMap, circularCharacterIconMap, Regions, MainCharacterAndRank } from '../../app/state/types/tekkenTypes'
+import { rankIconMap, circularCharacterIconMap, Regions } from '../../app/state/types/tekkenTypes'
 import { CalendarIcon, MapPinIcon } from 'lucide-react'
 import { usePolarisId } from '@/lib/hooks/usePolarisId' 
 
 interface UserInfoCardProps {
   username: string
-  regionId: number
+  regionId: string
   polarisId: string
-  latestBattle: number
-  mainCharacterAndRank: MainCharacterAndRank
+  latestBattle: string
+  mainCharacterAndRank: Record<string, string>
 }
 
-const formatTimestamp = (timestamp: number): string => {
+const formatTimestamp = (timestamp: string): string => {
   if (!timestamp) return 'No date available'
 
-  const date = new Date(timestamp * 1000)
+  const date = new Date(timestamp)
   if (date.toString() === 'Invalid Date') {
     console.error('Invalid timestamp:', timestamp)
     return 'Invalid date'
@@ -93,12 +93,12 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
 
   return (
     <TooltipProvider>
-      <Card className="w-full max-w-3xl mx-auto overflow-hidden shadow-md">
-        <CardContent className="p-6 relative">
-
-          <div className="flex flex-col md:flex-row gap-6 items-center">
-            <div className="flex flex-col justify-center items-center gap-5">
-              <Avatar className="size-36 flex justify-center items-center overflow-visible">
+      <Card className="w-full overflow-hidden shadow-md">
+        <CardContent className="p-4">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            {/* Left section - Avatar and rank */}
+            <div className="flex items-center gap-4">
+              <Avatar className="size-20 flex justify-center items-center overflow-visible">
                 <AvatarImage
                   src={circularCharacterIconMap[mainCharacterAndRank.characterName]}
                   alt={mainCharacterAndRank.characterName}
@@ -108,64 +108,52 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
                   {username[0]}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex items-center space-x-2">
-                <Image
-                  src={rankIconMap[mainCharacterAndRank.danRank]}
-                  alt={`${mainCharacterAndRank.danRank} rank icon`}
-                  width={80}
-                  height={80}
-                  className="object-contain"
-                  unoptimized
-                />
+              <Image
+                src={rankIconMap[mainCharacterAndRank.danRank]}
+                alt={`${mainCharacterAndRank.danRank} rank icon`}
+                width={60}
+                height={60}
+                className="object-contain"
+                unoptimized
+              />
+            </div>
+
+            {/* Center section - User info */}
+            <div className="flex-1">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold">{username}</h2>
+                  <p className="text-sm text-muted-foreground">{formatPolarisId(polarisId)}</p>
+                </div>
+                
+                <div className="flex flex-col md:flex-row gap-4 md:items-center">
+                  <div className="flex items-center space-x-2">
+                    <MapPinIcon className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">{regionId}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">{formatTimestamp(latestBattle)}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col justify-center space-y-4">
-              <div>
-                <h2 className="text-2xl font-bold">{username}</h2>
-                <p className="text-sm text-muted-foreground">{formatPolarisId(polarisId)}</p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <MapPinIcon className="w-4 h-4 text-muted-foreground" />
-                  <span>{Regions[regionId]}</span>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
-                  <span>{formatTimestamp(latestBattle)}</span>
-                </div>
-              </div>
-
-          <div className=" gap-2 flex">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={handleProfileToggle}
-                  className="border-2 border-purple-500 px-4 py-2 rounded-lg text-muted-foreground"
-                >
-                  {isProfile ? 'Remove as Profile' : 'Set as Profile'}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{isProfile ? 'Remove this user from your Profile' : 'Set this user as your Profile user'}</p>
-              </TooltipContent>
-            </Tooltip>
-            {/* <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={handleFollowToggle}
-                  className="border-2 border-blue-500 px-4 py-2 rounded-lg text-muted-foreground"
-                >
-                  {isFollowing ? 'Unfollow' : 'Follow'}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{isFollowing ? 'Unfollow this user' : 'Follow this user to easily access their page'}</p>
-              </TooltipContent>
-            </Tooltip> */}
-          </div>
+            {/* Right section - Action button */}
+            <div className="flex items-center">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleProfileToggle}
+                    className="border-2 border-purple-500 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:bg-purple-500/10 transition-colors"
+                  >
+                    {isProfile ? 'Remove as Profile' : 'Set as Profile'}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isProfile ? 'Remove this user from your Profile' : 'Set this user as your Profile user'}</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
         </CardContent>

@@ -1,19 +1,24 @@
 import React from 'react';
-import { Battle, characterIdMap, PlayedCharacter } from '../../app/state/types/tekkenTypes';
+import { useAtomValue } from 'jotai';
+import { characterIdMap } from '../../app/state/types/tekkenTypes';
+import { PlayerMatchupSummary } from '../../app/state/types/PlayerPageTypes';
+import { selectedBattleTypeAtom } from '../../app/state/atoms/tekkenStatsAtoms';
 import MatchupCard from './MatchupCard';
 
 interface BestMatchupChartProps {
-  battles: Battle[];
+  battles: any[];
   selectedCharacterId: number;
   playerName: string;
   polarisId: string;
-  playedCharacters?: Record<string, PlayedCharacter>;
+  playedCharacters?: Record<string, Record<string, PlayerMatchupSummary>>;
 }
 
 const BestMatchupChart: React.FC<BestMatchupChartProps> = ({ 
   selectedCharacterId, 
   playedCharacters
 }) => {
+  const selectedBattleType = useAtomValue(selectedBattleTypeAtom);
+
   const getCharacterName = (characterId: number): string => {
     return characterIdMap[characterId] || `Character ${characterId}`;
   };
@@ -25,21 +30,19 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
       return null;
     }
 
-    const character = Object.entries(playedCharacters).find(
-      ([name]) => name === selectedCharacterName
-    );
+    // Get character data for the selected battle type
+    const characterData = playedCharacters[selectedCharacterName]?.[selectedBattleType];
 
-    if (!character) return null;
-
-    const [, characterData] = character;
+    if (!characterData) return null;
     
     if (!characterData.bestMatchup || Object.keys(characterData.bestMatchup).length === 0) {
       return null;
     }
 
-    const matchupsWithData = Object.entries(characterData.matchups).map(([opponentName, matchupData]) => ({
+    // Get all matchups with their data
+    const matchupsWithData = Object.entries(characterData.currentSeasonMatchups || {}).map(([opponentName, matchupData]) => ({
       opponentName,
-      winRate: matchupData.winRate, 
+      winRate: matchupData.winRate || 0, 
       totalMatches: matchupData.totalMatches
     }));
 
@@ -77,11 +80,13 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
       // Take the group with the most matches
       const bestGroup = matchGroups[0];
       
-      // From that group, find the matchup with the highest winrate
-      bestMatchupData = bestGroup.sort((a, b) => b.winRate - a.winRate)[0];
-      
-      if (bestMatchupData && bestMatchupData.totalMatches < 20) {
-        hasLimitedData = true;
+      if (bestGroup) {
+        // From that group, find the matchup with the highest winrate
+        bestMatchupData = bestGroup.sort((a, b) => b.winRate - a.winRate)[0];
+        
+        if (bestMatchupData && bestMatchupData.totalMatches < 20) {
+          hasLimitedData = true;
+        }
       }
     }
 
@@ -93,7 +98,7 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
       totalMatches: bestMatchupData.totalMatches,
       hasLimitedData
     };
-  }, [selectedCharacterId, selectedCharacterName, playedCharacters]);
+  }, [selectedCharacterId, selectedCharacterName, playedCharacters, selectedBattleType]);
 
   if (!bestMatchup) {
     return null;

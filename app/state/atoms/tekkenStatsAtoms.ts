@@ -9,7 +9,12 @@ import type {
   GameRankDistribution,
   PlayerStats,
   RankStats,
-  RecentlyActivePlayer
+  RecentlyActivePlayer,
+  PickrateEntry,
+  WinrateEntry,
+  ActivePlayerRegion,
+  RankDistributionEntry,
+  HomepageData
 } from '../types/tekkenTypes';
 
 const initialRankStats: RankStats = {
@@ -38,6 +43,15 @@ const initialWinrateChanges: RankWinrateChanges = {
   beginner: []
 };
 
+// New atoms for refactored homepage
+export const dataViewModeAtom = atom<'30days' | 'currentVersion'>('30days');
+export const pickratesAtom = atom<PickrateEntry[]>([]);
+export const winratesAtom = atom<WinrateEntry[]>([]);
+export const activePlayersAtom = atom<ActivePlayerRegion[]>([]);
+export const rankDistributionNewAtom = atom<RankDistributionEntry[]>([]);
+export const homepageDataAtom = atom<HomepageData | null>(null);
+
+// Legacy atoms - keeping for backward compatibility
 export const rankColorsAtom = atom<ColorMapping[]>([
   { id: 'Beginner', color: '#99582A' },
   { id: '1st Dan', color: '#adb5bd' },
@@ -128,6 +142,15 @@ export const rankDivisionColors = atom<ColorMapping[]>([
   { id: '12', color: '#9e0059'}
 ]);
 
+// Region colors for the new pie chart
+export const regionColors: { [key: string]: string } = {
+  'ASIA': '#4169E1',      // Royal Blue
+  'AMERICAS': '#228B22',   // Forest Green
+  'EUROPE': '#FFD700',     // Gold
+  'OCEANIA': '#FF4500',    // Orange Red
+  'MIDDLE_EAST': '#9400D3' // Dark Violet
+};
+
 export const totalRankedReplaysAtom = atom<number>(0);
 export const totalUnrankedReplaysAtom = atom<number>(0);
 export const totalPlayersAtom = atom<number>(0);
@@ -152,3 +175,7 @@ export const getColor = (id: string): string => {
   const ColorMapping = colors.find(item => item.id === id);
   return ColorMapping ? ColorMapping.color : '#718096'; // Default color if rank not found
 };
+
+// Player page atoms
+export const selectedBattleTypeAtom = atom<string>('RANKED_BATTLE');
+export const selectedCharacterAtom = atom<string | null>(null);

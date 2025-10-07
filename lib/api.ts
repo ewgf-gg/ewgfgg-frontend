@@ -5,7 +5,8 @@ import {
   PlayerSearchResult,
   GameVersion,
   RankDistribution,
-  VersionStats
+  VersionStats,
+  HomepageData
 } from '@/app/state/types/tekkenTypes'
 import { fetchWithConfig, fetchStatistics, fetchPlayerData } from '@/lib/api-config';
 
@@ -16,7 +17,19 @@ const transformRankDistribution = (entries: Array<{ rank: number, percentage: nu
   }));
 };
 
-export const getInitialData = async (): Promise<InitialData> => {
+// New function to fetch homepage data from single endpoint
+export const getInitialData = async (): Promise<HomepageData> => {
+  try {
+      const data = await fetchStatistics('front-page');
+      return data as HomepageData;
+  } catch (error) {
+      console.error('Failed to fetch initial data:', error);
+      throw new Error(`Failed to fetch initial data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+// Legacy function for backwards compatibility - will be removed later
+export const getInitialDataLegacy = async (): Promise<InitialData> => {
   try {
       const [
           statsSummary,

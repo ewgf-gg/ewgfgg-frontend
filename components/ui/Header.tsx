@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAtom } from 'jotai';
@@ -10,8 +10,6 @@ import { totalRankedReplaysAtom, totalUnrankedReplaysAtom, totalPlayersAtom } fr
 import { SearchBar } from '@/components/SearchBar';
 import { usePolarisId } from '@/lib/hooks/usePolarisId';
 import { AnimatePresence, motion } from 'framer-motion';
-
-
 
 const useAnimatedCounter = (endValue: number, duration: number = 1000) => {
   const [count, setCount] = useState(0);
@@ -61,10 +59,62 @@ export function Header() {
   const { polarisId } = usePolarisId();
   const router = useRouter();
 
+  // Scroll behavior state
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [isSearchBarVisible, setIsSearchBarVisible] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+  const lastScrollY = useRef(0);
+  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     setMounted(true);
     const id = localStorage.getItem("polarisId");
     if (id) setStoredPolarisId(id);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const scrollingUp = currentScrollY < lastScrollY.current;
+      const scrollingDown = currentScrollY > lastScrollY.current;
+
+      // Clear existing timeout
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
+
+      // Show search bar when scrolling up, but not at the very top
+      if (scrollingUp && currentScrollY > 100) {
+        setIsSearchBarVisible(true);
+        setIsHeaderVisible(false);
+      } else if (scrollingDown && currentScrollY > 50) {
+        // Hide both when scrolling down
+        setIsSearchBarVisible(false);
+        setIsHeaderVisible(false);
+      } else if (currentScrollY <= 50) {
+        // Show header when near top
+        setIsHeaderVisible(true);
+        setIsSearchBarVisible(false);
+      }
+
+      // Set a timeout to hide search bar after stopping scroll
+      if (scrollingUp && currentScrollY > 100) {
+        scrollTimeout.current = setTimeout(() => {
+          setIsSearchBarVisible(false);
+        }, 3000);
+      }
+
+      lastScrollY.current = currentScrollY;
+      setScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
+    };
   }, []);
 
   const animatedPlayers = useAnimatedCounter(totalPlayers, 2000);
@@ -72,155 +122,149 @@ export function Header() {
   const animatedUnrankedReplays = useAnimatedCounter(totalUnrankedReplays, 2000);
 
   const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
-  // eslint-disable-next-line
-  const goToProfile = () => {
-    if (storedPolarisId) router.push(`/player/${storedPolarisId}`);
-  };
+
+  const navLinks = [
+    { href: '/statistics', label: 'Statistics' },
+    { href: '/leaderboards', label: 'Leaderboards' },
+    { href: '/about', label: 'About' }
+  ];
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 bg-gray-800/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg z-50">
-        <nav className="container mx-auto px-3 py-2">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between relative">
-            {/* Logo centered on mobile, left-aligned on desktop */}
-            <div className="flex justify-between md:justify-start md:items-center md:space-x-6 mb-1 md:mb-0">
-              <div className="flex-1 md:flex-none"></div> {/* Left spacer for mobile */}
-              
-              <Link href="/" className="font-russo-one text-lg md:text-xl text-white whitespace-nowrap flex items-center">
-                <div className="relative" style={{ width: '32px', height: '32px', marginRight: '6px' }}>
-                  <Image 
-                    src="/static/EWGF_ICON@2x.png" 
-                    alt="EWGF Logo" 
-                    fill
-                    className="object-contain"
-                    style={{ transform: 'scale(1.5)' }}
-                  />
-                </div>
+      {/* Main Header - Not fixed, at top of page */}
+      <motion.header 
+        initial={{ y: 0 }}
+        animate={{ y: isHeaderVisible ? 0 : -100 }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        className="absolute top-0 left-0 right-0 bg-gradient-to-b from-gray-900 to-gray-800/95 dark:from-gray-950 dark:to-gray-900/95 backdrop-blur-sm shadow-xl z-50 border-b border-gray-700/50"
+      >
+        <nav className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo and Brand */}
+            <Link href="/" className="group flex items-center space-x-3 transition-transform hover:scale-105">
+              <div className="relative w-10 h-10">
+                <Image 
+                  src="/static/EWGF_ICON@2x.png" 
+                  alt="EWGF Logo" 
+                  fill
+                  className="object-contain group-hover:animate-pulse"
+                />
+              </div>
+              <span className="font-russo-one text-2xl text-white">
                 ewgf<span className="text-blue-400 dark:text-blue-500">.gg</span>
-              </Link>
-              
-              {/* Theme toggle on right for mobile */}
-              <div className="flex-1 md:flex-none flex justify-end">
-                {mounted && (
-                  <button onClick={toggleTheme} className="md:hidden p-2 rounded-lg bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" aria-label="Toggle theme">
-                    {theme === 'dark' ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-yellow-300">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-                      </svg>
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-gray-300">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                      </svg>
-                    )}
-                  </button>
-                )}
-              </div>
-            </div>
-            
-            {/* Menu links row on mobile - with profile on right, others centered */}
-            <div className="flex justify-between items-center mb-0.5 md:hidden">
-              {/* Left spacer for balance */}
-              <div className="w-[100px]"></div>
-              
-              {/* Center links */}
-              <div className="flex justify-center space-x-4">
-                <Link href="/statistics" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-xs font-semibold">
-                  Statistics
-                </Link>
-                <Link href="/leaderboards" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-xs font-semibold">
-                  Leaderboards
-                </Link>
-                <Link href="/about" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-xs font-semibold">
-                  About
-                </Link>
-              </div>
-              
-              {/* Profile on right */}
-              <div className="w-[100px] flex justify-end">
-                <AnimatePresence>
-                  {polarisId && (
-                    <motion.button
-                      key="my-profile"
-                      initial={{ opacity: 0, y: -8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.3 }}
-                      onClick={() => router.push(`/player/${polarisId}`)}
-                      className="text-xs font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent font-mono"
-                    >
-                      My Profile
-                    </motion.button>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-            
-            {/* Desktop menu links */}
-            <div className="hidden md:flex md:justify-start space-x-6 md:mb-0">
-              <Link href="/statistics" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-sm font-semibold">
-                Statistics
-              </Link>
-              <Link href="/leaderboards" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-sm font-semibold">
-                Leaderboards
-              </Link>
-              <Link href="/about" className="text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors text-sm font-semibold">
-                About
-              </Link>
-              <div className="w-[100px]">
-                <AnimatePresence>
-                  {polarisId && (
-                    <motion.button
-                      key="my-profile"
-                      initial={{ opacity: 0, y: -8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.3 }}
-                      onClick={() => router.push(`/player/${polarisId}`)}
-                      className="text-sm font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent font-mono"
-                    >
-                      My Profile
-                    </motion.button>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
+              </span>
+            </Link>
 
-            <div className="hidden md:block flex-1 max-w-xl mx-4">
-              <SearchBar />
-            </div>
-
-            <div className="hidden md:flex items-center gap-4">
-              <div className="flex flex-col items-end">
-                <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Players</span>
-                <span className="text-sm font-bold bg-gradient-to-r from-blue-400 to-cyan-300 dark:from-blue-500 dark:to-cyan-400 bg-clip-text text-transparent font-mono">
-                  {formatNumber(animatedPlayers)}
-                </span>
-              </div>
-              <div className="h-8 w-px bg-gray-700 dark:bg-gray-600" />
-              <div className="flex flex-col items-end">
-                <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Ranked</span>
-                <span className="text-sm font-bold bg-gradient-to-r from-purple-400 to-pink-300 dark:from-purple-500 dark:to-pink-400 bg-clip-text text-transparent font-mono">
-                  {formatNumber(animatedReplays)}
-                </span>
-              </div>
-              <div className="h-8 w-px bg-gray-700 dark:bg-gray-600" />
-              <div className="flex flex-col items-end">
-                <span className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Unranked</span>
-                <span className="text-sm font-bold bg-gradient-to-r from-green-400 to-teal-300 dark:from-green-500 dark:to-teal-400 bg-clip-text text-transparent font-mono">
-                  {formatNumber(animatedUnrankedReplays)}
-                </span>
-              </div>
-              {/* {storedPolarisId && <div className="h-8 w-px bg-gray-700 dark:bg-gray-600" />}
-              {storedPolarisId && (
-                <div className="flex flex-col items-end">
-                  <button onClick={goToProfile} className="text-sm text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">
+            {/* Desktop Navigation - Modernized */}
+            <div className="hidden md:flex items-center space-x-2">
+              {navLinks.map((link) => (
+                <Link 
+                  key={link.href}
+                  href={link.href} 
+                  className="relative px-6 py-2.5 text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white font-medium text-sm transition-all duration-300 group"
+                >
+                  <span className="relative z-10">{link.label}</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-blue-400 group-hover:w-3/4 transition-all duration-300" />
+                </Link>
+              ))}
+              
+              {/* My Profile Button with Animation */}
+              <AnimatePresence>
+                {polarisId && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => router.push(`/player/${polarisId}`)}
+                    className="ml-4 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold text-sm rounded-lg shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
+                  >
                     My Profile
-                  </button>
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Stats and Theme Toggle */}
+            <div className="hidden lg:flex items-center space-x-6">
+              {/* Animated Stats */}
+              <div className="flex items-center space-x-4">
+                <div className="text-right">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wider">Active Players <span className="text-gray-500 normal-case">(30d)</span></p>
+                  <p className="text-lg font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                    {formatNumber(animatedPlayers)}
+                  </p>
                 </div>
-              )} */}
-              <div className="h-8 w-px bg-gray-700 dark:bg-gray-600" />
+                <div className="w-px h-10 bg-gray-700" />
+                <div className="text-right">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wider">Ranked Battles <span className="text-gray-500 normal-case">(30d)</span></p>
+                  <p className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    {formatNumber(animatedReplays)}
+                  </p>
+                </div>
+                <div className="w-px h-10 bg-gray-700" />
+                <div className="text-right">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wider">Unranked Battles <span className="text-gray-500 normal-case">(30d)</span></p>
+                  <p className="text-lg font-bold bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent">
+                    {formatNumber(animatedUnrankedReplays)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Theme Toggle Button */}
               {mounted && (
-                <button onClick={toggleTheme} className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700" aria-label="Toggle theme">
+                <motion.button 
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={toggleTheme} 
+                  className="p-3 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 dark:bg-gray-800/50 dark:hover:bg-gray-700/50 transition-colors duration-300"
+                  aria-label="Toggle theme"
+                >
+                  <AnimatePresence mode="wait">
+                    {theme === 'dark' ? (
+                      <motion.svg
+                        key="sun"
+                        initial={{ rotate: -90, opacity: 0 }}
+                        animate={{ rotate: 0, opacity: 1 }}
+                        exit={{ rotate: 90, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        xmlns="http://www.w3.org/2000/svg" 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        strokeWidth={1.5} 
+                        stroke="currentColor" 
+                        className="w-5 h-5 text-yellow-300"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                      </motion.svg>
+                    ) : (
+                      <motion.svg
+                        key="moon"
+                        initial={{ rotate: 90, opacity: 0 }}
+                        animate={{ rotate: 0, opacity: 1 }}
+                        exit={{ rotate: -90, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        xmlns="http://www.w3.org/2000/svg" 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        strokeWidth={1.5} 
+                        stroke="currentColor" 
+                        className="w-5 h-5 text-gray-300"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                      </motion.svg>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+              )}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden flex items-center space-x-3">
+              {mounted && (
+                <button onClick={toggleTheme} className="p-2 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-colors">
                   {theme === 'dark' ? (
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-yellow-300">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
@@ -234,12 +278,86 @@ export function Header() {
               )}
             </div>
           </div>
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden mt-4 flex flex-wrap items-center justify-between">
+            <div className="flex space-x-4">
+              {navLinks.map((link) => (
+                <Link 
+                  key={link.href}
+                  href={link.href} 
+                  className="text-gray-300 hover:text-white text-sm font-medium transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+            {polarisId && (
+              <button
+                onClick={() => router.push(`/player/${polarisId}`)}
+                className="text-sm font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
+              >
+                My Profile
+              </button>
+            )}
+          </div>
         </nav>
-        <div className="md:hidden w-full px-3 py-1.5 bg-gray-800/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-700">
-          <SearchBar />
+
+        {/* Integrated Search Bar for Desktop */}
+        <div className="hidden md:block border-t border-gray-700/50 bg-gray-800/50 dark:bg-gray-900/50">
+          <div className="container mx-auto px-4 py-3">
+            <div className="max-w-2xl mx-auto">
+              <SearchBar />
+            </div>
+          </div>
         </div>
-      </header>
-      <div className="h-20 md:h-14"></div>
+
+        {/* Mobile Search Bar */}
+        <div className="md:hidden border-t border-gray-700/50 bg-gray-800/50 dark:bg-gray-900/50">
+          <div className="px-4 py-3">
+            <div className="max-w-md mx-auto">
+              <SearchBar />
+            </div>
+          </div>
+        </div>
+      </motion.header>
+
+      {/* Floating Search Bar - Appears when scrolling up */}
+      <AnimatePresence>
+        {isSearchBarVisible && (
+          <motion.div
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="fixed top-0 left-0 right-0 z-50 bg-gray-800/95 dark:bg-gray-900/95 backdrop-blur-md shadow-2xl border-b border-gray-700/50"
+          >
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex items-center">
+                <Link href="/" className="flex items-center space-x-2 flex-shrink-0 absolute left-4">
+                  <div className="relative w-8 h-8">
+                    <Image 
+                      src="/static/EWGF_ICON@2x.png" 
+                      alt="EWGF Logo" 
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <span className="font-russo-one text-lg text-white hidden sm:block">
+                    ewgf<span className="text-blue-400">.gg</span>
+                  </span>
+                </Link>
+                <div className="flex-1 max-w-2xl mx-auto px-16 sm:px-32">
+                  <SearchBar />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Spacer for content - matches header height */}
+      <div className="h-32 md:h-44"></div>
     </>
   );
 }
