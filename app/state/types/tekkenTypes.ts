@@ -24,16 +24,6 @@ export interface RankDistribution {
     rank: string;
     percentage: number;
 }
-  
-
-export interface PlayerMetadata{
-    playerName: string;
-    polarisId: string;
-    regionId: number;
-    latestBattleDate: string;
-    tekkenPower: number;
-    mainCharacterAndRank: Record<string, string>;
-}
 
 export interface CharacterStats {
     characterName: string;
@@ -41,19 +31,6 @@ export interface CharacterStats {
     danRank: number;
     wins: number;
     losses: number;
-}
-
-export interface FormattedCharacter {
-    name: string;
-    matches: number;
-    winRate: number;
-}
-  
-export interface FormattedMatch {
-    opponent: string;
-    character: string;
-    result: 'win' | 'loss';
-    date: string;
 }
 
 export interface MainCharacterAndRank {
@@ -65,80 +42,6 @@ export interface MainCharacterAndRank {
 export interface CharacterStatsWithVersion extends CharacterStats {
     gameVersion: string;
     characterId: number;
-}
-
-export interface StatPentagonData {
-    defense: number;
-    attack: number;
-    technique: number;
-    appeal: number;
-    spirit: number;
-    attackComponents: {
-      heavyDamage: number;
-      aggressiveness: number;
-      dominance: number;
-      attackFrequency: number;
-    };
-    defenseComponents: {
-      composure: number;
-      block: number;
-      evasion: number;
-      throwEscape: number;
-    };
-    techniqueComponents: {
-      judgement: number;
-      stageUse: number;
-      retaliation: number;
-      accuracy: number;
-    };
-    spiritComponents: {
-      closeBattles: number;
-      concentration: number;
-      fightingSpirit: number;
-      comeback: number;
-    };
-    appealComponents: {
-      fairness: number;
-      ambition: number;
-      versatility: number;
-      respect: number;
-    };
-  }
-
-export interface CharacterBattleStats {
-    characterId: number;
-    characterName: string;
-    totalBattles: number;
-    percentage: number;
-}
-
-export interface Matchup {
-    wins: number;
-    losses: number;
-    winRate: number;
-    totalMatches: number;
-}
-
-export interface PlayedCharacter {
-    wins: number;
-    losses: number;
-    currentSeasonDanRank: number | null;
-    previousSeasonDanRank: number;
-    characterWinrate: number;
-    bestMatchup: Record<string, number>;
-    worstMatchup: Record<string, number>;
-    matchups: Record<string, Matchup>;
-}
-
-export interface PlayerStats {
-    polarisId: string;
-    name: string;
-    tekkenPower: number;
-    latestBattle: number;
-    regionId: number;
-    mainCharacterAndRank: MainCharacterAndRank;
-    playedCharacters: Record<string, PlayedCharacter>;
-    battles: Battle[];
 }
 
 // New types for the refactored homepage
@@ -526,4 +429,109 @@ export const circularCharacterIconMap: { [key: string]: string } = {
     'Zafina': '/static/circular_character_icons/zafina.webp',
     'Anna': '/static/circular_character_icons/anna.webp',
     'Fahkumram': '/static/circular_character_icons/fahkumram.webp'
+};
+
+
+export interface ColorMapping {
+  id: string;
+  color: string;
+}
+
+export const rankColorsAtom: ColorMapping[] = [
+  { id: 'Beginner', color: '#99582A' },
+  { id: '1st Dan', color: '#adb5bd' },
+  { id: '2nd Dan', color: '#7d8597' },
+  { id: 'Fighter', color: '#48cae4' },
+  { id: 'Strategist', color: '#00b4d8' },
+  { id: 'Combatant', color: '#0077b6' },
+  { id: 'Brawler', color: '#38b000' },
+  { id: 'Ranger', color: '#008000' },
+  { id: 'Cavalry', color: '#006400' },
+  { id: 'Warrior', color: '#ffea00' },
+  { id: 'Assailant', color: '#ffd000' },
+  { id: 'Dominator', color: '#ffb700' },
+  { id: 'Vanquisher', color: '#ff8500' },
+  { id: 'Destroyer', color: '#ff6d00' },
+  { id: 'Eliminator', color: '#ff4800' },
+  { id: 'Garyu', color: '#ad2831' },
+  { id: 'Shinryu', color: '#800e13' },
+  { id: 'Tenryu', color: '#640d14' },
+  { id: 'Mighty Ruler', color: '#7b2cbf' },
+  { id: 'Flame Ruler', color: '#5a189a' },
+  { id: 'Battle Ruler', color: '#3c096c' },
+  { id: 'Fujin', color: '#014f86' },
+  { id: 'Raijin', color: '#01497c' },
+  { id: 'Kishin', color: '#013a63' },
+  { id: 'Bushin', color: '#012a4a' },
+  { id: 'Tekken King', color: '#240046' },
+  { id: 'Tekken Emperor', color: '#240046' },
+  { id: 'Tekken God', color: '#ffe94e' },
+  { id: 'Tekken God Supreme', color: '#b69121' },
+  { id: 'God of Destruction', color: '#9e0059' }
+];
+
+export const characterColors: ColorMapping[] = [
+  { id: '0', color: '#4169E1' },  // Paul - Royal Blue
+  { id: '1', color: '#FFD700' },  // Law - Gold
+  { id: '2', color: '#f48c06' },  // King - Dark Red
+  { id: '3', color: '#0096c7' },  // Yoshimitsu - Teal
+  { id: '4', color: '#FF4500' },  // Hwoarang - Orange Red
+  { id: '5', color: '#FF69B4' },  // Xiaoyu - Hot Pink
+  { id: '6', color: '#343a40' },  // Jin - Dark Grey
+  { id: '7', color: '#696969' },  // Bryan - Dim Gray
+  { id: '8', color: '#1d3557' },  // Kazuya - Dark Blue
+  { id: '9', color: '#B8860B' },  // Steve - Dark Golden Rod
+  { id: '10', color: '#708090' }, // Jack-8 - Slate Gray
+  { id: '11', color: '#b8c0ff' }, // Asuka - Baby Blue
+  { id: '12', color: '#9b2226' }, // Devil Jin - Dark Red
+  { id: '13', color: '#f6bd60' }, // Feng - Light gold 
+  { id: '14', color: '#DDA0DD' }, // Lili - Plum
+  { id: '15', color: '#2F4F4F' }, // Dragunov - Dark Slate Gray
+  { id: '16', color: '#e5383b' }, // Leo - Lighter red
+  { id: '17', color: '#4682B4' }, // Lars - Steel Blue
+  { id: '18', color: '#ff8fab' }, // Alisa - Light Pink
+  { id: '19', color: '#dee2e6' }, // Claudio - Light Gray
+  { id: '20', color: '#eae2b7' }, // Shaheen - Tan
+  { id: '21', color: '#800080' }, // Nina - Purple
+  { id: '22', color: '#483D8B' }, // Lee - Dark Slate Blue
+  { id: '23', color: '#8B4513' }, // Kuma - Saddle Brown
+  { id: '24', color: '#fb6f92' }, // Panda - Salmon Pink
+  { id: '28', color: '#9400D3' }, // Zafina - Dark Violet
+  { id: '29', color: '#2F4F4F' }, // Leroy - Dark Slate Gray
+  { id: '32', color: '#e9ecef' }, // Jun - Offwhite
+  { id: '33', color: '#5e548e' }, // Reina - Purple
+  { id: '34', color: '#d00000' }, // Azucena - Red
+  { id: '35', color: '#B22222' }, // Victor - Fire Brick
+  { id: '36', color: '#003049' }, // Raven - Indigo
+  { id: '38', color: '#228B22' }, // Eddy - Forest Green
+  { id: '39', color: '#CD5C5C' }, // Lidia - Indian Red
+  { id: '40', color: '#808080' }, // Heihachi - Gray
+  { id: '41', color: '#6a040f' }, // Clive - Dark Red.
+  { id: '42', color: '#14213d'}, // Anna - Pale Dark Blue
+  { id: '43', color: '#e36414'} // Fahkumram - Orange
+];
+
+export const rankDivisionColors: ColorMapping[] = [
+  { id: '0', color: '#99582A' },
+  { id: '1', color: '#adb5bd' },
+  { id: '2', color: '#38b000' },
+  { id: '3', color: '#ffb700' },
+  { id: '4', color: '#ff4800' },
+  { id: '5', color: '#800e13' },
+  { id: '6', color: '#7b2cbf' },
+  { id: '7', color: '#014f86' },
+  { id: '8', color: '#240046' },
+  { id: '9', color: '#10002b'},
+  { id: '10', color: '#ffe94e'},
+  { id: '11', color: '#b69121'},
+  { id: '12', color: '#9e0059'}
+];
+
+// Region colors for the new pie chart
+export const regionColors: { [key: string]: string } = {
+  'ASIA': '#4169E1',      // Royal Blue
+  'AMERICAS': '#228B22',   // Forest Green
+  'EUROPE': '#FFD700',     // Gold
+  'OCEANIA': '#FF4500',    // Orange Red
+  'MIDDLE_EAST': '#9400D3' // Dark Violet
 };
