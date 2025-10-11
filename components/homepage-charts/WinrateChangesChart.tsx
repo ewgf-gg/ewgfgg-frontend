@@ -1,39 +1,41 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, ReferenceLine, ResponsiveContainer } from 'recharts';
-import { winrateChangesAtom } from '@/app/state/atoms/tekkenStatsAtoms';
-import { ChartCard } from '../shared/ChartCard';
+import { trendsAtom } from '@/app/state/atoms/tekkenStatsAtoms';
+import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { CustomYAxisTick } from '../shared/CustomYAxisTick';
 import { CustomTooltip } from '../shared/CustomTooltip';
-import { ChartProps } from '@/app/state/types/tekkenTypes';
+import { TrendEntry } from '@/app/state/types/tekkenTypes';
 
-export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> = (props) => {
+interface WinRateTrendsProps {
+  title: string;
+  description?: string;
+  delay?: number;
+}
+
+interface ChartDataEntry {
+  characterId: string;
+  change: number;
+  trend: 'increase' | 'decrease';
+}
+
+export const WinRateTrends: React.FC<WinRateTrendsProps> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState(true);
-  const [rank, setRank] = useState("intermediateRanks");
-  const [winrateChanges] = useAtom(winrateChangesAtom);
+  const [trends] = useAtom(trendsAtom);
 
   useEffect(() => {
     if (isInitialRender) setIsInitialRender(false);
   }, [isInitialRender]);
 
   const { data, domain } = useMemo(() => {
-    // Map the rank values from the selector to the keys in the winrateChangesAtom
-    const rankMap: Record<string, keyof typeof winrateChanges> = {
-      "masterRanks": "master",
-      "advancedRanks": "advanced",
-      "intermediateRanks": "intermediate",
-      "beginnerRanks": "beginner"
-    };
-    
-    const mappedRank = rankMap[rank] || "master";
-    const rankData = winrateChanges[mappedRank] || [];
-    
-    const chartData = [...rankData]
-      .map(entry => ({
-        ...entry,
-        change: entry.trend === 'decrease' ? -entry.change : entry.change
+    // Transform trends data to chart format
+    const chartData: ChartDataEntry[] = trends
+      .map((entry: TrendEntry) => ({
+        characterId: entry.tkChar,
+        change: entry.delta,
+        trend: entry.trend
       }))
-      .sort((a, b) => {
+      .sort((a: ChartDataEntry, b: ChartDataEntry) => {
         // If one is positive and one is negative, positive comes first
         if (a.change >= 0 && b.change < 0) return -1;
         if (a.change < 0 && b.change >= 0) return 1;
@@ -42,7 +44,14 @@ export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> 
         return Math.abs(b.change) - Math.abs(a.change);
       });
     
-    const changes = chartData.map(d => d.change);
+    if (chartData.length === 0) {
+      return {
+        data: [],
+        domain: [-1, 1] as [number, number]
+      };
+    }
+    
+    const changes = chartData.map((d: ChartDataEntry) => d.change);
     const maxAbsChange = Math.ceil(Math.max(...changes.map(Math.abs)));
     const domainPadding = maxAbsChange * 0.1;
     
@@ -50,7 +59,7 @@ export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> 
       data: chartData,
       domain: [-maxAbsChange - domainPadding, maxAbsChange + domainPadding] as [number, number]
     };
-  }, [winrateChanges, rank]);
+  }, [trends]);
 
   const getBarColor = (change: number) => {
     return change >= 0
@@ -59,7 +68,7 @@ export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> 
   };
 
   return (
-    <ChartCard {...props} rank={rank} onRankChange={setRank}>
+    <SimpleChartCard {...props}>
       <div className="w-full" style={{ minHeight: "200px" }}>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart
@@ -93,7 +102,7 @@ export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> 
           animationDuration={1000}
           animationEasing="ease"
         >
-          {data.map((entry, index) => (
+          {data.map((entry: ChartDataEntry, index: number) => (
             <Cell
               key={`cell-${index}`}
               fill={getBarColor(entry.change)}
@@ -109,6 +118,6 @@ export const WinRateTrends: React.FC<Omit<ChartProps, 'rank' | 'onRankChange'>> 
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </ChartCard>
+    </SimpleChartCard>
   );
 };

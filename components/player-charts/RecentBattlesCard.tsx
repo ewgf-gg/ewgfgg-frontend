@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Button } from '../ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Battle, characterIdMap, characterIconMap } from '../../app/state/types/tekkenTypes';
+import { Battle } from '../../app/state/types/PlayerPageTypes';
+import { characterIconMap } from '../../app/state/types/tekkenTypes';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 interface RecentBattlesCardProps {
@@ -39,29 +40,28 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }) + ' UTC';
-  };
-
-  const formatDateMobile = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: '2-digit',
-      month: 'numeric',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }) + ' UTC';
-  };
-
-  const getCharacterName = (characterId: number) => {
-    return characterIdMap[characterId] || `Character ${characterId}`;
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) {
+      return `${diffInSeconds} seconds ago`;
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+    } else if (diffInSeconds < 2592000) {
+      const days = Math.floor(diffInSeconds / 86400);
+      return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+    } else if (diffInSeconds < 31536000) {
+      const months = Math.floor(diffInSeconds / 2592000);
+      return `${months} ${months === 1 ? 'month' : 'months'} ago`;
+    } else {
+      const years = Math.floor(diffInSeconds / 31536000);
+      return `${years} ${years === 1 ? 'year' : 'years'} ago`;
+    }
   };
 
   const renderPaginationControls = () => {
@@ -161,7 +161,7 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
   }
 
   return (
-    <Card>
+    <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Recent Battles</CardTitle>
         <Select
@@ -178,41 +178,39 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Player</TableHead>
-              <TableHead>Opponent</TableHead>
-              <TableHead>Result</TableHead>
-              <TableHead>Score</TableHead>
-              <TableHead>Battle Type</TableHead>
+              <TableHead className="min-w-[140px]">Date</TableHead>
+              <TableHead className="min-w-[180px]">Player</TableHead>
+              <TableHead className="min-w-[180px]">Opponent</TableHead>
+              <TableHead className="min-w-[70px]">Result</TableHead>
+              <TableHead className="min-w-[60px]">Score</TableHead>
+              <TableHead className="min-w-[100px]">Battle Type</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {currentBattles.map((battle, index) => {
-              const isPlayer1 = battle.player1PolarisId === polarisId;
-              const playerCharacter = getCharacterName(isPlayer1 ? battle.player1CharacterId : battle.player2CharacterId);
-              const playerName = isPlayer1 ? battle.player1Name : battle.player2Name;
-              const opponentCharacter = getCharacterName(isPlayer1 ? battle.player2CharacterId : battle.player1CharacterId);
-              const opponentName = isPlayer1 ? battle.player2Name : battle.player1Name;
-              const opponentPolarisId = isPlayer1 ? battle.player2PolarisId : battle.player1PolarisId;
+              const isPlayer1 = battle.p1PolarisId === polarisId;
+              const playerCharacter = isPlayer1 ? battle.p1Char : battle.p2Char;
+              const playerName = isPlayer1 ? battle.p1Name : battle.p2Name;
+              const opponentCharacter = isPlayer1 ? battle.p2Char : battle.p1Char;
+              const opponentName = isPlayer1 ? battle.p2Name : battle.p1Name;
+              const opponentPolarisId = isPlayer1 ? battle.p2PolarisId : battle.p1PolarisId;
               const isWinner = (isPlayer1 && battle.winner === 1) || (!isPlayer1 && battle.winner === 2);
-              const playerRoundsWon = isPlayer1 ? battle.player1RoundsWon : battle.player2RoundsWon;
-              const opponentRoundsWon = isPlayer1 ? battle.player2RoundsWon : battle.player1RoundsWon;
+              const playerRoundsWon = isPlayer1 ? battle.p1RoundsWon : battle.p2RoundsWon;
+              const opponentRoundsWon = isPlayer1 ? battle.p2RoundsWon : battle.p1RoundsWon;
               const scoreDisplay = `${playerRoundsWon}-${opponentRoundsWon}`;
 
               return (
                 <TableRow key={index}>
-                  <TableCell> 
-                    <div>
-                      <span className="hidden sm:inline">{formatDate(battle.date)}</span>
-                      <span className="inline sm:hidden">{formatDateMobile(battle.date)}</span>
-                    </div></TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {formatDate(battle.battleAt)}
+                  </TableCell>
                   <TableCell>
-                    <div className="flex flex-col sm:flex-row items-center gap-2">
-                      <div className="relative w-8 h-8">
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-8 h-8 flex-shrink-0">
                         <Image
                           src={characterIconMap[playerCharacter]}
                           alt={playerCharacter}
@@ -221,12 +219,12 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
                           className="object-contain"
                         />
                       </div>
-                      <span>{playerName}</span>
+                      <span className="truncate">{playerName}</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-col sm:flex-row items-center gap-2">
-                      <div className="relative w-8 h-8">
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-8 h-8 flex-shrink-0">
                         <Image
                           src={characterIconMap[opponentCharacter]}
                           alt={opponentCharacter}
@@ -237,16 +235,16 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
                       </div>
                       <Link 
                         href={`/player/${opponentPolarisId}`}
-                        className="text-blue-500 hover:text-blue-700 hover:underline"
+                        className="text-blue-500 hover:text-blue-700 hover:underline truncate"
                       >
                         {opponentName}
                       </Link>
                     </div>
                   </TableCell>
-                  <TableCell className={isWinner ? 'text-green-500' : 'text-red-500'}>
+                  <TableCell className={`font-semibold ${isWinner ? 'text-green-500' : 'text-red-500'}`}>
                     {isWinner ? 'WIN' : 'LOSS'}
                   </TableCell>
-                  <TableCell className={isWinner ? 'text-green-500' : 'text-red-500'}>
+                  <TableCell className={`font-semibold ${isWinner ? 'text-green-500' : 'text-red-500'}`}>
                     {scoreDisplay}
                   </TableCell>
                   <TableCell>
@@ -267,3 +265,6 @@ export const RecentBattlesCard: React.FC<RecentBattlesCardProps> = ({
     </Card>
   );
 };
+
+// Add default export for dynamic imports
+export default RecentBattlesCard;

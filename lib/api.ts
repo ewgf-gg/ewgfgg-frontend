@@ -1,74 +1,17 @@
 import {
-  GameRankDistribution,
   rankOrderMap,
-  InitialData,
   PlayerSearchResult,
-  GameVersion,
   RankDistribution,
-  VersionStats,
   HomepageData
 } from '@/app/state/types/tekkenTypes'
 import { fetchWithConfig, fetchStatistics, fetchPlayerData } from '@/lib/api-config';
 
-const transformRankDistribution = (entries: Array<{ rank: number, percentage: number }>): RankDistribution[] => {
-  return entries.map(entry => ({
-      rank: rankOrderMap[entry.rank].toString(),
-      percentage: entry.percentage
-  }));
-};
 
 // New function to fetch homepage data from single endpoint
 export const getInitialData = async (): Promise<HomepageData> => {
   try {
       const data = await fetchStatistics('front-page');
       return data as HomepageData;
-  } catch (error) {
-      console.error('Failed to fetch initial data:', error);
-      throw new Error(`Failed to fetch initial data: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
-};
-
-// Legacy function for backwards compatibility - will be removed later
-export const getInitialDataLegacy = async (): Promise<InitialData> => {
-  try {
-      const [
-          statsSummary,
-          winrates,
-          popularity,
-          winrateChanges,
-          rankDistributionData,
-          recentlyActivePlayers
-      ] = await Promise.all([
-          fetchStatistics('stats-summary'),
-          fetchStatistics('top-winrates'),
-          fetchStatistics('top-popularity'),
-          fetchStatistics('winrate-changes'),
-          fetchStatistics('rankDistribution'),
-          fetchPlayerData('recentlyActive')
-      ]);
-
-      const distributionData = {} as GameRankDistribution;
-      
-      Object.entries(rankDistributionData as Record<string, { overall: Array<{ rank: number, percentage: number }>, standard: Array<{ rank: number, percentage: number }> }>)
-        .forEach(([version, data]) => {
-          if (version as GameVersion) {
-              distributionData[version as GameVersion] = {
-                  overall: transformRankDistribution(data.overall),
-                  standard: transformRankDistribution(data.standard)
-              };
-          }
-      });
-
-      return {
-          totalRankedReplays: statsSummary.totalRankedReplays,
-          totalPlayers: statsSummary.totalPlayers,
-          totalUnrankedReplays: statsSummary.totalUnrankedReplays || 0,
-          characterWinrates: winrates,
-          characterPopularity: popularity,
-          rankDistribution: distributionData,
-          winrateChanges,
-          recentlyActivePlayers
-      };
   } catch (error) {
       console.error('Failed to fetch initial data:', error);
       throw new Error(`Failed to fetch initial data: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -85,37 +28,29 @@ export async function searchPlayersServer(query: string): Promise<PlayerSearchRe
   }
 }
 
-export async function fetchVersionPopularity(): Promise<VersionStats> {
+
+export async function fetchCharacterStats(characterName: string) {
   try {
-      const response = await fetch('/api/statistics/version-popularity', {
-        next: {
-          revalidate: 30 
-        }
+      return await fetchWithConfig(`/statistics/${encodeURIComponent(characterName)}`, {
+          next: {
+              revalidate: 300 // Revalidate every 5 minutes
+          }
       });
-      
-      if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return await response.json();
   } catch (error) {
-      console.error('Failed to fetch version popularity statistics:', error);
-      throw new Error('Failed to fetch version popularity statistics');
+      console.error(`Failed to fetch character stats for ${characterName}:`, error);
+      throw new Error(`Failed to fetch character stats: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
-export async function fetchVersionWinrates(): Promise<VersionStats> {
+export async function fetchGameActivity() {
   try {
-      const response = await fetch('/api/statistics/version-winrates', {
-        next: {
-          revalidate: 30
-        }
+      return await fetchWithConfig('/statistics/gameActivity', {
+          next: {
+              revalidate: 30 // Revalidate every 30 seconds
+          }
       });
-      if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return await response.json();
   } catch (error) {
-      console.error('Failed to fetch version winrate statistics:', error);
-      throw new Error('Failed to fetch version winrate statistics');
+      console.error('Failed to fetch game activity:', error);
+      throw new Error(`Failed to fetch game activity: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

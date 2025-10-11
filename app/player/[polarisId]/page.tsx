@@ -1,6 +1,6 @@
 import PlayerPageContent from '@/app/player/[polarisId]/PlayerPageContent';
 import { fetchPlayerData, fetchStatPentagon } from '@/lib/api-config';
-import { PlayerStats } from '../../state/types/tekkenTypes';
+import { PlayerStatsResponse, StatPentagonData } from '../../state/types/PlayerPageTypes';
 import React from 'react';
 
 export const revalidate = 0;
@@ -14,8 +14,8 @@ interface PageProps {
 export default async function PlayerStatsPage({ params }: PageProps) {
   const { polarisId } = params;
   
-  let playerStats: PlayerStats | null = null;
-  let statPentagonData = null;
+  let playerStats: PlayerStatsResponse | null = null;
+  let statPentagonData: StatPentagonData | null = null;
   const error: string | null = null;
   
   try {
@@ -36,7 +36,7 @@ export default async function PlayerStatsPage({ params }: PageProps) {
       throw new Error('No player data found');
     }
     
-    if (!playerStats.polarisId || !playerStats.name || !playerStats.playedCharacters) {
+    if (!playerStats.playerMetadata.polarisId || !playerStats.playerMetadata.name || !playerStats.playedCharacters) {
       throw new Error('Invalid player stats data structure');
     }
     // eslint-disable-next-line

@@ -5,12 +5,11 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, LabelList, ResponsiveContainer, Cell } from 'recharts';
 import { 
-  rankColorsAtom, 
   rankDistributionNewAtom
 } from '../../app/state/atoms/tekkenStatsAtoms';
 import React from 'react';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
-import { rankIconMap, rankOrderMap } from '../../app/state/types/tekkenTypes';
+import { rankIconMap, rankOrderMap, rankColorsAtom } from '../../app/state/types/tekkenTypes';
 import Image from 'next/image';
 
 interface ChartDataPoint {
@@ -44,13 +43,12 @@ interface CustomXAxisTickProps {
 
 export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.2 }) => {
   const rankDistribution = useAtomValue(rankDistributionNewAtom);
-  const rankColors = useAtomValue(rankColorsAtom);
   const { width } = useWindowSize();
   const isMobile = isMobileView(width);
 
   const chartData: ChartDataPoint[] = rankDistribution.map((entry) => {
     const rankName = rankOrderMap[entry.dan_rank] || 'Unknown';
-    const colorEntry = rankColors.find((rc) => rc.id === rankName);
+    const colorEntry = rankColorsAtom.find((rc) => rc.id === rankName);
     return {
       rank: rankName,
       percentage: entry.percentage,
@@ -139,7 +137,7 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
       transition={{ duration: 0.5, delay }}
       className="w-full"
     >
-      <Card>
+      <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700">
         <CardHeader>
           <div>
             <CardTitle className="text-2xl font-bold">Rank Distribution</CardTitle>

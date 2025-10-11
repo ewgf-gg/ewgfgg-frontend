@@ -40,7 +40,7 @@ export interface MatchupStat {
     wins: number;
     losses: number;
     winRate: number | null;
-    totalMatches: number;
+    totalGames: number;
 }
 
 export interface DailyActivity {

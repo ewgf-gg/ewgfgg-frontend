@@ -29,7 +29,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
       transition={{ duration: 0.5, delay }}
       className="w-full"
     >
-      <Card>
+      <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700">
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-lg">{title}</CardTitle>

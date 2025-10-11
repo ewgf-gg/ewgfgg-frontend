@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
-import { Battle, BattleType } from '../../app/state/types/tekkenTypes';
+import { Battle } from '../../app/state/types/PlayerPageTypes';
+import { characterIdMap } from '../../app/state/types/tekkenTypes';
 import { format, subDays } from 'date-fns';
 import { Button } from '../ui/button';
 
@@ -55,12 +56,14 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
 
   // Calculate all-time winrate data with bucketing to reduce data points
   const allTimeData = useMemo(() => {
+    // Convert selectedCharacterId to character name if provided
+    const selectedCharacterName = selectedCharacterId ? characterIdMap[selectedCharacterId] : null;
 
-    const filteredBattles = battles.filter(battle => 
-      battle.battleType === BattleType.RANKED_BATTLE && 
-      (selectedCharacterId 
-        ? (battle.player1CharacterId === selectedCharacterId ||
-           battle.player2CharacterId === selectedCharacterId)
+    const filteredBattles = battles.filter(battle =>
+      battle.battleType === 'RANKED_BATTLE' &&
+      (selectedCharacterName 
+        ? (battle.p1Char === selectedCharacterName ||
+           battle.p2Char === selectedCharacterName)
         : true)
     );
 
@@ -68,25 +71,25 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
     
     // Sort battles by date (oldest first)
     const sortedBattles = filteredBattles.slice().sort((a, b) => 
-      new Date(a.date).getTime() - new Date(b.date).getTime()
+      new Date(a.battleAt).getTime() - new Date(b.battleAt).getTime()
     );
     
     // Group battles by day to reduce data points
     const battlesByDay: Record<string, { wins: number; losses: number; date: string }> = {};
     
     sortedBattles.forEach(battle => {
-      const date = new Date(battle.date);
+      const date = new Date(battle.battleAt);
       const dayKey = format(date, 'yyyy-MM-dd'); // Group by day
       
       if (!battlesByDay[dayKey]) {
         battlesByDay[dayKey] = {
           wins: 0,
           losses: 0,
-          date: battle.date // Keep the date of the first battle of the day
+          date: battle.battleAt // Keep the date of the first battle of the day
         };
       }
       
-      const isPlayer1 = battle.player1PolarisId === polarisId;
+      const isPlayer1 = battle.p1PolarisId === polarisId;
       const won = isPlayer1 ? battle.winner === 1 : battle.winner === 2;
       
       if (won) battlesByDay[dayKey].wins++;
@@ -195,9 +198,10 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
     <SimpleChartCard
       title="Win Rate Over Time"
       description="Track your win rate progression"
+      height="400px"
       action={timeRangeButtons}
     >
-      <div className="w-full h-[400px]">
+      <div className="w-full h-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={displayData}

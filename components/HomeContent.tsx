@@ -7,11 +7,14 @@ import Footer from './ui/Footer';
 import { StatsGrid } from './homepage-charts/StatsGrid';
 import { RankDistributionChart } from './homepage-charts/RankDistributionChart';
 import { RegionDistributionChart } from './homepage-charts/RegionDistributionChart';
+import { CharacterIconGallery } from './homepage-charts/CharacterIconGallery';
+import { LazyChartWrapper } from './shared/LazyChartWrapper';
 import {
   dataViewModeAtom,
   homepageDataAtom,
   pickratesAtom,
   winratesAtom,
+  trendsAtom,
   activePlayersAtom,
   rankDistributionNewAtom
 } from '../app/state/atoms/tekkenStatsAtoms';
@@ -23,6 +26,7 @@ export default function HomeContent({ initialData }: HomeContentProps) {
   const [, setHomepageData] = useAtom(homepageDataAtom);
   const [, setPickrates] = useAtom(pickratesAtom);
   const [, setWinrates] = useAtom(winratesAtom);
+  const [, setTrends] = useAtom(trendsAtom);
   const [, setActivePlayers] = useAtom(activePlayersAtom);
   const [, setRankDistribution] = useAtom(rankDistributionNewAtom);
 
@@ -40,10 +44,12 @@ export default function HomeContent({ initialData }: HomeContentProps) {
         if (dataViewMode === '30days') {
           setPickrates(initialData['30d_pickrates']);
           setWinrates(initialData['30d_winrates']);
+          setTrends(initialData['30d_trends'] || []);
           setRankDistribution(initialData['30d_rank_distib']);
         } else {
           setPickrates(initialData['ver_pickrates']);
           setWinrates(initialData['ver_winrates']);
+          setTrends(initialData['ver_trends'] || []);
           // Use ver_distribution entries if available
           if (initialData['ver_distribution'] && initialData['ver_distribution'].length > 0) {
             setRankDistribution(initialData['ver_distribution'][0].entries);
@@ -53,7 +59,7 @@ export default function HomeContent({ initialData }: HomeContentProps) {
       });
     }
   }, [initialData, dataViewMode, setHomepageData, setPickrates, setWinrates, 
-      setActivePlayers, setRankDistribution]);
+      setTrends, setActivePlayers, setRankDistribution]);
 
   // Update data when view mode changes
   useEffect(() => {
@@ -61,17 +67,19 @@ export default function HomeContent({ initialData }: HomeContentProps) {
       if (dataViewMode === '30days') {
         setPickrates(initialData['30d_pickrates']);
         setWinrates(initialData['30d_winrates']);
+        setTrends(initialData['30d_trends'] || []);
         setRankDistribution(initialData['30d_rank_distib']);
       } else {
         setPickrates(initialData['ver_pickrates']);
         setWinrates(initialData['ver_winrates']);
+        setTrends(initialData['ver_trends'] || []);
         // Use ver_distribution entries if available
         if (initialData['ver_distribution'] && initialData['ver_distribution'].length > 0) {
           setRankDistribution(initialData['ver_distribution'][0].entries);
         }
       }
     }
-  }, [dataViewMode, initialData, setPickrates, setWinrates, setRankDistribution]);
+  }, [dataViewMode, initialData, setPickrates, setWinrates, setTrends, setRankDistribution]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-white">
@@ -105,6 +113,9 @@ export default function HomeContent({ initialData }: HomeContentProps) {
         
         <StatsGrid />
         <RankDistributionChart />
+        <LazyChartWrapper height="600px">
+          <CharacterIconGallery />
+        </LazyChartWrapper>
       </main>
       <Footer />
     </div>

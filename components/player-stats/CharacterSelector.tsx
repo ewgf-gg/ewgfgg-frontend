@@ -1,14 +1,15 @@
 import React, { useMemo } from 'react';
+import { useAtom } from 'jotai';
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { circularCharacterIconMap, rankIconMap, rankOrderMap } from '../../app/state/types/tekkenTypes';
-import { motion } from 'framer-motion';
 import { PlayerMatchupSummary } from '../../app/state/types/PlayerPageTypes';
+import { selectedCharacterAtom } from '../../app/state/atoms/tekkenStatsAtoms';
 import Image from 'next/image';
 
 interface CharacterSelectorProps {
   characters: Record<string, Record<string, PlayerMatchupSummary>>;
   onSelectCharacter: (characterId: string) => void;
-  selectedCharacterId: string | null;
+  selectedCharacterId?: string | null;
 }
 
 interface AggregatedCharacterStats {
@@ -23,8 +24,8 @@ interface AggregatedCharacterStats {
 export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
   characters,
   onSelectCharacter,
-  selectedCharacterId
 }) => {
+  const [selectedCharacterId] = useAtom(selectedCharacterAtom);
   // Aggregate stats across all battle types for each character
   const characterSummaries = useMemo(() => {
     const aggregated = Object.entries(characters).map(([characterName, battleTypes]) => {
@@ -73,7 +74,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
   }, [characters]);
 
   return (
-    <Card className="h-full">
+    <Card className="h-full bg-gray-800/50 backdrop-blur-sm border-gray-700">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg">Characters</CardTitle>
       </CardHeader>
@@ -93,15 +94,12 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
                 const currentSeasonRank = character.currentSeasonRank || 'Beginner';
 
                 return (
-                  <motion.tr
+                  <tr
                     key={character.characterName}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
                     onClick={() => onSelectCharacter(character.characterName)}
                     className={`cursor-pointer transition-all duration-200 border-b last:border-b-0 ${
                       character.characterName === selectedCharacterId
-                        ? 'bg-primary/10 border-l-4 border-l-primary'
+                        ? 'bg-purple-500/10 border-l-4 border-l-purple-500'
                         : 'hover:bg-muted/50'
                     }`}
                   >
@@ -140,7 +138,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
                         {character.winRate.toFixed(1)}%
                       </span>
                     </td>
-                  </motion.tr>
+                  </tr>
                 );
               })}
             </tbody>

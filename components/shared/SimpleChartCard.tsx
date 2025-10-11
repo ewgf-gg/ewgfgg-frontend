@@ -34,7 +34,7 @@ export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
       transition={{ duration: 0.5, delay }}
       className="w-full"
     >
-      <Card className="h-full">
+      <Card className="h-full bg-gray-800/50 backdrop-blur-sm border-gray-700">
         <CardHeader className={headerClassName}>
           <div className="flex justify-between items-center sm:flex-row flex-col gap-2">
             <div>

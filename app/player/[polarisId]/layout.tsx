@@ -25,6 +25,14 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   // Fetch player data
   const response = await fetch(`${process.env.API_URL}/player-stats/metaData/${params.polarisId}`)
+  
+  if (!response.ok) {
+    return {
+      title: 'Player Not Found',
+      description: 'The requested player profile could not be found.'
+    }
+  }
+  
   const playerData: PlayerMetadata = await response.json()
 
   if (!playerData) {

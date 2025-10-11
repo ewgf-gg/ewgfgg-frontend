@@ -61,7 +61,7 @@ const CharacterWinLossChart: React.FC<CharacterWinLossChartProps> = ({
   const battleTypeDisplay = selectedBattleType === 'RANKED_BATTLE' ? 'Ranked' : 'Quick Match';
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col bg-gray-800/50 backdrop-blur-sm border-gray-700">
       <CardHeader className="items-center pb-0">
         <CardTitle>Character Winrate</CardTitle>
         <CardDescription>{battleTypeDisplay} winrate</CardDescription>

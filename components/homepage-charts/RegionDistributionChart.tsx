@@ -2,7 +2,8 @@ import React from 'react';
 import { useAtomValue } from 'jotai';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
-import { activePlayersAtom, regionColors } from '../../app/state/atoms/tekkenStatsAtoms';
+import { activePlayersAtom } from '../../app/state/atoms/tekkenStatsAtoms';
+import { regionColors } from '../../app/state/types/tekkenTypes';
 
 interface RegionData {
   name: string;

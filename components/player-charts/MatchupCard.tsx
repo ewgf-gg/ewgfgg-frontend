@@ -21,7 +21,7 @@ const MatchupCard: React.FC<MatchupCardProps> = ({
   const iconPath = circularCharacterIconMap[characterName] || `/static/character-icons/${characterName.replace(/[\s-]/g, '')}T8.png`;
   
   return (
-    <Card className="flex flex-col items-center">
+    <Card className="flex flex-col items-center bg-gray-800/50 backdrop-blur-sm border-gray-700">
       <CardHeader className="text-center pb-2">
         <CardTitle className="text-lg">{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}

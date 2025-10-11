@@ -3,7 +3,8 @@ import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
-import { Battle, characterIdMap, characterIconMap, PlayedCharacter } from '../../app/state/types/tekkenTypes';
+import { characterIdMap, characterIconMap } from '../../app/state/types/tekkenTypes';
+import { Battle, PlayerMatchupSummary } from '../../app/state/types/PlayerPageTypes';
 import Image from 'next/image';
 
 interface CharacterWinrateChartProps {
@@ -12,7 +13,7 @@ interface CharacterWinrateChartProps {
   // eslint-disable-next-line
   playerName: string;
   polarisId: string;
-  playedCharacters?: Record<string, PlayedCharacter>;
+  playedCharacters?: Record<string, Record<string, PlayerMatchupSummary>>;
 }
 
 interface WinrateData {
@@ -193,22 +194,32 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
 
   const chartData = useMemo(() => {
     // Get the character data from playedCharacters
-    const character = playedCharacters?.[selectedCharName];
+    // Structure: playedCharacters[characterName][battleType] = PlayerMatchupSummary
+    const characterData = playedCharacters?.[selectedCharName];
     
-    if (!character || !character.matchups) {
+    if (!characterData) {
+      return [];
+    }
+    
+    // Get RANKED_BATTLE data (or first available battle type)
+    const rankedData = characterData['RANKED_BATTLE'] || Object.values(characterData)[0];
+    
+    if (!rankedData || !rankedData.currentSeasonMatchups) {
       return [];
     }
     
     // Convert matchups to chart data format
-    return Object.entries(character.matchups).map(([opponentName, matchup]) => ({
-      characterName: opponentName,
-      // eslint-disable-next-line
-      characterId: Object.entries(characterIdMap).find(([_, name]) => name === opponentName)?.[0] || 0,
-      wins: matchup.wins,
-      losses: matchup.losses,
-      winRate: matchup.winRate,
-      totalMatches: matchup.totalMatches
-    })).sort((a, b) => b.winRate - a.winRate);
+    return Object.entries(rankedData.currentSeasonMatchups).map(([opponentName, matchup]: [string, any]) => {
+      const charIdEntry = Object.entries(characterIdMap).find(([_, name]) => name === opponentName);
+      return {
+        characterName: opponentName,
+        characterId: charIdEntry ? parseInt(charIdEntry[0]) : 0,
+        wins: matchup.wins,
+        losses: matchup.losses,
+        winRate: matchup.winRate || 0,
+        totalMatches: matchup.totalMatches
+      };
+    }).sort((a, b) => b.winRate - a.winRate);
   }, [selectedCharName, playedCharacters]);
 
   const selectedCharacterName = characterIdMap[selectedCharacterId];
@@ -240,6 +251,7 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
     <SimpleChartCard
       title="Character Matchup Winrates"
       description="Winrate distribution against different characters"
+      height="400px"
       action={selectedCharacterIcon && (
         <Image
           src={selectedCharacterIcon}

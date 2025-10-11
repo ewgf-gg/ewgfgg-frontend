@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { Bar, BarChart, LabelList, XAxis, YAxis, Tooltip, Cell, TooltipProps, ResponsiveContainer } from 'recharts';
-import { winratesAtom, characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
+import { winratesAtom } from '../../app/state/atoms/tekkenStatsAtoms';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { CustomYAxisTick } from '../shared/CustomYAxisTick';
-import { characterIconMap, characterIdMap } from '../../app/state/types/tekkenTypes';
+import { characterIconMap, characterIdMap, characterColors } from '../../app/state/types/tekkenTypes';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 
@@ -137,7 +137,6 @@ const ClientSideChart = dynamic(() => Promise.resolve(Chart), {
 export const WinrateChart: React.FC<{ title: string; description?: string; delay?: number }> = (props) => {
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
   const winrates = useAtomValue(winratesAtom);
-  const colors = useAtomValue(characterColors);
 
   useEffect(() => {
     if (isInitialRender) setIsInitialRender(false);
@@ -188,7 +187,7 @@ export const WinrateChart: React.FC<{ title: string; description?: string; delay
         domainMax={domainMax}
         ticks={ticks}
         isInitialRender={isInitialRender}
-        colors={colors}
+        colors={characterColors}
       />
     </SimpleChartCard>
   );

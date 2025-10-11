@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAtom } from 'jotai';
-import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { totalRankedReplaysAtom, totalUnrankedReplaysAtom, totalPlayersAtom } from '@/app/state/atoms/tekkenStatsAtoms';
 import { SearchBar } from '@/components/SearchBar';
@@ -53,8 +52,6 @@ export function Header() {
   const [totalRankedReplays] = useAtom(totalRankedReplaysAtom);
   const [totalUnrankedReplays] = useAtom(totalUnrankedReplaysAtom);
   const [totalPlayers] = useAtom(totalPlayersAtom);
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [storedPolarisId, setStoredPolarisId] = useState<string | null>(null);
   const { polarisId } = usePolarisId();
   const router = useRouter();
@@ -67,7 +64,6 @@ export function Header() {
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    setMounted(true);
     const id = localStorage.getItem("polarisId");
     if (id) setStoredPolarisId(id);
   }, []);
@@ -121,12 +117,13 @@ export function Header() {
   const animatedReplays = useAnimatedCounter(totalRankedReplays, 2000);
   const animatedUnrankedReplays = useAnimatedCounter(totalUnrankedReplays, 2000);
 
-  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
-
   const navLinks = [
     { href: '/statistics', label: 'Statistics' },
+    { href: '/activity', label: 'Game Activity' },
     { href: '/leaderboards', label: 'Leaderboards' },
-    { href: '/about', label: 'About' }
+    { href: '/api-docs', label: 'API' },
+    { href: '/about', label: 'About' },
+    { href: '/support', label: 'Support Us ❤️' }
   ];
 
   return (
@@ -161,25 +158,31 @@ export function Header() {
                 <Link 
                   key={link.href}
                   href={link.href} 
-                  className="relative px-6 py-2.5 text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white font-medium text-sm transition-all duration-300 group"
+                  className={`relative px-6 py-2.5 font-medium text-sm transition-all duration-300 group ${
+                    link.href === '/support' 
+                      ? 'bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 text-white rounded-lg shadow-lg hover:shadow-pink-500/50 animate-pulse-slow hover:scale-105' 
+                      : 'text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white'
+                  }`}
                 >
                   <span className="relative z-10">{link.label}</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-blue-400 group-hover:w-3/4 transition-all duration-300" />
+                  {link.href !== '/support' && (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-blue-400 group-hover:w-3/4 transition-all duration-300" />
+                    </>
+                  )}
                 </Link>
               ))}
               
-              {/* My Profile Button with Animation */}
+              {/* My Profile Button */}
               <AnimatePresence>
                 {polarisId && (
                   <motion.button
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                     onClick={() => router.push(`/player/${polarisId}`)}
-                    className="ml-4 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold text-sm rounded-lg shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
+                    className="ml-4 px-6 py-2.5 border border-purple-500 hover:border-purple-400 text-purple-400 hover:text-purple-300 font-medium text-sm rounded-lg transition-colors duration-200"
                   >
                     My Profile
                   </motion.button>
@@ -187,7 +190,7 @@ export function Header() {
               </AnimatePresence>
             </div>
 
-            {/* Stats and Theme Toggle */}
+            {/* Stats */}
             <div className="hidden lg:flex items-center space-x-6">
               {/* Animated Stats */}
               <div className="flex items-center space-x-4">
@@ -212,81 +215,21 @@ export function Header() {
                   </p>
                 </div>
               </div>
-
-              {/* Theme Toggle Button */}
-              {mounted && (
-                <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={toggleTheme} 
-                  className="p-3 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 dark:bg-gray-800/50 dark:hover:bg-gray-700/50 transition-colors duration-300"
-                  aria-label="Toggle theme"
-                >
-                  <AnimatePresence mode="wait">
-                    {theme === 'dark' ? (
-                      <motion.svg
-                        key="sun"
-                        initial={{ rotate: -90, opacity: 0 }}
-                        animate={{ rotate: 0, opacity: 1 }}
-                        exit={{ rotate: 90, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        xmlns="http://www.w3.org/2000/svg" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        strokeWidth={1.5} 
-                        stroke="currentColor" 
-                        className="w-5 h-5 text-yellow-300"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-                      </motion.svg>
-                    ) : (
-                      <motion.svg
-                        key="moon"
-                        initial={{ rotate: 90, opacity: 0 }}
-                        animate={{ rotate: 0, opacity: 1 }}
-                        exit={{ rotate: -90, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        xmlns="http://www.w3.org/2000/svg" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        strokeWidth={1.5} 
-                        stroke="currentColor" 
-                        className="w-5 h-5 text-gray-300"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                      </motion.svg>
-                    )}
-                  </AnimatePresence>
-                </motion.button>
-              )}
-            </div>
-
-            {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center space-x-3">
-              {mounted && (
-                <button onClick={toggleTheme} className="p-2 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-colors">
-                  {theme === 'dark' ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-yellow-300">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-300">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                    </svg>
-                  )}
-                </button>
-              )}
             </div>
           </div>
 
           {/* Mobile Navigation */}
           <div className="md:hidden mt-4 flex flex-wrap items-center justify-between">
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 flex-wrap gap-y-2">
               {navLinks.map((link) => (
                 <Link 
                   key={link.href}
                   href={link.href} 
-                  className="text-gray-300 hover:text-white text-sm font-medium transition-colors"
+                  className={`text-sm font-medium transition-colors ${
+                    link.href === '/support'
+                      ? 'bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 text-white px-3 py-1 rounded-lg animate-pulse-slow'
+                      : 'text-gray-300 hover:text-white'
+                  }`}
                 >
                   {link.label}
                 </Link>
@@ -295,7 +238,7 @@ export function Header() {
             {polarisId && (
               <button
                 onClick={() => router.push(`/player/${polarisId}`)}
-                className="text-sm font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
+                className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
               >
                 My Profile
               </button>

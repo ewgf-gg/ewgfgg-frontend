@@ -1,13 +1,12 @@
 "use client"
 
 import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { TooltipProvider, Tooltip, TooltipTrigger } from '../ui/tooltip';
 import { ChartContainer } from '../ui/chart';
 import { StatPentagonTooltip } from './StatPentagonTooltip';
-import { StatPentagonData } from '@/app/state/types/tekkenTypes';
+import { StatPentagonData } from '@/app/state/types/PlayerPageTypes';
 
 
 interface StatPentagonChartProps {
@@ -49,7 +48,7 @@ export const StatPentagonChart: React.FC<StatPentagonChartProps> = ({
 
   return (
     <TooltipProvider>
-      <Card className="w-full max-w-full mx-auto overflow-visible h-full max-h-[350px] flex flex-col relative">
+      <Card className="w-full max-w-full mx-auto overflow-visible h-full max-h-[350px] flex flex-col relative bg-gray-800/50 backdrop-blur-sm border-gray-700">
         <div className='flex items-center justify-between px-4 py-2 w-full'>
           <CardHeader className="pb-0 pt-1 flex items-center">
             <CardTitle className="text-base">Stat Pentagon</CardTitle>
@@ -62,12 +61,7 @@ export const StatPentagonChart: React.FC<StatPentagonChartProps> = ({
           </span>
         </div>
         <CardContent className="p-2 pt-0 pb-2 flex-grow max-h-[300px]">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-            className="flex flex-col items-center h-full"
-          >
+          <div className="flex flex-col items-center h-full">
             <div className="w-full h-full relative">
               
               <ChartContainer config={chartConfig} className="!aspect-square relative z-10 max-h-[450px] mx-auto">
@@ -181,7 +175,7 @@ export const StatPentagonChart: React.FC<StatPentagonChartProps> = ({
                 </ResponsiveContainer>
               </ChartContainer>
             </div>
-          </motion.div>
+          </div>
         </CardContent>
       </Card>
     </TooltipProvider>

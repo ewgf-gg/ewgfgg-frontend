@@ -4,10 +4,9 @@ import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
-import { Battle, characterIdMap, characterIconMap } from '../../app/state/types/tekkenTypes';
+import { Battle } from '../../app/state/types/PlayerPageTypes';
+import { characterIdMap, characterIconMap, characterColors } from '../../app/state/types/tekkenTypes';
 import Image from 'next/image';
-import { useAtomValue } from 'jotai';
-import { characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
 
 interface CharacterDistributionChartProps {
   battles: Battle[];
@@ -145,7 +144,6 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
   selectedCharacterId,
   polarisId
 }) => {
-  const colors = useAtomValue(characterColors);
   // Call hooks at the top level, before any conditional logic
   const { width } = useWindowSize();
   const isMobile = isMobileView(width);
@@ -160,29 +158,38 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
       return { chartData: [], maxMatches: 10, yAxisTicks: [0, 2, 4, 6, 8, 10] };
     }
 
+    // Convert selectedCharacterId to character name
+    const selectedCharName = characterIdMap[selectedCharacterId];
+    if (!selectedCharName) {
+      return { chartData: [], maxMatches: 10, yAxisTicks: [0, 2, 4, 6, 8, 10] };
+    }
+
     // Filter battles for selected character
     const characterBattles = battles.filter(battle => {
-      const isPlayer1 = battle.player1PolarisId === polarisId;
+      const isPlayer1 = battle.p1PolarisId === polarisId;
       return isPlayer1 
-        ? battle.player1CharacterId === selectedCharacterId
-        : battle.player2CharacterId === selectedCharacterId;
+        ? battle.p1Char === selectedCharName
+        : battle.p2Char === selectedCharName;
     });
 
     // Calculate total matches against each character
     const distributionData = characterBattles.reduce<Record<string, DistributionData>>((acc, battle) => {
-      const isPlayer1 = battle.player1PolarisId === polarisId;
-      const opponentCharId = isPlayer1 ? battle.player2CharacterId : battle.player1CharacterId;
-      const characterName = characterIdMap[opponentCharId] || `Character ${opponentCharId}`;
+      const isPlayer1 = battle.p1PolarisId === polarisId;
+      const opponentCharName = isPlayer1 ? battle.p2Char : battle.p1Char;
+      
+      // Find character ID from name for color mapping
+      const charIdEntry = Object.entries(characterIdMap).find(([_, name]) => name === opponentCharName);
+      const charId = charIdEntry ? parseInt(charIdEntry[0]) : 0;
 
-      if (!acc[characterName]) {
-        acc[characterName] = {
-          characterName,
-          characterId: opponentCharId,
+      if (!acc[opponentCharName]) {
+        acc[opponentCharName] = {
+          characterName: opponentCharName,
+          characterId: charId,
           totalMatches: 0
         };
       }
 
-      acc[characterName].totalMatches++;
+      acc[opponentCharName].totalMatches++;
       return acc;
     }, {});
 
@@ -234,6 +241,7 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
     <SimpleChartCard
       title="Character Matchup Distribution"
       description="Total matches played against different characters"
+      height="400px"
       action={selectedCharacterIcon && (
         <Image
           src={selectedCharacterIcon}
@@ -301,7 +309,7 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
               isAnimationActive={false}
             >
               {chartData.map((entry) => {
-                const colorMapping = colors.find(c => c.id === entry.characterId.toString());
+                const colorMapping = characterColors.find(c => c.id === entry.characterId.toString());
                 return (
                   <Cell 
                     key={`cell-${entry.characterName}`} 

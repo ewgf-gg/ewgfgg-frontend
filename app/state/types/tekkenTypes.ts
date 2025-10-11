@@ -61,7 +61,12 @@ export interface WinrateEntry {
 }
 
 export interface TrendEntry {
-    // Define when backend provides this
+    asOfDate: string;
+    tkChar: string;
+    newWr: number;
+    oldWr: number;
+    delta: number;
+    trend: 'increase' | 'decrease';
 }
 
 export interface ActivePlayerRegion {

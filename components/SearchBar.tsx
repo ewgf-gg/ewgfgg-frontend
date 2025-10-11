@@ -80,7 +80,9 @@ export function SearchBar() {
     if (selectedPlayer) {
       setOpen(false);
       setSearchQuery('');
-      router.push(`/player/${encodeURIComponent(selectedPlayer.polarisId)}`);
+      // Remove hyphens from polaris ID before navigation
+      const unhyphenatedPolarisId = selectedPlayer.polarisId.replace(/-/g, '');
+      router.push(`/player/${encodeURIComponent(unhyphenatedPolarisId)}`);
     }
   }, [searchResults, router]);
 

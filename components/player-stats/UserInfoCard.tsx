@@ -64,6 +64,11 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
   const { polarisId: currentPolarisId, setPolarisId } = usePolarisId(); 
   const [isFollowing, setIsFollowing] = useState(false)
 
+  // Extract character name and rank from the Record<string, string>
+  const mainCharEntry = Object.entries(mainCharacterAndRank)[0] || ['', '']
+  const characterName = mainCharEntry[0]
+  const danRank = mainCharEntry[1]
+
   useEffect(() => {
     const following = JSON.parse(localStorage.getItem('following') || '[]')
     setIsFollowing(following.includes(polarisId))
@@ -93,29 +98,21 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
 
   return (
     <TooltipProvider>
-      <Card className="w-full overflow-hidden shadow-md">
+      <Card className="w-full overflow-hidden shadow-md bg-gray-800/50 backdrop-blur-sm border-gray-700">
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4 items-center">
-            {/* Left section - Avatar and rank */}
-            <div className="flex items-center gap-4">
-              <Avatar className="size-20 flex justify-center items-center overflow-visible">
+            {/* Left section - Avatar */}
+            <div className="flex items-center">
+              <Avatar className="size-28 flex justify-center items-center overflow-visible">
                 <AvatarImage
-                  src={circularCharacterIconMap[mainCharacterAndRank.characterName]}
-                  alt={mainCharacterAndRank.characterName}
-                  className="object-contain w-auto h-full scale-110"
+                  src={circularCharacterIconMap[characterName]}
+                  alt={characterName}
+                  className="object-contain w-auto h-full scale-125"
                 />
                 <AvatarFallback className="flex justify-center items-center">
                   {username[0]}
                 </AvatarFallback>
               </Avatar>
-              <Image
-                src={rankIconMap[mainCharacterAndRank.danRank]}
-                alt={`${mainCharacterAndRank.danRank} rank icon`}
-                width={60}
-                height={60}
-                className="object-contain"
-                unoptimized
-              />
             </div>
 
             {/* Center section - User info */}
@@ -126,7 +123,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
                   <p className="text-sm text-muted-foreground">{formatPolarisId(polarisId)}</p>
                 </div>
                 
-                <div className="flex flex-col md:flex-row gap-4 md:items-center">
+                <div className="flex flex-col gap-2">
                   <div className="flex items-center space-x-2">
                     <MapPinIcon className="w-4 h-4 text-muted-foreground" />
                     <span className="text-sm">{regionId}</span>
@@ -139,8 +136,18 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
               </div>
             </div>
 
-            {/* Right section - Action button */}
-            <div className="flex items-center">
+            {/* Right section - Rank icon and Action button */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex justify-center">
+                <Image
+                  src={rankIconMap[danRank]}
+                  alt={`${danRank} rank icon`}
+                  width={120}
+                  height={120}
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button

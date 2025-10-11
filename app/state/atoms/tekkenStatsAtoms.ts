@@ -6,6 +6,7 @@ import type {
   RecentlyActivePlayer,
   PickrateEntry,
   WinrateEntry,
+  TrendEntry,
   ActivePlayerRegion,
   RankDistributionEntry,
   HomepageData
@@ -16,6 +17,7 @@ import type {
 export const dataViewModeAtom = atom<'30days' | 'currentVersion'>('30days');
 export const pickratesAtom = atom<PickrateEntry[]>([]);
 export const winratesAtom = atom<WinrateEntry[]>([]);
+export const trendsAtom = atom<TrendEntry[]>([]);
 export const activePlayersAtom = atom<ActivePlayerRegion[]>([]);
 export const rankDistributionNewAtom = atom<RankDistributionEntry[]>([]);
 export const homepageDataAtom = atom<HomepageData | null>(null);

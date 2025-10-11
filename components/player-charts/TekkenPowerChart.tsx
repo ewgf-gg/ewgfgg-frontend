@@ -3,10 +3,10 @@
 import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
-import { Battle, BattleType } from '../../app/state/types/tekkenTypes';
+import { Battle } from '../../app/state/types/PlayerPageTypes';
+import { rankDivisionColors } from '../../app/state/types/tekkenTypes';
 import { format, subDays } from 'date-fns';
 import { Button } from '../ui/button';
-import { rankDivisionColors } from '../../app/state/atoms/tekkenStatsAtoms';
 
 interface TekkenPowerChartProps {
   battles: Battle[];
@@ -136,14 +136,14 @@ const TekkenPowerChart: React.FC<TekkenPowerChartProps> = ({
     
     // Filter for ranked battles only
     const rankedBattles = battles.filter(battle => 
-      battle.battleType === BattleType.RANKED_BATTLE
+      battle.battleType === 'RANKED_BATTLE'
     );
     
     if (rankedBattles.length === 0) return [];
     
     // Sort battles by date (oldest first)
     const sortedBattles = rankedBattles.slice().sort((a, b) => 
-      new Date(a.date).getTime() - new Date(b.date).getTime()
+      new Date(a.battleAt).getTime() - new Date(b.battleAt).getTime()
     );
     
     // Group battles by day to reduce data points
@@ -155,18 +155,18 @@ const TekkenPowerChart: React.FC<TekkenPowerChartProps> = ({
     }> = {};
     
     sortedBattles.forEach(battle => {
-      const date = new Date(battle.date);
+      const date = new Date(battle.battleAt);
       const dayKey = format(date, 'yyyy-MM-dd'); // Group by day
-      const isPlayer1 = battle.player1PolarisId === polarisId;
-      const tekkenPower = isPlayer1 ? battle.player1TekkenPower : battle.player2TekkenPower;
+      const isPlayer1 = battle.p1PolarisId === polarisId;
+      const tekkenPower = isPlayer1 ? battle.p1TekkenPower : battle.p2TekkenPower;
       
       // For each day, keep the latest battle's tekken power
-      if (!battlesByDay[dayKey] || new Date(battle.date) > new Date(battlesByDay[dayKey].date)) {
+      if (!battlesByDay[dayKey] || new Date(battle.battleAt) > new Date(battlesByDay[dayKey].date)) {
         const rankDivision = getRankDivision(tekkenPower);
-        const color = rankDivisionColors.init.find(c => c.id === rankDivision.toString())?.color || '#718096';
+        const color = rankDivisionColors.find(c => c.id === rankDivision.toString())?.color || '#718096';
         
         battlesByDay[dayKey] = {
-          date: battle.date,
+          date: battle.battleAt,
           tekkenPower,
           rankDivision,
           color
@@ -257,9 +257,10 @@ const TekkenPowerChart: React.FC<TekkenPowerChartProps> = ({
     <SimpleChartCard
       title="Tekken Power Over Time"
       description="Track your Tekken Power progression"
+      height="400px"
       action={<TimeRangeButtons timeSpan={timeSpan} setTimeSpan={setTimeSpan} />}
     >
-      <div className="w-full h-[400px]">
+      <div className="w-full h-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={displayData}
@@ -271,7 +272,7 @@ const TekkenPowerChart: React.FC<TekkenPowerChartProps> = ({
             }}
           >
             <defs>
-              {rankDivisionColors.init.map((ColorMapping) => (
+              {rankDivisionColors.map((ColorMapping) => (
                 <linearGradient
                   key={ColorMapping.id}
                   id={`gradient-${ColorMapping.id}`}
