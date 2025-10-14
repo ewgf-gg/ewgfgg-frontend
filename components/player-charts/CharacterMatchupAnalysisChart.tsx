@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell, LabelList } from 'recharts';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { characterIdMap, characterIconMap, characterColors } from '../../app/state/types/tekkenTypes';
@@ -472,6 +472,15 @@ const CharacterMatchupAnalysisChart: React.FC<CharacterMatchupAnalysisChartProps
                     />
                   );
                 })}
+                {mode === 'distribution' && (
+                  <LabelList 
+                    dataKey="totalMatches"
+                    position={isMobile ? "right" : "top"}
+                    fontSize={12}
+                    fill="currentColor"
+                    offset={5}
+                  />
+                )}
               </Bar>
             </BarChart>
           </ResponsiveContainer>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
-import { totalRankedReplaysAtom, totalUnrankedReplaysAtom, totalPlayersAtom } from '@/app/state/atoms/tekkenStatsAtoms';
+import { totalActivePlayers30dAtom, totalRankedReplays30dAtom, totalUnrankedReplays30dAtom } from '@/app/state/atoms/tekkenStatsAtoms';
 import { SearchBar } from '@/components/SearchBar';
 import { usePolarisId } from '@/lib/hooks/usePolarisId';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -49,9 +49,9 @@ const formatNumber = (num: number): string => {
 };
 
 export function Header() {
-  const [totalRankedReplays] = useAtom(totalRankedReplaysAtom);
-  const [totalUnrankedReplays] = useAtom(totalUnrankedReplaysAtom);
-  const [totalPlayers] = useAtom(totalPlayersAtom);
+  const [totalActivePlayers30d] = useAtom(totalActivePlayers30dAtom);
+  const [totalRankedReplays30d] = useAtom(totalRankedReplays30dAtom);
+  const [totalUnrankedReplays30d] = useAtom(totalUnrankedReplays30dAtom);
   const [storedPolarisId, setStoredPolarisId] = useState<string | null>(null);
   const { polarisId } = usePolarisId();
   const router = useRouter();
@@ -113,9 +113,9 @@ export function Header() {
     };
   }, []);
 
-  const animatedPlayers = useAnimatedCounter(totalPlayers, 2000);
-  const animatedReplays = useAnimatedCounter(totalRankedReplays, 2000);
-  const animatedUnrankedReplays = useAnimatedCounter(totalUnrankedReplays, 2000);
+  const animatedPlayers = useAnimatedCounter(totalActivePlayers30d, 2000);
+  const animatedReplays = useAnimatedCounter(totalRankedReplays30d, 2000);
+  const animatedUnrankedReplays = useAnimatedCounter(totalUnrankedReplays30d, 2000);
 
   const navLinks = [
     { href: '/statistics', label: 'Statistics' },

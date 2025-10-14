@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { Battle } from '../../app/state/types/PlayerPageTypes';
@@ -317,6 +317,13 @@ const CharacterDistributionChart: React.FC<CharacterDistributionChartProps> = ({
                   />
                 );
               })}
+              <LabelList 
+                dataKey="totalMatches" 
+                position={isMobile ? "right" : "top"}
+                fontSize={12}
+                fill="currentColor"
+                offset={5}
+              />
             </Bar>
           </BarChart>
         </ResponsiveContainer>
