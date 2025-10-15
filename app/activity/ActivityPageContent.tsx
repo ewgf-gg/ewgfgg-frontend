@@ -21,6 +21,7 @@ export const ActivityPageContent: React.FC<ActivityPageContentProps> = ({
     rank: 'all',
     region: 'all'
   });
+  const [filterKey, setFilterKey] = useState(0);
 
   // Filter active players based on selected filters
   const filteredPlayers = useMemo(() => {
@@ -30,6 +31,12 @@ export const ActivityPageContent: React.FC<ActivityPageContentProps> = ({
       return rankMatch && regionMatch;
     });
   }, [activePlayers, filters]);
+
+  // Handle filter changes and reset pagination
+  const handleFilterChange = (newFilters: ActivePlayersFilters) => {
+    setFilters(newFilters);
+    setFilterKey(prev => prev + 1); // Force remount to reset pagination
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-white">
@@ -55,10 +62,11 @@ export const ActivityPageContent: React.FC<ActivityPageContentProps> = ({
         <div className="space-y-4">
           <ActivePlayersFilter 
             filters={filters}
-            onFilterChange={setFilters}
+            onFilterChange={handleFilterChange}
           />
           
           <ActivePlayersList 
+            key={filterKey}
             players={filteredPlayers}
           />
         </div>

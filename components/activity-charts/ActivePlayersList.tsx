@@ -1,21 +1,80 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 import { ActivePlayer } from '@/app/state/types/ActivityPageTypes';
 import { characterIconMap, rankIconMap, Regions } from '@/app/state/types/tekkenTypes';
 import { formatDistanceToNow } from 'date-fns';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ActivePlayersListProps {
   players: ActivePlayer[];
   isLoading?: boolean;
 }
 
+const PLAYERS_PER_PAGE = 50; // Only render 50 players at a time
+
 export const ActivePlayersList: React.FC<ActivePlayersListProps> = ({ players, isLoading }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(players.length / PLAYERS_PER_PAGE);
+  const startIndex = (currentPage - 1) * PLAYERS_PER_PAGE;
+  const endIndex = startIndex + PLAYERS_PER_PAGE;
+  const currentPlayers = players.slice(startIndex, endIndex);
+
+  const handlePrevPage = () => {
+    setCurrentPage(prev => Math.max(1, prev - 1));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(totalPages, prev + 1));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Generate page numbers to show (with ellipsis)
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const showEllipsis = totalPages > 7;
+
+    if (!showEllipsis) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    // Always show first page
+    pages.push(1);
+
+    if (currentPage > 3) {
+      pages.push('...');
+    }
+
+    // Show pages around current page
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+      pages.push(i);
+    }
+
+    if (currentPage < totalPages - 2) {
+      pages.push('...');
+    }
+
+    // Always show last page
+    if (totalPages > 1) {
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
   if (isLoading) {
     return (
       <motion.div
@@ -73,7 +132,7 @@ export const ActivePlayersList: React.FC<ActivePlayersListProps> = ({ players, i
         <CardHeader>
           <CardTitle className="text-white">Active Players</CardTitle>
           <CardDescription className="text-gray-400">
-            Showing {players.length} player{players.length !== 1 ? 's' : ''} currently active
+            Showing {startIndex + 1}-{Math.min(endIndex, players.length)} of {players.length} player{players.length !== 1 ? 's' : ''}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -90,7 +149,7 @@ export const ActivePlayersList: React.FC<ActivePlayersListProps> = ({ players, i
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {players.map((player, index) => (
+                {currentPlayers.map((player, index) => (
                   <TableRow key={`${player.polarisId}-${index}`} className="border-gray-700 hover:bg-gray-700/30">
                     <TableCell>
                       <Link 
@@ -144,6 +203,56 @@ export const ActivePlayersList: React.FC<ActivePlayersListProps> = ({ players, i
               </TableBody>
             </Table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-700">
+              <Button
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                variant="outline"
+                size="sm"
+                className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600 disabled:opacity-50"
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+
+              <div className="flex items-center gap-1">
+                {getPageNumbers().map((page, idx) => (
+                  <React.Fragment key={idx}>
+                    {page === '...' ? (
+                      <span className="px-2 text-gray-500">...</span>
+                    ) : (
+                      <Button
+                        onClick={() => goToPage(page as number)}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        className={
+                          currentPage === page
+                            ? "bg-blue-600 hover:bg-blue-700 text-white"
+                            : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+                        }
+                      >
+                        {page}
+                      </Button>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+
+              <Button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                variant="outline"
+                size="sm"
+                className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600 disabled:opacity-50"
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>

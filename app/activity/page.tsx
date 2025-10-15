@@ -41,20 +41,20 @@ function transformWeeklyTrends(weeklyTrends: WeeklyTrend[]): ActivityGraphData {
   };
 }
 
+// Create reverse lookup map for efficient rank name to danRank conversion
+const rankNameToDanRankMap = Object.entries(rankOrderMap).reduce((acc, [key, value]) => {
+  acc[value] = parseInt(key);
+  return acc;
+}, {} as Record<string, number>);
+
 // Transform backend ActivePlayer data to frontend ActivePlayer
 function transformActivePlayers(backendPlayers: BackendActivePlayer[]): ActivePlayer[] {
   return backendPlayers.map(player => {
     const regionId = player.regionId ?? -1;
     const rankName = player.currentRank || 'Beginner';
     
-    // Find danRank number from rankOrderMap by matching the rank display name
-    let danRank = 0;
-    for (const [key, value] of Object.entries(rankOrderMap)) {
-      if (value === rankName) {
-        danRank = parseInt(key);
-        break;
-      }
-    }
+    // Use direct lookup instead of linear search - O(1) instead of O(n)
+    const danRank = rankNameToDanRankMap[rankName] ?? 0;
     
     return {
       name: player.playerName,

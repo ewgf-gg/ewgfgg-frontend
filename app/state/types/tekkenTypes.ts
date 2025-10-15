@@ -103,6 +103,15 @@ export interface HomepageData {
 export interface HomeContentProps {
     initialData: HomepageData;
 }
+
+export interface VersionStats {
+    [version: string]: {
+        [rank: string]: {
+            globalStats: { [character: string]: number };
+            regionalStats: { [region: string]: { [character: string]: number } };
+        };
+    };
+}
   
 export interface ChartProps {
     title: string;

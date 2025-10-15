@@ -13,9 +13,7 @@ import {
   ResponsiveContainer,
   ReferenceLine
 } from 'recharts';
-import { characterColors } from '../../app/state/atoms/tekkenStatsAtoms';
-import { useAtomValue } from 'jotai';
-import { characterIconMap, characterIdMap } from '../../app/state/types/tekkenTypes';
+import { characterColors, characterIconMap, characterIdMap } from '../../app/state/types/tekkenTypes';
 import Image from 'next/image';
 
 interface VersionStatsChartProps {
@@ -140,7 +138,6 @@ const CustomXAxisTick: React.FC<CustomXAxisTickProps & { isMobile: boolean }> = 
 };
 
 export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) {
-  const colors = useAtomValue(characterColors);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [isInitialRender, setIsInitialRender] = useState(true);
   const { width } = useWindowSize();
@@ -250,7 +247,7 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
           onMouseEnter={(_, index) => setActiveIndex(index)}
         >
           {chartData.map((entry, index) => {
-            const colorMapping = colors.find(c => c.id === entry.characterId.toString());
+            const colorMapping = characterColors.find((c: { id: string; color: string }) => c.id === entry.characterId.toString());
             return (
               <Cell 
                 key={`cell-${entry.character}`} 
