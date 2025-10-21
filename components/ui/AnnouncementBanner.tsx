@@ -11,7 +11,7 @@ export function AnnouncementBanner() {
     <div className="bg-yellow-500 dark:bg-yellow-600 text-black dark:text-white py-2 px-4 text-center relative">
       <div className="container mx-auto">
         <p className="font-medium">
-          <span className="font-bold">⚠️ Website Upgrade in Progress:</span> Rolling out a new feature!! Should be live in 2-3 hours. Battle updates will be paused! 
+          Upgrades are in progress! Profile updates are paused temporarily. Thanks for your patience &lt;3
         </p>
         <button 
           onClick={() => setIsVisible(false)}

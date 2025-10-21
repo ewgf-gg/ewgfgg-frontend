@@ -10,6 +10,7 @@ import { totalRankedReplaysAtom, totalUnrankedReplaysAtom, totalPlayersAtom } fr
 import { SearchBar } from '@/components/SearchBar';
 import { usePolarisId } from '@/lib/hooks/usePolarisId';
 import { AnimatePresence, motion } from 'framer-motion';
+import { AnnouncementBanner } from './AnnouncementBanner';
 
 
 
@@ -238,8 +239,9 @@ export function Header() {
         <div className="md:hidden w-full px-3 py-1.5 bg-gray-800/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-700">
           <SearchBar />
         </div>
+        <AnnouncementBanner />
       </header>
-      <div className="h-20 md:h-14"></div>
+      <div className="h-32 md:h-24"></div>
     </>
   );
 }
