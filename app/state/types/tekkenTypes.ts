@@ -487,7 +487,8 @@ export const characterIdMap: { [key: number]: string} = {
     40: 'Heihachi',
     41: 'Clive',
     42: 'Anna',
-    43: 'Fahkumram'
+    43: 'Fahkumram',
+    44: 'Armor King'
 };
 
 export const characterIconMap: { [key: string]: string } = {
@@ -529,7 +530,8 @@ export const characterIconMap: { [key: string]: string } = {
     'Yoshimitsu': '/static/character-icons/YoshimitsuT8.webp',
     'Zafina': '/static/character-icons/ZafinaT8.webp',
     'Anna': '/static/character-icons/AnnaT8.webp',
-    'Fahkumram': '/static/character-icons/FahkumramT8.webp'
+    'Fahkumram': '/static/character-icons/FahkumramT8.webp',
+    'Armor King': '/static/character-icons/Armor_KingT8.webp'
 };
 
 export const circularCharacterIconMap: { [key: string]: string } = {
@@ -570,5 +572,6 @@ export const circularCharacterIconMap: { [key: string]: string } = {
     'Yoshimitsu': '/static/circular_character_icons/yoshimitsu.webp',
     'Zafina': '/static/circular_character_icons/zafina.webp',
     'Anna': '/static/circular_character_icons/anna.webp',
-    'Fahkumram': '/static/circular_character_icons/fahkumram'
+    'Fahkumram': '/static/circular_character_icons/fahkumram.webp',
+    'Armor King': '/static/circular_character_icons/armor_king.webp'
 };
