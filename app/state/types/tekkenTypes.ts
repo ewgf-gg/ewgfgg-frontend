@@ -210,7 +210,7 @@ export const rankOrderMap: { [key: number]: string } = {
     28: 'Tekken God Supreme',
     29: 'God of Destruction',
     30: 'God of Destruction I',
-    31: 'God Of Destruction II',
+    31: 'God of Destruction II',
     32: 'God of Destruction III',
     33: 'God of Destruction IV',
     34: 'God of Destruction V',
@@ -219,7 +219,7 @@ export const rankOrderMap: { [key: number]: string } = {
     37: 'God of Destruction Infinity',
     100: 'God of Destruction',
     101: 'God of Destruction I',
-    102: 'God Of Destruction II',
+    102: 'God of Destruction II',
     103: 'God of Destruction III',
     104: 'God of Destruction IV',
     105: 'God of Destruction V',
@@ -359,7 +359,8 @@ export const characterIdMap: { [key: number]: string} = {
     40: 'Heihachi',
     41: 'Clive',
     42: 'Anna',
-    43: 'Fahkumram'
+    43: 'Fahkumram',
+    44: 'Armor King'
 };
 
 export const characterIconMap: { [key: string]: string } = {
@@ -401,7 +402,9 @@ export const characterIconMap: { [key: string]: string } = {
     'Yoshimitsu': '/static/character-icons/YoshimitsuT8.webp',
     'Zafina': '/static/character-icons/ZafinaT8.webp',
     'Anna': '/static/character-icons/AnnaT8.webp',
-    'Fahkumram': '/static/character-icons/FahkumramT8.webp'
+    'Fahkumram': '/static/character-icons/FahkumramT8.webp',
+    'Armor King': '/static/character-icons/Armor_KingT8.webp',
+    'Armor_King': '/static/character-icons/Armor_KingT8.webp'
 };
 
 export const circularCharacterIconMap: { [key: string]: string } = {
@@ -442,7 +445,9 @@ export const circularCharacterIconMap: { [key: string]: string } = {
     'Yoshimitsu': '/static/circular_character_icons/yoshimitsu.webp',
     'Zafina': '/static/circular_character_icons/zafina.webp',
     'Anna': '/static/circular_character_icons/anna.webp',
-    'Fahkumram': '/static/circular_character_icons/fahkumram.webp'
+    'Fahkumram': '/static/circular_character_icons/fahkumram.webp',
+    'Armor King': '/static/circular_character_icons/armor_king.webp',
+    'Armor_King': '/static/circular_character_icons/armor_king.webp'
 };
 
 
@@ -549,3 +554,51 @@ export const regionColors: { [key: string]: string } = {
   'OCEANIA': '#FF4500',    // Orange Red
   'MIDDLE_EAST': '#9400D3' // Dark Violet
 };
+
+// Mapping from display names to enum values for API requests
+export const characterEnumMap: { [key: string]: string } = {
+  'Paul': 'PAUL',
+  'Law': 'LAW',
+  'King': 'KING',
+  'Yoshimitsu': 'YOSHIMITSU',
+  'Hwoarang': 'HWOARANG',
+  'Xiaoyu': 'XIAOYU',
+  'Jin': 'JIN',
+  'Bryan': 'BRYAN',
+  'Kazuya': 'KAZUYA',
+  'Steve': 'STEVE',
+  'Jack-8': 'JACK8',
+  'Asuka': 'ASUKA',
+  'Devil Jin': 'DEVIL_JIN',
+  'Feng': 'FENG',
+  'Lili': 'LILI',
+  'Dragunov': 'DRAGUNOV',
+  'Leo': 'LEO',
+  'Lars': 'LARS',
+  'Alisa': 'ALISA',
+  'Claudio': 'CLAUDIO',
+  'Shaheen': 'SHAHEEN',
+  'Nina': 'NINA',
+  'Lee': 'LEE',
+  'Kuma': 'KUMA',
+  'Panda': 'PANDA',
+  'Zafina': 'ZAFINA',
+  'Leroy': 'LEROY',
+  'Jun': 'JUN',
+  'Reina': 'REINA',
+  'Azucena': 'AZUCENA',
+  'Victor': 'VICTOR',
+  'Raven': 'RAVEN',
+  'Eddy': 'EDDY',
+  'Lidia': 'LIDIA',
+  'Heihachi': 'HEIHACHI',
+  'Clive': 'CLIVE',
+  'Anna': 'ANNA',
+  'Fahkumram': 'FAHKUMRAM',
+  'Armor King': 'ARMOR_KING'
+};
+
+// Reverse mapping from enum values to display names
+export const enumToCharacterMap: { [key: string]: string } = Object.fromEntries(
+  Object.entries(characterEnumMap).map(([displayName, enumValue]) => [enumValue, displayName])
+);

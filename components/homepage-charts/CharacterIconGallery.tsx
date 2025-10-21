@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { characterEnumMap } from '@/app/state/types/tekkenTypes';
 
 interface Character {
   name: string;
@@ -15,6 +16,7 @@ interface Character {
 const characterRows: Character[][] = [
   // Row 1
   [
+    { name: 'Armor King', displayName: 'Armor King', icon: '/static/circular_character_icons/armor_king.webp' },
     { name: 'Eddy', displayName: 'Eddy', icon: '/static/circular_character_icons/eddy.webp' },
     { name: 'Claudio', displayName: 'Claudio', icon: '/static/circular_character_icons/claudio.webp' },
     { name: 'Zafina', displayName: 'Zafina', icon: '/static/circular_character_icons/zafina.webp' },
@@ -67,7 +69,8 @@ const characterRows: Character[][] = [
 const getRandomCharacter = () => {
   const allCharacters = characterRows.flat().filter(c => !c.isRandom);
   const randomChar = allCharacters[Math.floor(Math.random() * allCharacters.length)];
-  return `/character/${encodeURIComponent(randomChar.name)}`;
+  const enumValue = characterEnumMap[randomChar.name];
+  return `/character/${enumValue}`;
 };
 
 export function CharacterIconGallery() {
@@ -88,7 +91,61 @@ export function CharacterIconGallery() {
 
   return (
     <div className="w-full py-12">
-      <div className="flex flex-col items-center gap-2 max-w-7xl mx-auto px-4">
+      {/* Mobile: Rotated 90 degrees - rows become vertical columns */}
+      <div className="flex md:hidden gap-2 justify-center max-w-7xl mx-auto px-4">
+        {characterRows.map((row, rowIndex) => (
+          <div key={`col-${rowIndex}`} className="flex flex-col gap-2">
+            {row.map((character, charIndex) => {
+              const animationDelay = (rowIndex * row.length + charIndex) * 30;
+
+              if (character.isRandom) {
+                return (
+                  <button
+                    key="random"
+                    onClick={handleRandomClick}
+                    className="character-icon transition-all duration-700 ease-out hover:scale-110 hover:z-10"
+                    style={{
+                      opacity: isAnimated ? 1 : 0,
+                      transform: isAnimated ? 'scale(1)' : 'scale(0)',
+                      transitionDelay: `${animationDelay}ms`,
+                    }}
+                  >
+                    <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-gray-700 hover:border-blue-500 transition-colors shadow-lg bg-gray-800 flex items-center justify-center">
+                      <span className="text-3xl font-bold text-gray-400">?</span>
+                    </div>
+                  </button>
+                );
+              }
+
+              return (
+                <Link
+                  key={character.name}
+                  href={`/character/${characterEnumMap[character.name]}`}
+                  className="character-icon transition-all duration-700 ease-out hover:scale-110 hover:z-10"
+                  style={{
+                    opacity: isAnimated ? 1 : 0,
+                    transform: isAnimated ? 'scale(1)' : 'scale(0)',
+                    transitionDelay: `${animationDelay}ms`,
+                  }}
+                >
+                  <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-gray-700 hover:border-blue-500 transition-colors shadow-lg">
+                    <Image
+                      src={character.icon}
+                      alt={character.displayName}
+                      fill
+                      className="object-cover"
+                      sizes="64px"
+                    />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: Row-based layout */}
+      <div className="hidden md:flex flex-col items-end gap-2 max-w-7xl mx-auto px-4">
         {characterRows.map((row, rowIndex) => {
           // Center column is at index 6 (Reina, Random, Devil Jin)
           const centerColumnIndex = 6;
@@ -96,7 +153,7 @@ export function CharacterIconGallery() {
           const centerRowIndex = 1;
           
           return (
-            <div key={`row-${rowIndex}`} className="flex justify-center items-center gap-2 flex-wrap">
+            <div key={`row-${rowIndex}`} className="flex justify-end items-center gap-2">
               {row.map((character, charIndex) => {
                 // Calculate distance from center position (row 1, column 6) for fan-out animation
                 const horizontalDistance = Math.abs(charIndex - centerColumnIndex);
@@ -130,7 +187,7 @@ export function CharacterIconGallery() {
                 return (
                   <Link
                     key={character.name}
-                    href={`/character/${encodeURIComponent(character.name)}`}
+                    href={`/character/${characterEnumMap[character.name]}`}
                     className="character-icon transition-all duration-700 ease-out hover:scale-110 hover:z-10"
                     style={{
                       opacity: isAnimated ? 1 : 0,

@@ -43,3 +43,4 @@ export const recentlyActivePlayersAtom = atom<RecentlyActivePlayer[]>([]);
 // Player page atoms
 export const selectedBattleTypeAtom = atom<string>('RANKED_BATTLE');
 export const selectedCharacterAtom = atom<string | null>(null);
+export const showCurrentSeasonAtom = atom<boolean>(true);

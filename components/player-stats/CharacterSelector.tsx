@@ -77,6 +77,9 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
     <Card className="h-full bg-gray-800/50 backdrop-blur-sm border-gray-700">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg">Characters</CardTitle>
+        <p className="text-xs text-muted-foreground mt-1">
+          Ranks update one match after promo/demo
+        </p>
       </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
@@ -86,12 +89,11 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
                 <th className="text-left p-2 text-sm font-medium text-muted-foreground">Character</th>
                 <th className="text-center p-2 text-sm font-medium text-muted-foreground">Rank</th>
                 <th className="text-center p-2 text-sm font-medium text-muted-foreground">W/L</th>
-                <th className="text-center p-2 text-sm font-medium text-muted-foreground">WR%</th>
               </tr>
             </thead>
             <tbody>
               {characterSummaries.map((character, index) => {
-                const currentSeasonRank = character.currentSeasonRank || 'Beginner';
+                const currentSeasonRank = character.currentSeasonRank;
 
                 return (
                   <tr
@@ -117,26 +119,23 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
                       </div>
                     </td>
                     <td className="p-2 text-center">
-                      <Image
-                        src={rankIconMap[currentSeasonRank]}
-                        alt={currentSeasonRank}
-                        width={48}
-                        height={24}
-                        className="inline-block"
-                        unoptimized
-                      />
+                      {currentSeasonRank ? (
+                        <Image
+                          src={rankIconMap[currentSeasonRank]}
+                          alt={currentSeasonRank}
+                          width={64}
+                          height={32}
+                          className="inline-block"
+                          unoptimized
+                        />
+                      ) : (
+                        <span className="text-muted-foreground text-sm">-----</span>
+                      )}
                     </td>
                     <td className="p-2 text-center text-sm">
                       <span className="text-green-500">{character.wins}</span>
                       <span className="text-muted-foreground mx-1">/</span>
                       <span className="text-red-500">{character.losses}</span>
-                    </td>
-                    <td className="p-2 text-center">
-                      <span className={`font-medium text-sm ${
-                        character.winRate >= 50 ? 'text-green-500' : 'text-red-500'
-                      }`}>
-                        {character.winRate.toFixed(1)}%
-                      </span>
                     </td>
                   </tr>
                 );

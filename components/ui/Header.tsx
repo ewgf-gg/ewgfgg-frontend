@@ -60,13 +60,31 @@ export function Header() {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isSearchBarVisible, setIsSearchBarVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const lastScrollY = useRef(0);
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
+  const searchBlurTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const id = localStorage.getItem("polarisId");
     if (id) setStoredPolarisId(id);
   }, []);
+
+  const handleSearchFocus = () => {
+    setIsSearchFocused(true);
+    // Clear any pending blur timeout
+    if (searchBlurTimeout.current) {
+      clearTimeout(searchBlurTimeout.current);
+      searchBlurTimeout.current = null;
+    }
+  };
+
+  const handleSearchBlur = () => {
+    // Wait 2 seconds after blur before marking as unfocused
+    searchBlurTimeout.current = setTimeout(() => {
+      setIsSearchFocused(false);
+    }, 2000);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -94,9 +112,13 @@ export function Header() {
       }
 
       // Set a timeout to hide search bar after stopping scroll
+      // But only if search bar is not focused
       if (scrollingUp && currentScrollY > 100) {
         scrollTimeout.current = setTimeout(() => {
-          setIsSearchBarVisible(false);
+          // Only hide if search bar is not focused
+          if (!isSearchFocused) {
+            setIsSearchBarVisible(false);
+          }
         }, 3000);
       }
 
@@ -111,6 +133,28 @@ export function Header() {
         clearTimeout(scrollTimeout.current);
       }
     };
+  }, [isSearchFocused]);
+
+  // Effect to handle hiding mini header when search loses focus
+  useEffect(() => {
+    if (!isSearchFocused && isSearchBarVisible) {
+      // When search bar loses focus and mini header is visible,
+      // wait 2 seconds then hide it
+      const hideTimeout = setTimeout(() => {
+        setIsSearchBarVisible(false);
+      }, 2000);
+
+      return () => clearTimeout(hideTimeout);
+    }
+  }, [isSearchFocused, isSearchBarVisible]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (searchBlurTimeout.current) {
+        clearTimeout(searchBlurTimeout.current);
+      }
+    };
   }, []);
 
   const animatedPlayers = useAnimatedCounter(totalActivePlayers30d, 2000);
@@ -123,7 +167,7 @@ export function Header() {
     { href: '/leaderboards', label: 'Leaderboards' },
     { href: '/api-docs', label: 'API' },
     { href: '/about', label: 'About' },
-    { href: '/support', label: 'Support Us ❤️' }
+    { href: '/donate', label: 'Donate' }
   ];
 
   return (
@@ -147,7 +191,7 @@ export function Header() {
                   className="object-contain group-hover:animate-pulse"
                 />
               </div>
-              <span className="font-russo-one text-2xl text-white">
+              <span className="font-russo-one text-xl text-white">
                 ewgf<span className="text-blue-400 dark:text-blue-500">.gg</span>
               </span>
             </Link>
@@ -159,13 +203,13 @@ export function Header() {
                   key={link.href}
                   href={link.href} 
                   className={`relative px-6 py-2.5 font-medium text-sm transition-all duration-300 group ${
-                    link.href === '/support' 
+                    link.href === '/donate' 
                       ? 'bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 text-white rounded-lg shadow-lg hover:shadow-pink-500/50 animate-pulse-slow hover:scale-105' 
                       : 'text-gray-300 hover:text-white dark:text-gray-400 dark:hover:text-white'
                   }`}
                 >
                   <span className="relative z-10">{link.label}</span>
-                  {link.href !== '/support' && (
+                  {link.href !== '/donate' && (
                     <>
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
                       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-blue-400 group-hover:w-3/4 transition-all duration-300" />
@@ -219,14 +263,14 @@ export function Header() {
           </div>
 
           {/* Mobile Navigation */}
-          <div className="md:hidden mt-4 flex flex-wrap items-center justify-between">
-            <div className="flex space-x-4 flex-wrap gap-y-2">
+          <div className="md:hidden mt-4">
+            <div className="flex space-x-4 flex-wrap gap-y-2 justify-center">
               {navLinks.map((link) => (
                 <Link 
                   key={link.href}
                   href={link.href} 
                   className={`text-sm font-medium transition-colors ${
-                    link.href === '/support'
+                    link.href === '/donate'
                       ? 'bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 text-white px-3 py-1 rounded-lg animate-pulse-slow'
                       : 'text-gray-300 hover:text-white'
                   }`}
@@ -234,15 +278,15 @@ export function Header() {
                   {link.label}
                 </Link>
               ))}
+              {polarisId && (
+                <button
+                  onClick={() => router.push(`/player/${polarisId}`)}
+                  className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
+                >
+                  My Profile
+                </button>
+              )}
             </div>
-            {polarisId && (
-              <button
-                onClick={() => router.push(`/player/${polarisId}`)}
-                className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
-              >
-                My Profile
-              </button>
-            )}
           </div>
         </nav>
 
@@ -250,7 +294,7 @@ export function Header() {
         <div className="hidden md:block border-t border-gray-700/50 bg-gray-800/50 dark:bg-gray-900/50">
           <div className="container mx-auto px-4 py-3">
             <div className="max-w-2xl mx-auto">
-              <SearchBar />
+              <SearchBar onFocus={handleSearchFocus} onBlur={handleSearchBlur} />
             </div>
           </div>
         </div>
@@ -259,7 +303,7 @@ export function Header() {
         <div className="md:hidden border-t border-gray-700/50 bg-gray-800/50 dark:bg-gray-900/50">
           <div className="px-4 py-3">
             <div className="max-w-md mx-auto">
-              <SearchBar />
+              <SearchBar onFocus={handleSearchFocus} onBlur={handleSearchBlur} />
             </div>
           </div>
         </div>
@@ -291,7 +335,7 @@ export function Header() {
                   </span>
                 </Link>
                 <div className="flex-1 max-w-2xl mx-auto px-16 sm:px-32">
-                  <SearchBar />
+                  <SearchBar onFocus={handleSearchFocus} onBlur={handleSearchBlur} />
                 </div>
               </div>
             </div>
@@ -300,7 +344,7 @@ export function Header() {
       </AnimatePresence>
 
       {/* Spacer for content - matches header height */}
-      <div className="h-32 md:h-44"></div>
+      <div className="h-52 md:h-44"></div>
     </>
   );
 }

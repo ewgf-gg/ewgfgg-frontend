@@ -3,7 +3,46 @@ import {
   CharacterStatsResponse,
   CharacterMatchup 
 } from '@/app/state/types/CharacterPageTypes';
-import { rankOrderMap } from '@/app/state/types/tekkenTypes';
+import { rankOrderMap, characterIdMap, characterEnumMap, enumToCharacterMap } from '@/app/state/types/tekkenTypes';
+
+// Helper function to normalize character name for URLs
+// Converts "Devil Jin" to "Devil_Jin" and "Armor King" to "Armor_King"
+export function normalizeCharacterNameForUrl(characterName: string): string {
+  return characterName.replace(/\s+/g, '_');
+}
+
+// Helper function to denormalize character name from URLs
+// Converts "Devil_Jin" to "Devil Jin" and "Armor_King" to "Armor King"
+export function denormalizeCharacterNameFromUrl(characterName: string): string {
+  return characterName.replace(/_/g, ' ');
+}
+
+// Helper function to get character ID from character name
+export function getCharacterIdFromName(characterName: string): number | null {
+  // Create reverse mapping from characterIdMap
+  const nameToId: { [key: string]: number } = {};
+  Object.entries(characterIdMap).forEach(([id, name]) => {
+    nameToId[name] = parseInt(id);
+  });
+  
+  // Handle special cases for names with spaces or underscores
+  const normalizedName = denormalizeCharacterNameFromUrl(characterName);
+  
+  return nameToId[normalizedName] ?? null;
+}
+
+// Helper function to convert character name to enum value for API requests
+export function getCharacterEnumFromName(characterName: string): string | null {
+  // Handle special cases for names with underscores in URLs
+  const normalizedName = denormalizeCharacterNameFromUrl(characterName);
+  
+  return characterEnumMap[normalizedName] ?? null;
+}
+
+// Helper function to convert enum value back to display name
+export function getCharacterNameFromEnum(characterEnum: string): string | null {
+  return enumToCharacterMap[characterEnum] ?? null;
+}
 
 // Helper function to determine matchup difficulty based on winrate
 function getMatchupDifficulty(winrate: number): 'Easy' | 'Medium' | 'Hard' | 'Very Hard' {
@@ -15,7 +54,9 @@ function getMatchupDifficulty(winrate: number): 'Easy' | 'Medium' | 'Hard' | 'Ve
 
 // Helper function to get character icon path
 function getCharacterIcon(characterName: string): string {
-  return `/static/character-icons/${characterName}T8.webp`;
+  // Normalize character name: replace spaces with underscores and convert to lowercase
+  const normalizedName = characterName.replace(/\s+/g, '_').toLowerCase();
+  return `/static/character-icons/${normalizedName}T8.webp`;
 }
 
 // Helper function to convert display rank name to enum format

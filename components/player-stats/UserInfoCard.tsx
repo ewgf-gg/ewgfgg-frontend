@@ -15,6 +15,7 @@ interface UserInfoCardProps {
   polarisId: string
   latestBattle: string
   mainCharacterAndRank: Record<string, string>
+  pastPlayerNames?: Record<string, string>
 }
 
 const formatTimestamp = (timestamp: string): string => {
@@ -60,6 +61,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
   polarisId,
   latestBattle,
   mainCharacterAndRank,
+  pastPlayerNames = {},
 }) => {
   const { polarisId: currentPolarisId, setPolarisId } = usePolarisId(); 
   const [isFollowing, setIsFollowing] = useState(false)
@@ -117,10 +119,35 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
 
             {/* Center section - User info */}
             <div className="flex-1">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div className="flex-1">
                   <h2 className="text-xl font-bold">{username}</h2>
                   <p className="text-sm text-muted-foreground">{formatPolarisId(polarisId)}</p>
+                  
+                  {/* Past Player Names */}
+                  {pastPlayerNames && Object.keys(pastPlayerNames).length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs text-muted-foreground mb-1.5 font-medium uppercase tracking-wider">
+                        Past Names
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {Object.entries(pastPlayerNames)
+                          .sort((a, b) => new Date(b[1]).getTime() - new Date(a[1]).getTime())
+                          .map(([name, date]) => (
+                            <Tooltip key={name}>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-200 cursor-default">
+                                  {name}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs">Last used: {formatTimestamp(date)}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex flex-col gap-2">

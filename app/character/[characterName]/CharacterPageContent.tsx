@@ -9,12 +9,14 @@ import { MatchupsChart } from '@/components/character-stats/MatchupsChart';
 import { RankDistributionChart } from '@/components/character-stats/RankDistributionChart';
 import { TrendChart } from '@/components/character-stats/TrendChart';
 import { CharacterStatsResponse } from '@/app/state/types/CharacterPageTypes';
+import { LeaderboardData } from '@/app/state/types/tekkenTypes';
 
 interface CharacterPageContentProps {
   characterData: CharacterStatsResponse;
+  leaderboardData: LeaderboardData | null;
 }
 
-export default function CharacterPageContent({ characterData }: CharacterPageContentProps) {
+export default function CharacterPageContent({ characterData, leaderboardData }: CharacterPageContentProps) {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Header />
@@ -33,12 +35,6 @@ export default function CharacterPageContent({ characterData }: CharacterPageCon
             characterName={characterData.characterName}
           />
 
-          {/* Rank Distribution - Full Width */}
-          <RankDistributionChart
-            distribution={characterData.rankDistribution}
-            characterName={characterData.characterName}
-          />
-
           {/* Matchups and Leaderboard Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Matchups Chart */}
@@ -51,8 +47,15 @@ export default function CharacterPageContent({ characterData }: CharacterPageCon
             <TopPlayersLeaderboard
               players={characterData.topPlayers}
               characterName={characterData.characterName}
+              leaderboardData={leaderboardData}
             />
           </div>
+
+          {/* Rank Distribution - Full Width */}
+          <RankDistributionChart
+            distribution={characterData.rankDistribution}
+            characterName={characterData.characterName}
+          />
         </div>
       </main>
       <Footer />

@@ -147,32 +147,50 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
     return allTimeData.slice(cutoffIndex);
   }, [allTimeData, timeSpan]);
 
+  const selectedCharacterName = selectedCharacterId ? characterIdMap[selectedCharacterId] : null;
+  
+  const getDescription = () => {
+    if (selectedCharacterName) {
+      return `Your win rate progression for ${selectedCharacterName} • Ranked`;
+    }
+    return 'Your win rate progression • Ranked';
+  };
+
   const timeRangeButtons = (
-    <div className="flex gap-2">
-      <Button
-        variant={timeSpan === '7d' ? 'default' : 'outline'}
+    <div className="flex bg-gray-800/50 rounded-lg p-1 gap-1">
+      <button
         onClick={() => setTimeSpan('7d')}
-        size="sm"
+        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+          timeSpan === '7d'
+            ? 'bg-blue-600 text-white'
+            : 'text-gray-400 hover:text-white'
+        }`}
       >
         <span className="inline sm:hidden">7D</span>
-      <span className="hidden sm:inline">Last 7 Days</span>
-      </Button>
-      <Button
-        variant={timeSpan === '30d' ? 'default' : 'outline'}
+        <span className="hidden sm:inline">Last 7 Days</span>
+      </button>
+      <button
         onClick={() => setTimeSpan('30d')}
-        size="sm"
+        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+          timeSpan === '30d'
+            ? 'bg-blue-600 text-white'
+            : 'text-gray-400 hover:text-white'
+        }`}
       >
         <span className="inline sm:hidden">30D</span>
         <span className="hidden sm:inline">Last 30 Days</span>
-      </Button>
-      <Button
-        variant={timeSpan === 'all' ? 'default' : 'outline'}
+      </button>
+      <button
         onClick={() => setTimeSpan('all')}
-        size="sm"
+        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+          timeSpan === 'all'
+            ? 'bg-blue-600 text-white'
+            : 'text-gray-400 hover:text-white'
+        }`}
       >
         <span className="inline sm:hidden">All</span>
         <span className="hidden sm:inline">All Time</span>
-      </Button>
+      </button>
     </div>
   );
 
@@ -180,7 +198,7 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
     return (
       <SimpleChartCard
         title="Win Rate Over Time"
-        description="Track your win rate progression"
+        description={getDescription()}
         action={timeRangeButtons}
       >
         <div className="h-full flex items-center justify-center">
@@ -197,7 +215,7 @@ const WinrateOverTimeChart: React.FC<WinrateOverTimeChartProps> = ({
   return (
     <SimpleChartCard
       title="Win Rate Over Time"
-      description="Track your win rate progression"
+      description={getDescription()}
       height="400px"
       action={timeRangeButtons}
     >

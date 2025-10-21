@@ -111,8 +111,12 @@ export default function HomeContent({ initialData }: HomeContentProps) {
           </div>
         </div>
         
-        <StatsGrid />
-        <RankDistributionChart />
+        <LazyChartWrapper height="400px">
+          <StatsGrid />
+        </LazyChartWrapper>
+        <LazyChartWrapper height="400px">
+          <RankDistributionChart />
+        </LazyChartWrapper>
         <LazyChartWrapper height="600px">
           <CharacterIconGallery />
         </LazyChartWrapper>

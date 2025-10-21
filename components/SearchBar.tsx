@@ -20,7 +20,12 @@ import { PlayerSearchResult, characterIconMap, rankIconMap, rankEnumToLabel } fr
 import EWGFLoadingAnimation from './EWGFLoadingAnimation';
 import { formatTimeAgo } from '@/lib/time-utils';
 
-export function SearchBar() {
+interface SearchBarProps {
+  onFocus?: () => void;
+  onBlur?: () => void;
+}
+
+export function SearchBar({ onFocus, onBlur }: SearchBarProps = {}) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<PlayerSearchResult[]>([]);
@@ -126,7 +131,9 @@ export function SearchBar() {
               className="w-full h-10 pl-10 pr-4 text-sm bg-gray-700/50 text-white border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 rounded-lg transition-all hover:bg-gray-700/70"
               value={searchQuery}
               onChange={handleInputChange}
-              maxLength={20}  
+              maxLength={20}
+              onFocus={onFocus}
+              onBlur={onBlur}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();

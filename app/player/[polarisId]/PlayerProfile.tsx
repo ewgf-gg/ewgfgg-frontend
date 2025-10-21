@@ -148,6 +148,7 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({ stats, polarisId, 
           polarisId={polarisId}
           latestBattle={stats.playerMetadata.latestBattle}
           mainCharacterAndRank={stats.mainChar}
+          pastPlayerNames={stats.playerMetadata.pastPlayerNames}
         />
       </div>
 

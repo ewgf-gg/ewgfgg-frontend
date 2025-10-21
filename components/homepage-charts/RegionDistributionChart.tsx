@@ -91,55 +91,74 @@ export const RegionDistributionChart: React.FC<{ delay?: number }> = ({ delay = 
       delay={delay}
       headerClassName="pb-2 pt-3"
     >
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <text 
-            x="50%" 
-            y="50%" 
-            textAnchor="middle" 
-            dominantBaseline="middle"
-            className="text-2xl font-bold fill-current"
-          >
-            {totalPlayers.toLocaleString()}
-          </text>
-          <text 
-            x="50%" 
-            y="50%" 
-            dy={20}
-            textAnchor="middle" 
-            dominantBaseline="middle"
-            className="text-xs text-muted-foreground fill-current"
-          >
-            players
-          </text>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="55%"
-            labelLine={false}
-            label={renderCustomizedLabel}
-            innerRadius={50}
-            outerRadius={90}
-            fill="#8884d8"
-            dataKey="value"
-          >
-            {data.map((entry, index) => (
-              <Cell 
-                key={`cell-${index}`} 
-                fill={regionColors[entry.name.toUpperCase().replace(' ', '_')] || '#718096'} 
-              />
-            ))}
-          </Pie>
-          <Tooltip content={<CustomTooltip />} />
-          <Legend 
-            verticalAlign="bottom" 
-            height={10}
-            formatter={(value: string) => value}
-            wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }}
-            iconSize={10}
-          />
-        </PieChart>
-      </ResponsiveContainer>
+      {totalPlayers === 0 ? (
+        <div className="flex flex-col items-center justify-center h-full space-y-3 px-4">
+          <p className="text-muted-foreground text-center">
+            Tekken servers are down for maintenance or updates.
+          </p>
+          <p className="text-sm text-muted-foreground text-center">
+            If this is incorrect, please contact me on{' '}
+            <a 
+              href="https://discord.com/invite/EUEnH99har" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Discord.
+            </a>
+          </p>
+        </div>
+      ) : (
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <text 
+              x="50%" 
+              y="50%" 
+              textAnchor="middle" 
+              dominantBaseline="middle"
+              className="text-2xl font-bold fill-current"
+            >
+              {totalPlayers.toLocaleString()}
+            </text>
+            <text 
+              x="50%" 
+              y="50%" 
+              dy={20}
+              textAnchor="middle" 
+              dominantBaseline="middle"
+              className="text-xs text-muted-foreground fill-current"
+            >
+              players
+            </text>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="55%"
+              labelLine={false}
+              label={renderCustomizedLabel}
+              innerRadius={50}
+              outerRadius={90}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {data.map((entry, index) => (
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={regionColors[entry.name.toUpperCase().replace(' ', '_')] || '#718096'} 
+                />
+              ))}
+            </Pie>
+            <Tooltip content={<CustomTooltip />} />
+            <Legend 
+              verticalAlign="bottom" 
+              height={10}
+              formatter={(value: string) => value}
+              wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }}
+              iconSize={10}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      )}
     </SimpleChartCard>
   );
 };

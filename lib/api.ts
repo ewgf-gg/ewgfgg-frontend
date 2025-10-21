@@ -4,6 +4,7 @@ import {
   RankDistribution,
   HomepageData
 } from '@/app/state/types/tekkenTypes'
+import { DonorPageResponse } from '@/app/state/types/SupportPageTypes'
 import { fetchWithConfig, fetchStatistics, fetchPlayerData } from '@/lib/api-config';
 
 
@@ -52,5 +53,18 @@ export async function fetchGameActivity() {
   } catch (error) {
       console.error('Failed to fetch game activity:', error);
       throw new Error(`Failed to fetch game activity: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+export async function fetchDonorPageData(): Promise<DonorPageResponse> {
+  try {
+      return await fetchWithConfig('/donations/donor-page', {
+          next: {
+              revalidate: 30 // Revalidate every 60 seconds
+          }
+      });
+  } catch (error) {
+      console.error('Failed to fetch donor page data:', error);
+      throw new Error(`Failed to fetch donor page data: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

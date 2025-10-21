@@ -45,8 +45,12 @@ export default function Footer() {
           <div className="md:col-span-1">
             <h3 className="text-sm font-semibold uppercase tracking-wider mb-3 text-blue-400">Links</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/about" className="text-gray-300 hover:text-white transition-colors">About Us</Link></li>
               <li><Link href="/statistics" className="text-gray-300 hover:text-white transition-colors">Statistics</Link></li>
+              <li><Link href="/activity" className="text-gray-300 hover:text-white transition-colors">Game Activity</Link></li>
+              <li><Link href="/leaderboards" className="text-gray-300 hover:text-white transition-colors">Leaderboards</Link></li>
+              <li><Link href="/api-docs" className="text-gray-300 hover:text-white transition-colors">API</Link></li>
+              <li><Link href="/about" className="text-gray-300 hover:text-white transition-colors">About</Link></li>
+              <li><Link href="/donate" className="text-gray-300 hover:text-white transition-colors">Donate</Link></li>
             </ul>
           </div>
           
@@ -54,6 +58,7 @@ export default function Footer() {
             <h3 className="text-sm font-semibold uppercase tracking-wider mb-3 text-blue-400">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li><a href="http://www.wavu.wiki" className="text-gray-300 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">Wavu Wiki</a></li>
+              <li><a href="https://tekkendocs.com" className="text-gray-300 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">Tekken Docs</a></li>
               <li><a href="https://www.bandainamcoent.com/games/tekken-8" className="text-gray-300 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">Official Site</a></li>
             </ul>
           </div>

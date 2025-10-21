@@ -20,6 +20,7 @@ interface VersionStatsChartProps {
   data: { [character: string]: number };
   title: string;
   valueLabel: string;
+  winRateDetails?: import('@/app/state/types/StatisticsPageTypes').AggregatedWinRateStats;
 }
 
 interface ChartData {
@@ -52,26 +53,61 @@ const nameToId: Record<string, number> = Object.fromEntries(
   Object.entries(characterIdMap).map(([id, name]) => [name, +id])
 );
 
-const ChartTooltip: React.FC<ChartTooltipProps> = ({ active, payload, label }) => {
+const ChartTooltip: React.FC<ChartTooltipProps & { winRateDetails?: import('@/app/state/types/StatisticsPageTypes').AggregatedWinRateStats }> = ({ active, payload, label, winRateDetails }) => {
   if (active && payload && payload.length && label) {
-    return (
-      <div className="bg-background border rounded-lg p-2 shadow-lg">
-        <div className="flex items-center gap-2">
-          <Image
-            src={characterIconMap[label] || ''}
-            alt={label}
-            width={24}
-            height={24}
-            className="w-6 h-6"
-            unoptimized
-          />
-          <span className="font-medium">{label}</span>
+    const data = payload[0].payload;
+    const isWinrate = data.valueLabel === 'winrate';
+    
+    if (isWinrate && winRateDetails && winRateDetails[label]) {
+      // Winrate format: "Win rate: X%" and "YW / Z games"
+      const details = winRateDetails[label];
+      return (
+        <div className="bg-background border rounded-lg p-2 shadow-lg">
+          <div className="flex items-center gap-2">
+            <Image
+              src={characterIconMap[label] || ''}
+              alt={label}
+              width={24}
+              height={24}
+              className="w-6 h-6"
+              unoptimized
+            />
+            <span className="font-medium">{label}</span>
+          </div>
+          <div className="text-sm">
+            Win rate: {details.winRate.toFixed(2)}%
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {details.totalWins.toLocaleString()}W / {details.totalGames.toLocaleString()} games
+          </div>
         </div>
-        <div className="text-sm">
-          {payload[0].value.toLocaleString()} {payload[0].payload.valueLabel}
+      );
+    } else {
+      // Popularity format: "X battles" and "Pick rate: Y%"
+      const totalBattles = data.originalValue;
+      const pickRate = payload[0].value; // Normalized value is the pick rate
+      return (
+        <div className="bg-background border rounded-lg p-2 shadow-lg">
+          <div className="flex items-center gap-2">
+            <Image
+              src={characterIconMap[label] || ''}
+              alt={label}
+              width={24}
+              height={24}
+              className="w-6 h-6"
+              unoptimized
+            />
+            <span className="font-medium">{label}</span>
+          </div>
+          <div className="text-sm">
+            {totalBattles.toLocaleString()} battles
+          </div>
+          <div className="text-sm text-muted-foreground">
+            Pick rate: {pickRate.toFixed(2)}%
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
   return null;
 };
@@ -137,7 +173,7 @@ const CustomXAxisTick: React.FC<CustomXAxisTickProps & { isMobile: boolean }> = 
   );
 };
 
-export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) {
+export function VersionStatsChart({ data, valueLabel, winRateDetails }: VersionStatsChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [isInitialRender, setIsInitialRender] = useState(true);
   const { width } = useWindowSize();
@@ -148,13 +184,32 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
   }, [isInitialRender]);
 
   const chartData = useMemo(() => {
-    return Object.entries(data)
-      .map(([character, value]) => ({
-        character,
-        characterId: nameToId[character] ?? -1,
-        value, originalValue: value, valueLabel
-      }))
-      .sort((a,b) => b.originalValue - a.originalValue);
+    const entries = Object.entries(data);
+    
+    if (valueLabel === 'picks') {
+      // For popularity, calculate pick rates
+      const total = entries.reduce((sum, [_, count]) => sum + count, 0);
+      return entries
+        .map(([character, count]) => ({
+          character,
+          characterId: nameToId[character] ?? -1,
+          value: (count / total) * 100, // Pick rate as percentage
+          originalValue: count, // Keep original battle count
+          valueLabel
+        }))
+        .sort((a, b) => b.value - a.value);
+    } else {
+      // For winrate, use values as-is
+      return entries
+        .map(([character, value]) => ({
+          character,
+          characterId: nameToId[character] ?? -1,
+          value,
+          originalValue: value,
+          valueLabel
+        }))
+        .sort((a, b) => b.originalValue - a.originalValue);
+    }
   }, [data, valueLabel]);
 
   const { domainMin, domainMax } = useMemo(() => {
@@ -236,7 +291,7 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
             }}
           />
         )}
-        <Tooltip content={<ChartTooltip />} cursor={false} />
+        <Tooltip content={<ChartTooltip winRateDetails={winRateDetails} />} cursor={false} />
         <Bar
           dataKey="value"
           radius={isMobile ? [0, 8, 8, 0] : [4, 4, 0, 0]}
@@ -260,11 +315,11 @@ export function VersionStatsChart({ data, valueLabel }: VersionStatsChartProps) 
             );
           })}
           <LabelList
-            dataKey="originalValue"
+            dataKey={valueLabel === 'picks' ? 'value' : 'originalValue'}
             position={isMobile ? "right" : "top"}
             formatter={(value: number) => {
-              if (valueLabel === 'winrate') {
-                return `${value.toFixed(2)}%`;
+              if (valueLabel === 'winrate' || valueLabel === 'picks') {
+                return `${value.toFixed(1)}%`;
               }
               return formatNumber(value);
             }}

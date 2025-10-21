@@ -4,17 +4,19 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Target, Coffee, Heart, TrendingUp, DollarSign } from 'lucide-react';
+import { MonthlyProgressDto } from '@/app/state/types/SupportPageTypes';
 
-export default function HorizontalDonationWidget() {
-  // Mock data - in production, this would come from an API
+interface HorizontalDonationWidgetProps {
+  monthlyProgress: MonthlyProgressDto;
+}
+
+export default function HorizontalDonationWidget({ monthlyProgress }: HorizontalDonationWidgetProps) {
   const [currentAmount, setCurrentAmount] = useState(0);
-  const monthlyGoal = 500; // $500 monthly goal
-  const percentage = Math.min((currentAmount / monthlyGoal) * 100, 100);
+  const { goalAmount, percentage } = monthlyProgress;
   
   // Animate the current amount on mount
   useEffect(() => {
-    // In production, fetch this from your backend
-    const targetAmount = 287; // Example: $287 raised this month
+    const targetAmount = monthlyProgress.currentAmount;
     
     let start = 0;
     const duration = 2000;
@@ -31,7 +33,7 @@ export default function HorizontalDonationWidget() {
     }, 16);
     
     return () => clearInterval(timer);
-  }, []);
+  }, [monthlyProgress.currentAmount]);
 
   return (
     <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-xl overflow-hidden">
@@ -43,7 +45,7 @@ export default function HorizontalDonationWidget() {
               Support ewgf.gg
             </CardTitle>
             <CardDescription className="text-gray-400">
-              Help us reach our ${monthlyGoal} monthly goal
+              Help us reach our ${goalAmount} monthly goal
             </CardDescription>
           </div>
           
@@ -91,7 +93,7 @@ export default function HorizontalDonationWidget() {
                 <span className="text-xs text-gray-400">Goal</span>
               </div>
               <div className="text-3xl font-bold text-gray-300">
-                ${monthlyGoal}
+                ${goalAmount}
               </div>
             </div>
 
@@ -101,7 +103,7 @@ export default function HorizontalDonationWidget() {
                 <span className="text-xs text-gray-400">Remaining</span>
               </div>
               <div className="text-3xl font-bold text-orange-400">
-                ${monthlyGoal - currentAmount}
+                ${goalAmount - currentAmount}
               </div>
             </div>
 
@@ -153,7 +155,7 @@ export default function HorizontalDonationWidget() {
                   transition={{ delay: 1, duration: 0.5 }}
                   className="text-2xl font-bold text-white drop-shadow-lg z-10"
                 >
-                  ${currentAmount} / ${monthlyGoal}
+                  ${currentAmount} / ${goalAmount}
                 </motion.span>
               </div>
             </div>
@@ -184,6 +186,50 @@ export default function HorizontalDonationWidget() {
             <Heart className="w-4 h-4 text-red-200" />
           </motion.a>
           <p className="text-xs text-gray-400 text-center">No account required</p>
+        </div>
+
+        {/* Why Your Support Matters Section */}
+        <div className="mt-8 pt-8 border-t border-gray-700">
+          <div className="flex items-center gap-2 mb-4">
+            <Heart className="w-6 h-6 text-red-400" />
+            <h3 className="text-2xl font-bold text-white">A Message from the Developer</h3>
+          </div>
+          
+          <div className="space-y-4 text-gray-300 leading-relaxed">
+            <p>
+              Firstly, I wanted to give a huge thanks to the community and all the kind words everyone has shared. ewgf.gg is my first big personal project and I'm so grateful that everyone has found it useful :)
+            </p>
+            
+            <p>
+              Maintaining the website is largely a one man show (although help/suggestions are always welcomed), and between maintaining the website, focusing on my studies at university and finding employment, it's a lot to juggle. I appreciate all the support!
+            </p>
+            
+            <p>
+              Up until now, I've been personally covering all the costs of running ewgf.gg, but as the site continues to grow, your support would help ensure I can keep the site running smoothly without it becoming a financial burden while I'm studying and job hunting.
+            </p>
+          </div>
+
+          {/* Supporter Benefits */}
+          <div className="mt-6 bg-gradient-to-br from-yellow-900/20 to-amber-900/20 border border-yellow-500/30 rounded-lg p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Heart className="w-5 h-5 text-yellow-400" />
+              <h4 className="text-lg font-bold text-yellow-400">Supporter Benefits</h4>
+            </div>
+            <ul className="space-y-2 text-gray-300 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-yellow-400 mt-0.5">✨</span>
+                <span>Get a <strong className="text-yellow-400">special supporter emblem</strong> displayed on your profile</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-yellow-400 mt-0.5">✨</span>
+                <span>Your name will be featured on the <strong className="text-yellow-400">About page</strong> as a valued supporter</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-yellow-400 mt-0.5">✨</span>
+                <span>Special 'Donor' role within the Discord</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </CardContent>
     </Card>

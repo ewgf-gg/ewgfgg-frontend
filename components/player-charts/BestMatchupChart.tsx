@@ -2,7 +2,7 @@ import React from 'react';
 import { useAtomValue } from 'jotai';
 import { characterIdMap } from '../../app/state/types/tekkenTypes';
 import { PlayerMatchupSummary } from '../../app/state/types/PlayerPageTypes';
-import { selectedBattleTypeAtom } from '../../app/state/atoms/tekkenStatsAtoms';
+import { selectedBattleTypeAtom, showCurrentSeasonAtom } from '../../app/state/atoms/tekkenStatsAtoms';
 import MatchupCard from './MatchupCard';
 
 interface BestMatchupChartProps {
@@ -18,6 +18,7 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
   playedCharacters
 }) => {
   const selectedBattleType = useAtomValue(selectedBattleTypeAtom);
+  const showCurrentSeason = useAtomValue(showCurrentSeasonAtom);
 
   const getCharacterName = (characterId: number): string => {
     return characterIdMap[characterId] || `Character ${characterId}`;
@@ -39,11 +40,12 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
       return null;
     }
 
-    // Get all matchups with their data
-    const matchupsWithData = Object.entries(characterData.currentSeasonMatchups || {}).map(([opponentName, matchupData]) => ({
+    // Get all matchups with their data based on season selection
+    const matchupsData = showCurrentSeason ? characterData.currentSeasonMatchups : characterData.allTimeMatchups;
+    const matchupsWithData = Object.entries(matchupsData || {}).map(([opponentName, matchupData]) => ({
       opponentName,
       winRate: matchupData.winRate || 0, 
-      totalMatches: matchupData.totalMatches
+      totalMatches: matchupData.totalGames || (matchupData.wins + matchupData.losses)
     }));
 
     const matchupsWithEnoughData = matchupsWithData.filter(m => m.totalMatches >= 20);
@@ -98,7 +100,7 @@ const BestMatchupChart: React.FC<BestMatchupChartProps> = ({
       totalMatches: bestMatchupData.totalMatches,
       hasLimitedData
     };
-  }, [selectedCharacterId, selectedCharacterName, playedCharacters, selectedBattleType]);
+  }, [selectedCharacterId, selectedCharacterName, playedCharacters, selectedBattleType, showCurrentSeason]);
 
   if (!bestMatchup) {
     return null;

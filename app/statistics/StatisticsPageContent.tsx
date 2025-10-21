@@ -1,117 +1,96 @@
 "use client";
 
-import { Suspense, useState } from 'react';
+import React, { Suspense, useState, useMemo, useTransition } from 'react';
+import dynamic from 'next/dynamic';
 import { VersionStatsContent } from '@/components/statistics/VersionStatsContent';
 import { Header } from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import { VersionSelector } from '@/components/statistics/VersionSelector';
 import { RegionSelector } from '@/components/statistics/RegionSelector';
 import { RankSelector } from '@/components/statistics/RankSelector';
-import { VersionStats } from '@/app/state/types/tekkenTypes';
 import EWGFLoadingAnimation from '@/components/EWGFLoadingAnimation';
-import React from 'react';
+import { LazyChartWrapper } from '@/components/shared/LazyChartWrapper';
 import { motion } from 'framer-motion';
 import { TrendingUp, Users, Trophy, BarChart3 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { getVersionStatistics } from './actions';
+import { processStatisticsData, formatVersion, getVersionLabel, getRankOrder } from '@/lib/statistics-utils';
+import type { StatisticsPageResponse } from '@/app/state/types/StatisticsPageTypes';
 
-import { RankCategory } from '@/components/statistics/RankSelector';
-
-const formatVersion = (version: string) => {
-  const major = Math.floor(parseInt(version) / 10000);
-  const minor = Math.floor((parseInt(version) % 10000) / 100);
-  const patch = parseInt(version) % 100;
-  return `Version ${major}.${minor}.${patch}`;
-};
-
-const getVersionLabel = (version: string, latestVersion: string) => {
-  const formattedVersion = formatVersion(version);
-  return version === latestVersion ? `${formattedVersion} (Latest)` : formattedVersion;
-};
+// Lazy load the rank distribution chart
+const StatisticsRankDistributionChart = dynamic(
+  () => import('@/components/statistics/StatisticsRankDistributionChart'),
+  { 
+    loading: () => <div className="h-[400px] flex items-center justify-center"><EWGFLoadingAnimation /></div>,
+    ssr: false
+  }
+);
 
 interface StatisticsPageContentProps {
-  popularityData: VersionStats;
-  winrateData: VersionStats;
-  error: string | null;
+  availableVersions: number[];
+  initialVersion: number;
+  initialData: StatisticsPageResponse;
 }
 
 export default function StatisticsPageContent({ 
-  popularityData, 
-  winrateData,
-  error
+  availableVersions,
+  initialVersion,
+  initialData
 }: StatisticsPageContentProps) {
-  const [selectedVersion, setSelectedVersion] = useState<string>('');
+  const [selectedVersion, setSelectedVersion] = useState<number>(initialVersion);
   const [selectedRegion, setSelectedRegion] = useState<string>('global');
-  const [selectedRank, setSelectedRank] = useState<RankCategory>('allRanks');
+  const [selectedRank, setSelectedRank] = useState<string>('allRanks');
+  const [statisticsData, setStatisticsData] = useState<StatisticsPageResponse>(initialData);
+  const [isPending, startTransition] = useTransition();
 
-  // Set initial version to the latest version if not already set
-  if (!selectedVersion && popularityData && Object.keys(popularityData).length > 0) {
-    const versions = Object.keys(popularityData).sort((a, b) => parseInt(b) - parseInt(a));
-    setSelectedVersion(versions[0]);
-  }
+  // Handle version change with Server Action
+  const handleVersionChange = (newVersion: string) => {
+    const versionNum = parseInt(newVersion);
+    
+    startTransition(async () => {
+      try {
+        const newData = await getVersionStatistics(versionNum);
+        setStatisticsData(newData);
+        setSelectedVersion(versionNum);
+      } catch (error) {
+        console.error('Error fetching version statistics:', error);
+        // Could add error toast here
+      }
+    });
+  };
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-        <Header />
-        <main className="flex-grow container mx-auto px-4 py-8">
-          <div className="text-center">
-            <div className="text-red-500 text-lg">Error: {error}</div>
-            <p className="text-gray-400 mt-2">Failed to load statistics data</p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+  // Get rank order for filtering (0 for "allRanks")
+  const selectedRankOrder = useMemo(() => {
+    if (selectedRank === 'allRanks') return 0;
+    return getRankOrder(selectedRank);
+  }, [selectedRank]);
 
-  if (!popularityData || !winrateData || !selectedVersion) {
-    return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-        <Header />
-        <main className="flex-grow container mx-auto px-4 py-8 flex items-center justify-center">
-          <EWGFLoadingAnimation />
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+  // Process data based on current filters
+  const processedData = useMemo(() => {
+    return processStatisticsData(statisticsData, selectedRegion, selectedRankOrder);
+  }, [statisticsData, selectedRegion, selectedRankOrder]);
 
-  const versions = Object.keys(popularityData).sort((a, b) => parseInt(b) - parseInt(a));
-  const latestVersion = versions[0];
+  const latestVersion = Math.max(...availableVersions);
 
   // Calculate quick stats for display
-  const currentPopularityData = selectedRegion === 'global'
-    ? popularityData[selectedVersion][selectedRank].globalStats
-    : popularityData[selectedVersion][selectedRank].regionalStats[selectedRegion] || {};
-
-  const currentWinrateData = selectedRegion === 'global'
-    ? winrateData[selectedVersion][selectedRank].globalStats
-    : winrateData[selectedVersion][selectedRank].regionalStats[selectedRegion] || {};
-
-  const totalCharacters = Object.keys(currentPopularityData).length;
-  const totalBattles = Object.values(currentPopularityData).reduce((a: number, b: any) => a + b, 0);
-  const avgWinrate = Object.keys(currentWinrateData).length > 0
-    ? (Object.values(currentWinrateData).reduce((a: number, b: any) => a + b, 0) / Object.keys(currentWinrateData).length).toFixed(2)
-    : '0.00';
-
   const statCards = [
     {
       title: 'Total Characters',
-      value: totalCharacters.toString(),
+      value: processedData.characterCount.toString(),
       icon: Users,
       color: 'from-blue-500 to-cyan-500',
       description: 'Playable roster'
     },
     {
       title: 'Total Battles',
-      value: totalBattles.toLocaleString(),
+      value: processedData.totalBattles.toLocaleString(),
       icon: Trophy,
       color: 'from-purple-500 to-pink-500',
       description: 'Tracked matches'
     },
     {
       title: 'Average Winrate',
-      value: `${avgWinrate}%`,
+      value: `${processedData.averageWinrate.toFixed(2)}%`,
       icon: TrendingUp,
       color: 'from-green-500 to-emerald-500',
       description: 'Across all characters'
@@ -160,7 +139,7 @@ export default function StatisticsPageContent({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Card className="overflow-hidden bg-gray-800/50 border-gray-700 hover:border-gray-600 transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/50">
+                <Card className="overflow-hidden bg-gray-800/50 border-gray-700">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -196,10 +175,10 @@ export default function StatisticsPageContent({
             <div className="flex-1">
               <label className="text-sm text-gray-400 mb-2 block">Game Version</label>
               <VersionSelector
-                versions={versions}
-                selectedVersion={selectedVersion}
-                onVersionChange={setSelectedVersion}
-                getVersionLabel={(version) => getVersionLabel(version, latestVersion)}
+                versions={availableVersions.map(v => v.toString())}
+                selectedVersion={selectedVersion.toString()}
+                onVersionChange={handleVersionChange}
+                getVersionLabel={(version) => getVersionLabel(parseInt(version), latestVersion)}
               />
             </div>
             <div className="flex-1">
@@ -219,16 +198,34 @@ export default function StatisticsPageContent({
           </div>
         </motion.div>
 
+        {/* Loading overlay during version change */}
+        {isPending && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <EWGFLoadingAnimation />
+          </div>
+        )}
+
         {/* Charts Section */}
-        <Suspense fallback={<EWGFLoadingAnimation />}>
-          <VersionStatsContent
-            popularityData={popularityData}
-            winrateData={winrateData}
-            selectedVersion={selectedVersion}
-            selectedRegion={selectedRegion}
-            selectedRank={selectedRank}
-          />
-        </Suspense>
+        <div className="space-y-8">
+          <Suspense fallback={<EWGFLoadingAnimation />}>
+            <VersionStatsContent
+              pickRates={processedData.pickRates}
+              winRates={processedData.winRates}
+              selectedRegion={selectedRegion}
+              selectedRank={selectedRank}
+              selectedVersion={selectedVersion}
+            />
+          </Suspense>
+
+          {/* Rank Distribution Chart - affected by game version and region */}
+          <LazyChartWrapper height="400px">
+            <StatisticsRankDistributionChart
+              rankDistribution={statisticsData.rankDistribution}
+              selectedVersion={selectedVersion}
+              selectedRegion={selectedRegion}
+            />
+          </LazyChartWrapper>
+        </div>
       </main>
       <Footer />
     </div>

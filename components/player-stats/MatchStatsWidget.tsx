@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAtom } from 'jotai';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Trophy, Swords, Users, Gamepad2 } from 'lucide-react';
 import { MatchupStat, PlayerMatchupSummary } from '../../app/state/types/PlayerPageTypes';
-import { selectedBattleTypeAtom } from '../../app/state/atoms/tekkenStatsAtoms';
+import { selectedBattleTypeAtom, showCurrentSeasonAtom } from '../../app/state/atoms/tekkenStatsAtoms';
 
 interface MatchStatsWidgetProps {
   totalStatsByBattleType?: Record<string, MatchupStat>;
@@ -16,14 +16,92 @@ export const MatchStatsWidget: React.FC<MatchStatsWidgetProps> = ({
   playedCharacters = {},
   selectedCharacter = null
 }) => {
-  const [showCurrentSeason, setShowCurrentSeason] = useState(true);
+  const [showCurrentSeason, setShowCurrentSeason] = useAtom(showCurrentSeasonAtom);
   const [selectedBattleType, setSelectedBattleType] = useAtom(selectedBattleTypeAtom);
 
-  // Get battle type stats
-  const rankedStats = totalStatsByBattleType['RANKED_BATTLE'] || { wins: 0, losses: 0, totalGames: 0, winRate: null };
-  const quickStats = totalStatsByBattleType['QUICK_BATTLE'] || { wins: 0, losses: 0, totalGames: 0, winRate: null };
-  const playerStats = totalStatsByBattleType['PLAYER_BATTLE'] || { wins: 0, losses: 0, totalGames: 0, winRate: null };
-  const groupStats = totalStatsByBattleType['GROUP_BATTLE'] || { wins: 0, losses: 0, totalGames: 0, winRate: null };
+  // Get battle type stats for the selected character
+  const getBattleTypeStats = () => {
+    const calculateStatsFromMatchups = (battleTypeData: PlayerMatchupSummary) => {
+      if (!battleTypeData) return { wins: 0, losses: 0, totalGames: 0, winRate: null };
+      
+      const matchups = showCurrentSeason 
+        ? battleTypeData.currentSeasonMatchups 
+        : battleTypeData.allTimeMatchups;
+      
+      if (!matchups) return { wins: 0, losses: 0, totalGames: 0, winRate: null };
+      
+      let totalWins = 0;
+      let totalLosses = 0;
+      
+      Object.values(matchups).forEach((matchup) => {
+        totalWins += matchup.wins;
+        totalLosses += matchup.losses;
+      });
+      
+      const totalGames = totalWins + totalLosses;
+      const winRate = totalGames > 0 ? (totalWins / totalGames) * 100 : null;
+      
+      return {
+        wins: totalWins,
+        losses: totalLosses,
+        totalGames,
+        winRate
+      };
+    };
+
+    if (!selectedCharacter || !playedCharacters[selectedCharacter]) {
+      // Aggregate across all characters
+      const aggregateAllCharacters = (battleType: string) => {
+        let totalWins = 0;
+        let totalLosses = 0;
+        
+        Object.values(playedCharacters).forEach((characterData) => {
+          const battleTypeData = characterData[battleType];
+          if (battleTypeData) {
+            const matchups = showCurrentSeason 
+              ? battleTypeData.currentSeasonMatchups 
+              : battleTypeData.allTimeMatchups;
+            
+            if (matchups) {
+              Object.values(matchups).forEach((matchup) => {
+                totalWins += matchup.wins;
+                totalLosses += matchup.losses;
+              });
+            }
+          }
+        });
+        
+        const totalGames = totalWins + totalLosses;
+        const winRate = totalGames > 0 ? (totalWins / totalGames) * 100 : null;
+        
+        return {
+          wins: totalWins,
+          losses: totalLosses,
+          totalGames,
+          winRate
+        };
+      };
+
+      return {
+        rankedStats: aggregateAllCharacters('RANKED_BATTLE'),
+        quickStats: aggregateAllCharacters('QUICK_BATTLE'),
+        playerStats: aggregateAllCharacters('PLAYER_BATTLE'),
+        groupStats: aggregateAllCharacters('GROUP_BATTLE')
+      };
+    }
+
+    // Get stats for selected character
+    const characterData = playedCharacters[selectedCharacter];
+    
+    return {
+      rankedStats: calculateStatsFromMatchups(characterData['RANKED_BATTLE']),
+      quickStats: calculateStatsFromMatchups(characterData['QUICK_BATTLE']),
+      playerStats: calculateStatsFromMatchups(characterData['PLAYER_BATTLE']),
+      groupStats: calculateStatsFromMatchups(characterData['GROUP_BATTLE'])
+    };
+  };
+
+  const { rankedStats, quickStats, playerStats, groupStats } = getBattleTypeStats();
 
   // Get matchups data
   const getMatchupsData = () => {
@@ -116,7 +194,9 @@ export const MatchStatsWidget: React.FC<MatchStatsWidgetProps> = ({
     <Card className="h-full bg-gray-800/50 backdrop-blur-sm border-gray-700">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Match Statistics</CardTitle>
+          <CardTitle className="text-lg">
+            Match Statistics{selectedCharacter && ` • ${selectedCharacter}`}
+          </CardTitle>
           <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
             <button
               onClick={() => setShowCurrentSeason(true)}

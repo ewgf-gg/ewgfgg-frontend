@@ -29,8 +29,21 @@ export const RecentlyActivePlayersChart: React.FC<RecentlyActivePlayersChartProp
       <ResponsiveContainer width="100%" height={230}>
         <div className="w-full h-full">
           {displayPlayers.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-muted-foreground">No recently active players found. (Servers could be down for maintenence.)</p>
+            <div className="flex flex-col items-center justify-center h-full space-y-2 px-4">
+              <p className="text-muted-foreground text-center">
+                Tekken servers are down for maintenance or updates.
+              </p>
+              <p className="text-sm text-muted-foreground text-center">
+                If this is incorrect, please{' '}
+                <a 
+                  href="https://discord.gg/your-invite-link" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  report an issue to me on Discord
+                </a>
+              </p>
             </div>
           ) : (
             <div className="space-y-1 overflow-y-auto h-full pr-2">

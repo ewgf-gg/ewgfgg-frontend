@@ -48,7 +48,7 @@ export const StatPentagonChart: React.FC<StatPentagonChartProps> = ({
 
   return (
     <TooltipProvider>
-      <Card className="w-full max-w-full mx-auto overflow-visible h-full max-h-[350px] flex flex-col relative bg-gray-800/50 backdrop-blur-sm border-gray-700">
+      <Card className="w-full max-w-full mx-auto overflow-visible h-full flex flex-col relative bg-gray-800/50 backdrop-blur-sm border-gray-700">
         <div className='flex items-center justify-between px-4 py-2 w-full'>
           <CardHeader className="pb-0 pt-1 flex items-center">
             <CardTitle className="text-base">Stat Pentagon</CardTitle>
@@ -60,16 +60,16 @@ export const StatPentagonChart: React.FC<StatPentagonChartProps> = ({
             {showDetails ? "Hide Details" : "View Details"}
           </span>
         </div>
-        <CardContent className="p-2 pt-0 pb-2 flex-grow max-h-[300px]">
+        <CardContent className="p-2 pt-0 pb-2 flex-grow">
           <div className="flex flex-col items-center h-full">
             <div className="w-full h-full relative">
               
-              <ChartContainer config={chartConfig} className="!aspect-square relative z-10 max-h-[450px] mx-auto">
+              <ChartContainer config={chartConfig} className="!aspect-square relative z-10 mx-auto">
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart 
                     cx="50%" 
-                    cy="35%" 
-                    outerRadius="50%" 
+                    cy="50%" 
+                    outerRadius="65%" 
                     data={chartData}
                     margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
                   >

@@ -6,22 +6,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Regions } from '@/app/state/types/tekkenTypes';
 
 interface RegionSelectorProps {
   selectedRegion: string;
   onRegionChange: (region: string) => void;
 }
 
-// Map numeric region IDs to their string values, excluding N/A (-1)
+// Region values match the API response format
 const regions = [
   { value: 'global', label: 'Global' },
-  ...Object.entries(Regions)
-    .filter(([key]) => key !== '-1')
-    .map(([key, value]) => ({
-      value: key,
-      label: value
-    }))
+  { value: 'Asia', label: 'Asia' },
+  { value: 'Middle East', label: 'Middle East' },
+  { value: 'Oceania', label: 'Oceania' },
+  { value: 'Americas', label: 'Americas' },
+  { value: 'Europe', label: 'Europe' }
 ];
 
 export function RegionSelector({ selectedRegion, onRegionChange }: RegionSelectorProps) {

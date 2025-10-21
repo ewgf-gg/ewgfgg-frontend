@@ -148,7 +148,7 @@ export function RankDistributionChart({ distribution, characterName }: RankDistr
         <CardHeader>
           <div>
             <CardTitle className="text-2xl font-bold">Rank Distribution</CardTitle>
-            <CardDescription>Distribution of {characterName} players across all ranks</CardDescription>
+            <CardDescription>Distribution of {characterName} mains across all ranks active within the last 30 days</CardDescription>
           </div>
         </CardHeader>
         <CardContent>

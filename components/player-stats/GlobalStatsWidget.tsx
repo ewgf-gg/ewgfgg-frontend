@@ -69,29 +69,29 @@ export const GlobalStatsWidget: React.FC<GlobalStatsWidgetProps> = ({
         </p>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
+        <div className="space-y-1">
           {/* Individual Battle Types */}
           {battleTypes.map(({ key, stats }) => (
             <div
               key={key}
-              className="w-full flex items-center justify-between p-3 rounded-lg border bg-muted/50 border-border"
+              className="w-full flex items-center justify-between p-1.5 rounded-lg border bg-muted/50 border-border"
             >
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
+              <div className="flex items-center gap-1.5">
+                <div className="p-1 rounded-lg bg-primary/10">
                   {getBattleTypeIcon(key)}
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-medium">{getBattleTypeName(key)}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs font-medium">{getBattleTypeName(key)}</p>
+                  <p className="text-[10px] text-muted-foreground">
                     {stats.totalGames.toLocaleString()} matches
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xl font-bold">
+                <p className="text-base font-bold">
                   {stats.winRate !== null ? `${stats.winRate.toFixed(1)}%` : 'N/A'}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[10px] text-muted-foreground">
                   {stats.wins}W-{stats.losses}L
                 </p>
               </div>
@@ -100,24 +100,24 @@ export const GlobalStatsWidget: React.FC<GlobalStatsWidgetProps> = ({
 
           {/* All Matches Summary */}
           {battleTypes.length > 0 && (
-            <div className="w-full p-3 rounded-lg border bg-primary/10 border-primary/20">
+            <div className="w-full p-1.5 rounded-lg border bg-primary/10 border-primary/20">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/20">
+                <div className="flex items-center gap-1.5">
+                  <div className="p-1 rounded-lg bg-primary/20">
                     <TrendingUp className="w-4 h-4 text-primary" />
                   </div>
                   <div className="text-left">
-                    <p className="text-sm font-medium">All Matches</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs font-medium">All Matches</p>
+                    <p className="text-[10px] text-muted-foreground">
                       {allMatchesStats.totalGames.toLocaleString()} total matches
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold text-primary">
+                  <p className="text-base font-bold text-primary">
                     {allMatchesWinRate.toFixed(1)}%
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[10px] text-muted-foreground">
                     {allMatchesStats.wins}W-{allMatchesStats.losses}L
                   </p>
                 </div>
@@ -134,24 +134,6 @@ export const GlobalStatsWidget: React.FC<GlobalStatsWidgetProps> = ({
           )}
         </div>
 
-        {/* Matchup Distribution Footer */}
-        {battleTypes.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-border">
-            <p className="text-xs text-muted-foreground mb-2">Matchup Distribution</p>
-            <div className="w-full h-2 rounded-full overflow-hidden flex">
-              {battleTypes.map(({ key, stats, color }) => (
-                <div
-                  key={key}
-                  className={`${color} transition-all`}
-                  style={{
-                    width: `${(stats.totalGames / allMatchesStats.totalGames) * 100}%`
-                  }}
-                  title={`${getBattleTypeName(key)}: ${stats.totalGames} matches (${((stats.totalGames / allMatchesStats.totalGames) * 100).toFixed(1)}%)`}
-                />
-              ))}
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

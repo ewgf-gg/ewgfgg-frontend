@@ -21,6 +21,9 @@ export function CharacterOverview({ characterName, characterIcon, stats }: Chara
     ? stats.mainedByPercent.toFixed(1) 
     : ((stats.mainedBy / stats.totalPlayers) * 100).toFixed(1);
 
+  // Convert character name to circular icon path format
+  const circularIconPath = `/static/circular_character_icons/${characterName.toLowerCase().replace(/\s+/g, '_')}.webp`;
+
   // Radial chart configs
   const winRateConfig = {
     winRate: {
@@ -50,28 +53,31 @@ export function CharacterOverview({ characterName, characterIcon, stats }: Chara
         <Card className="relative overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 w-full max-w-3xl">
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
           <CardContent className="relative p-6">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <div className="relative flex-shrink-0">
                 <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full" />
-                <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-primary/50 shadow-2xl">
+                <div className="relative w-32 h-32 flex items-center justify-center">
                   <Image
-                    src={characterIcon}
+                    src={circularIconPath}
                     alt={characterName}
-                    width={96}
-                    height={96}
-                    className="object-cover"
+                    width={128}
+                    height={128}
+                    className="object-contain"
                   />
                 </div>
               </div>
               <div className="flex-1">
-                <h1 className="text-4xl font-bold mb-3 text-white">
-                  {characterName}
-                </h1>
+                <div className="flex items-start justify-between mb-3">
+                  <h1 className="text-4xl font-bold text-white">
+                    {characterName}
+                  </h1>
+                  <p className="text-xs text-gray-400 text-right">Based on players active<br />within the last 30 days</p>
+                </div>
                 
                 {/* Stats Row */}
                 <div className="flex items-end gap-6">
                 <div>
-                  <p className="text-sm text-gray-400">Total Matches</p>
+                  <p className="text-sm text-gray-400">Ranked Matches</p>
                   <p className="text-xl font-bold text-white">{stats.totalMatches.toLocaleString()}</p>
                 </div>
                 
@@ -177,7 +183,7 @@ export function CharacterOverview({ characterName, characterIcon, stats }: Chara
           <CardContent className="p-6">
             <div className="mb-4">
               <h3 className="text-lg font-semibold text-white">Mained By</h3>
-              <p className="text-sm text-gray-400">Main character rate</p>
+              <p className="text-sm text-gray-400">% of players who main {characterName}</p>
             </div>
             <ChartContainer config={mainedByConfig} className="mx-auto aspect-square w-full max-w-[250px]">
               <RadialBarChart
@@ -219,7 +225,7 @@ export function CharacterOverview({ characterName, characterIcon, stats }: Chara
           <CardContent className="p-6">
             <div className="mb-4">
               <h3 className="text-lg font-semibold text-white">Median Rank</h3>
-              <p className="text-sm text-gray-400">Player skill level</p>
+              <p className="text-sm text-gray-400">Midpoint rank of all {characterName} mains</p>
             </div>
             <div className="flex flex-col items-center justify-center h-[250px]">
               <div className="relative w-40 h-32 mb-4">

@@ -1,10 +1,12 @@
 /* eslint-disable react/prop-types */
 import React, { useMemo } from 'react';
+import { useAtomValue } from 'jotai';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { characterIdMap, characterIconMap } from '../../app/state/types/tekkenTypes';
 import { Battle, PlayerMatchupSummary } from '../../app/state/types/PlayerPageTypes';
+import { showCurrentSeasonAtom, selectedBattleTypeAtom } from '../../app/state/atoms/tekkenStatsAtoms';
 import Image from 'next/image';
 
 interface CharacterWinrateChartProps {
@@ -184,6 +186,8 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
   // Call hooks at the top level, before any conditional logic
   const { width } = useWindowSize();
   const isMobile = isMobileView(width);
+  const showCurrentSeason = useAtomValue(showCurrentSeasonAtom);
+  const selectedBattleType = useAtomValue(selectedBattleTypeAtom);
 
   // Get the character name from the ID
   const getCharacterName = (characterId: number): string => {
@@ -201,15 +205,22 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
       return [];
     }
     
-    // Get RANKED_BATTLE data (or first available battle type)
-    const rankedData = characterData['RANKED_BATTLE'] || Object.values(characterData)[0];
+    // Get data for the selected battle type (or first available battle type)
+    const battleTypeData = characterData[selectedBattleType] || Object.values(characterData)[0];
     
-    if (!rankedData || !rankedData.currentSeasonMatchups) {
+    if (!battleTypeData) {
+      return [];
+    }
+    
+    // Use currentSeasonMatchups or allTimeMatchups based on the atom state
+    const matchupsData = showCurrentSeason ? battleTypeData.currentSeasonMatchups : battleTypeData.allTimeMatchups;
+    
+    if (!matchupsData) {
       return [];
     }
     
     // Convert matchups to chart data format
-    return Object.entries(rankedData.currentSeasonMatchups).map(([opponentName, matchup]: [string, any]) => {
+    return Object.entries(matchupsData).map(([opponentName, matchup]: [string, any]) => {
       const charIdEntry = Object.entries(characterIdMap).find(([_, name]) => name === opponentName);
       return {
         characterName: opponentName,
@@ -217,10 +228,10 @@ const CharacterWinrateChart: React.FC<CharacterWinrateChartProps> = ({
         wins: matchup.wins,
         losses: matchup.losses,
         winRate: matchup.winRate || 0,
-        totalMatches: matchup.totalMatches
+        totalMatches: matchup.totalGames || (matchup.wins + matchup.losses)
       };
     }).sort((a, b) => b.winRate - a.winRate);
-  }, [selectedCharName, playedCharacters]);
+  }, [selectedCharName, playedCharacters, showCurrentSeason, selectedBattleType]);
 
   const selectedCharacterName = characterIdMap[selectedCharacterId];
   const selectedCharacterIcon = selectedCharacterName ? characterIconMap[selectedCharacterName] : null;

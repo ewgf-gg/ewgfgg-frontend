@@ -2,11 +2,13 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell, LabelList } from 'recharts';
 import useWindowSize, { isMobileView } from '../../lib/hooks/useWindowSize';
 import { SimpleChartCard } from '../shared/SimpleChartCard';
 import { characterIdMap, characterIconMap, characterColors } from '../../app/state/types/tekkenTypes';
 import { Battle, PlayerMatchupSummary } from '../../app/state/types/PlayerPageTypes';
+import { selectedBattleTypeAtom, showCurrentSeasonAtom } from '../../app/state/atoms/tekkenStatsAtoms';
 import Image from 'next/image';
 
 interface CharacterMatchupAnalysisChartProps {
@@ -204,6 +206,10 @@ const CharacterMatchupAnalysisChart: React.FC<CharacterMatchupAnalysisChartProps
   const [mode, setMode] = useState<ChartMode>('winrate');
   const { width } = useWindowSize();
   const isMobile = isMobileView(width);
+  
+  // Get current selections from atoms
+  const selectedBattleType = useAtomValue(selectedBattleTypeAtom);
+  const showCurrentSeason = useAtomValue(showCurrentSeasonAtom);
 
   // Get the character name from the ID
   const getCharacterName = (characterId: number): string => {
@@ -212,7 +218,7 @@ const CharacterMatchupAnalysisChart: React.FC<CharacterMatchupAnalysisChartProps
 
   const selectedCharName = getCharacterName(selectedCharacterId);
 
-  // Winrate chart data
+  // Winrate chart data - now respects battle type and season selection
   const winrateChartData = useMemo(() => {
     const characterData = playedCharacters?.[selectedCharName];
     
@@ -220,13 +226,23 @@ const CharacterMatchupAnalysisChart: React.FC<CharacterMatchupAnalysisChartProps
       return [];
     }
     
-    const rankedData = characterData['RANKED_BATTLE'] || Object.values(characterData)[0];
+    // Use the selected battle type
+    const battleTypeData = characterData[selectedBattleType];
     
-    if (!rankedData || !rankedData.currentSeasonMatchups) {
+    if (!battleTypeData) {
       return [];
     }
     
-    return Object.entries(rankedData.currentSeasonMatchups).map(([opponentName, matchup]: [string, any]) => {
+    // Use current season or all time based on atom
+    const matchups = showCurrentSeason 
+      ? battleTypeData.currentSeasonMatchups 
+      : battleTypeData.allTimeMatchups;
+    
+    if (!matchups) {
+      return [];
+    }
+    
+    return Object.entries(matchups).map(([opponentName, matchup]: [string, any]) => {
       const charIdEntry = Object.entries(characterIdMap).find(([_, name]) => name === opponentName);
       return {
         characterName: opponentName,
@@ -237,47 +253,40 @@ const CharacterMatchupAnalysisChart: React.FC<CharacterMatchupAnalysisChartProps
         totalMatches: matchup.totalMatches
       };
     }).sort((a, b) => b.winRate - a.winRate);
-  }, [selectedCharName, playedCharacters]);
+  }, [selectedCharName, playedCharacters, selectedBattleType, showCurrentSeason]);
 
-  // Distribution chart data
+  // Distribution chart data - now respects battle type and season selection
   const { distributionChartData, maxMatches, yAxisTicks } = useMemo(() => {
-    if (selectedCharacterId === null || selectedCharacterId === undefined) {
+    const characterData = playedCharacters?.[selectedCharName];
+    
+    if (!characterData) {
       return { distributionChartData: [], maxMatches: 10, yAxisTicks: [0, 2, 4, 6, 8, 10] };
     }
-
-    const selectedCharName = characterIdMap[selectedCharacterId];
-    if (!selectedCharName) {
+    
+    // Use the selected battle type
+    const battleTypeData = characterData[selectedBattleType];
+    
+    if (!battleTypeData) {
       return { distributionChartData: [], maxMatches: 10, yAxisTicks: [0, 2, 4, 6, 8, 10] };
     }
-
-    const characterBattles = battles.filter(battle => {
-      const isPlayer1 = battle.p1PolarisId === polarisId;
-      return isPlayer1 
-        ? battle.p1Char === selectedCharName
-        : battle.p2Char === selectedCharName;
-    });
-
-    const distributionData = characterBattles.reduce<Record<string, DistributionData>>((acc, battle) => {
-      const isPlayer1 = battle.p1PolarisId === polarisId;
-      const opponentCharName = isPlayer1 ? battle.p2Char : battle.p1Char;
-      
-      const charIdEntry = Object.entries(characterIdMap).find(([_, name]) => name === opponentCharName);
-      const charId = charIdEntry ? parseInt(charIdEntry[0]) : 0;
-
-      if (!acc[opponentCharName]) {
-        acc[opponentCharName] = {
-          characterName: opponentCharName,
-          characterId: charId,
-          totalMatches: 0
-        };
-      }
-
-      acc[opponentCharName].totalMatches++;
-      return acc;
-    }, {});
-
-    const sortedData = Object.values(distributionData)
-      .sort((a: DistributionData, b: DistributionData) => b.totalMatches - a.totalMatches);
+    
+    // Use current season or all time based on atom
+    const matchups = showCurrentSeason 
+      ? battleTypeData.currentSeasonMatchups 
+      : battleTypeData.allTimeMatchups;
+    
+    if (!matchups) {
+      return { distributionChartData: [], maxMatches: 10, yAxisTicks: [0, 2, 4, 6, 8, 10] };
+    }
+    
+    const sortedData = Object.entries(matchups).map(([opponentName, matchup]: [string, any]) => {
+      const charIdEntry = Object.entries(characterIdMap).find(([_, name]) => name === opponentName);
+      return {
+        characterName: opponentName,
+        characterId: charIdEntry ? parseInt(charIdEntry[0]) : 0,
+        totalMatches: matchup.totalMatches
+      };
+    }).sort((a, b) => b.totalMatches - a.totalMatches);
 
     const max = sortedData.length > 0 
       ? Math.ceil(Math.max(...sortedData.map(d => d.totalMatches)) / 5) * 5 
@@ -294,10 +303,33 @@ const CharacterMatchupAnalysisChart: React.FC<CharacterMatchupAnalysisChartProps
       maxMatches: max,
       yAxisTicks: ticks
     };
-  }, [battles, selectedCharacterId, polarisId]);
+  }, [selectedCharName, playedCharacters, selectedBattleType, showCurrentSeason]);
 
   const selectedCharacterName = characterIdMap[selectedCharacterId];
   const selectedCharacterIcon = selectedCharacterName ? characterIconMap[selectedCharacterName] : null;
+
+  // Helper function to get battle type display name
+  const getBattleTypeName = (type: string) => {
+    switch (type) {
+      case 'RANKED_BATTLE': return 'Ranked';
+      case 'QUICK_BATTLE': return 'Quick';
+      case 'PLAYER_BATTLE': return 'Player';
+      case 'GROUP_BATTLE': return 'Group';
+      default: return type;
+    }
+  };
+
+  // Create dynamic description based on mode, character, battle type, and season
+  const getDescription = () => {
+    const battleTypeName = getBattleTypeName(selectedBattleType);
+    const seasonText = showCurrentSeason ? 'Current Season' : 'All Time';
+    
+    if (mode === 'winrate') {
+      return `Your winrate distribution for ${selectedCharacterName} • ${battleTypeName} • ${seasonText}`;
+    } else {
+      return `Total matches played for ${selectedCharacterName} • ${battleTypeName} • ${seasonText}`;
+    }
+  };
 
   const chartData = mode === 'winrate' ? winrateChartData : distributionChartData;
 
@@ -306,15 +338,6 @@ const CharacterMatchupAnalysisChart: React.FC<CharacterMatchupAnalysisChartProps
       <SimpleChartCard
         title="Character Matchup Analysis"
         description="No matchup data available for this character"
-        action={selectedCharacterIcon && (
-          <Image
-            src={selectedCharacterIcon}
-            alt={selectedCharacterName || ''}
-            width={32}
-            height={32}
-            style={{ objectFit: 'contain' }}
-          />
-        )}
       >
         <div className="h-full flex items-center justify-center">
           <p className="text-muted-foreground">No matches found</p>
@@ -326,45 +349,30 @@ const CharacterMatchupAnalysisChart: React.FC<CharacterMatchupAnalysisChartProps
   return (
     <SimpleChartCard
       title="Character Matchup Analysis"
-      description={mode === 'winrate' 
-        ? "Winrate distribution against different characters" 
-        : "Total matches played against different characters"
-      }
+      description={getDescription()}
       height="400px"
       action={
-        <div className="flex items-center gap-3">
-          {/* Tab buttons */}
-          <div className="flex bg-gray-800/50 rounded-lg p-1 gap-1">
-            <button
-              onClick={() => setMode('winrate')}
-              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                mode === 'winrate'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Winrate
-            </button>
-            <button
-              onClick={() => setMode('distribution')}
-              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                mode === 'distribution'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Distribution
-            </button>
-          </div>
-          {selectedCharacterIcon && (
-            <Image
-              src={selectedCharacterIcon}
-              alt={selectedCharacterName || ''}
-              width={32}
-              height={32}
-              style={{ objectFit: 'contain' }}
-            />
-          )}
+        <div className="flex bg-gray-800/50 rounded-lg p-1 gap-1">
+          <button
+            onClick={() => setMode('winrate')}
+            className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+              mode === 'winrate'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Winrate
+          </button>
+          <button
+            onClick={() => setMode('distribution')}
+            className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+              mode === 'distribution'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Distribution
+          </button>
         </div>
       }
     >
@@ -460,7 +468,8 @@ const CharacterMatchupAnalysisChart: React.FC<CharacterMatchupAnalysisChartProps
                   if (mode === 'winrate' && 'winRate' in entry) {
                     fill = getBarColor(entry.winRate);
                   } else {
-                    const colorMapping = characterColors.find(c => c.id === entry.characterId.toString());
+                    const entryData = entry as DistributionData;
+                    const colorMapping = characterColors.find(c => c.id === entryData.characterId.toString());
                     fill = colorMapping?.color || '#718096';
                   }
                   

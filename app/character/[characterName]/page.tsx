@@ -1,7 +1,9 @@
 import React from 'react';
 import { fetchCharacterStats } from '@/lib/api';
-import { transformCharacterStatsResponse } from '@/lib/character-utils';
+import { transformCharacterStatsResponse, getCharacterNameFromEnum } from '@/lib/character-utils';
 import { CharacterStatsApiResponse } from '@/app/state/types/CharacterPageTypes';
+import { LeaderboardData } from '@/app/state/types/tekkenTypes';
+import { fetchCharacterLeaderboards } from '@/lib/api-config';
 import CharacterPageContent from './CharacterPageContent';
 
 interface CharacterPageProps {
@@ -11,18 +13,44 @@ interface CharacterPageProps {
 }
 
 export default async function CharacterPage({ params }: CharacterPageProps) {
-  const { characterName } = params;
+  const { characterName: characterEnum } = params;
+  
+  // Convert enum to display name for display purposes
+  const characterDisplayName = getCharacterNameFromEnum(characterEnum);
+  
+  if (!characterDisplayName) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Character Not Found</h1>
+          <p className="text-muted-foreground">
+            The character you're looking for doesn't exist.
+          </p>
+        </div>
+      </div>
+    );
+  }
   
   try {
-    // Fetch character stats from API (server-side)
-    const apiResponse: CharacterStatsApiResponse = await fetchCharacterStats(characterName);
+    // Fetch character stats from API using enum name (server-side)
+    const apiResponse: CharacterStatsApiResponse = await fetchCharacterStats(characterEnum);
     
     // Transform API response to frontend format
     const characterData = transformCharacterStatsResponse(apiResponse);
     
-    return <CharacterPageContent characterData={characterData} />;
+    // Fetch leaderboards for this character using the enum value
+    let leaderboardData: LeaderboardData | null = null;
+    
+    try {
+      leaderboardData = await fetchCharacterLeaderboards(characterEnum) as LeaderboardData;
+    } catch (leaderboardError) {
+      console.error(`Error fetching leaderboards for ${characterDisplayName}:`, leaderboardError);
+      // Continue without leaderboard data
+    }
+    
+    return <CharacterPageContent characterData={characterData} leaderboardData={leaderboardData} />;
   } catch (error) {
-    console.error(`Error fetching character stats for ${characterName}:`, error);
+    console.error(`Error fetching character stats for ${characterDisplayName}:`, error);
     
     // Return error state or fallback
     return (
@@ -30,7 +58,7 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4">Error Loading Character Data</h1>
           <p className="text-muted-foreground">
-            Failed to load statistics for {characterName}. Please try again later.
+            Failed to load statistics for {characterDisplayName}. Please try again later.
           </p>
         </div>
       </div>
@@ -39,9 +67,10 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
 }
 
 export async function generateMetadata({ params }: CharacterPageProps) {
-  const { characterName } = params;
+  const { characterName: characterEnum } = params;
+  const characterDisplayName = getCharacterNameFromEnum(characterEnum);
   return {
-    title: `${characterName} - Global Character Stats | EWGF.GG`,
-    description: `Comprehensive statistics, matchups, rank distribution, and top players for ${characterName} in Tekken 8. View win rates, pick rates, and global rankings.`,
+    title: `${characterDisplayName || characterEnum} - Global Character Stats | EWGF.GG`,
+    description: `Comprehensive statistics, matchups, rank distribution, and top players for ${characterDisplayName || characterEnum} in Tekken 8. View win rates, pick rates, and global rankings.`,
   };
 }

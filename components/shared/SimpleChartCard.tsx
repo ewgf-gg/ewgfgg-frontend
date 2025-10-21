@@ -47,7 +47,6 @@ export const SimpleChartCard: React.FC<SimpleChartCardProps> = ({
             </div>
             {action && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>Showing stats for:</span>
                 {action}
               </div>
             )}
