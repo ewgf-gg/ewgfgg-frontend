@@ -475,13 +475,13 @@ export const rankColorsAtom: ColorMapping[] = [
   { id: 'Garyu', color: '#ad2831' },
   { id: 'Shinryu', color: '#800e13' },
   { id: 'Tenryu', color: '#640d14' },
-  { id: 'Mighty Ruler', color: '#7b2cbf' },
-  { id: 'Flame Ruler', color: '#5a189a' },
-  { id: 'Battle Ruler', color: '#3c096c' },
-  { id: 'Fujin', color: '#014f86' },
-  { id: 'Raijin', color: '#01497c' },
-  { id: 'Kishin', color: '#013a63' },
-  { id: 'Bushin', color: '#012a4a' },
+  { id: 'Mighty Ruler', color: '#c77dff' },
+  { id: 'Flame Ruler', color: '#9d4edd' },
+  { id: 'Battle Ruler', color: '#7b2cbf' },
+  { id: 'Fujin', color: '#89c2d9' },
+  { id: 'Raijin', color: '#61a5c2' },
+  { id: 'Kishin', color: '#468faf' },
+  { id: 'Bushin', color: '#2c7da0' },
   { id: 'Tekken King', color: '#240046' },
   { id: 'Tekken Emperor', color: '#240046' },
   { id: 'Tekken God', color: '#ffe94e' },
@@ -527,7 +527,8 @@ export const characterColors: ColorMapping[] = [
   { id: '40', color: '#808080' }, // Heihachi - Gray
   { id: '41', color: '#6a040f' }, // Clive - Dark Red.
   { id: '42', color: '#14213d'}, // Anna - Pale Dark Blue
-  { id: '43', color: '#e36414'} // Fahkumram - Orange
+  { id: '43', color: '#e36414'}, // Fahkumram - Orange
+  { id: '44', color: '#121212' } // Armor King - Black
 ];
 
 export const rankDivisionColors: ColorMapping[] = [

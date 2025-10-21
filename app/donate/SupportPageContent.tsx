@@ -31,7 +31,7 @@ export default function SupportPageContent({ donorData }: SupportPageContentProp
             <Heart className="w-12 h-12 text-red-500 animate-pulse" />
           </div>
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-pink-400 via-red-400 to-orange-400 bg-clip-text text-transparent">
-            Donate to ewgf.gg
+            Support ewgf.gg
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
             Help us keep the lights on and continue providing the best ad-free Tekken 8 statistics platform for the community

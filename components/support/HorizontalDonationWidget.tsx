@@ -197,7 +197,7 @@ export default function HorizontalDonationWidget({ monthlyProgress }: Horizontal
           
           <div className="space-y-4 text-gray-300 leading-relaxed">
             <p>
-              Firstly, I wanted to give a huge thanks to the community and all the kind words everyone has shared. ewgf.gg is my first big personal project and I'm so grateful that everyone has found it useful :)
+              Firstly, I wanted to give a huge thanks to the community and all the kind words everyone has shared. ewgf.gg is my first big personal project and I'm so grateful that you guys have found it useful :)
             </p>
             
             <p>
@@ -205,7 +205,7 @@ export default function HorizontalDonationWidget({ monthlyProgress }: Horizontal
             </p>
             
             <p>
-              Up until now, I've been personally covering all the costs of running ewgf.gg, but as the site continues to grow, your support would help ensure I can keep the site running smoothly without it becoming a financial burden while I'm studying and job hunting.
+              Up until now, I've been personally covering all the costs of running ewgf.gg, but as the site and traffic continue to grow, so too do the server costs. Your support would help ensure I can keep the site running smoothly without it becoming a financial burden while I'm studying and job hunting.
             </p>
           </div>
 

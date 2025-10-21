@@ -141,7 +141,7 @@ export const RankDistributionChart: React.FC<{ delay?: number }> = ({ delay = 1.
         <CardHeader>
           <div>
             <CardTitle className="text-2xl font-bold">Rank Distribution</CardTitle>
-            <CardDescription>Distribution of players across all ranks</CardDescription>
+            <CardDescription>Distribution of players across all ranks • Mains Only</CardDescription>
           </div>
         </CardHeader>
         <CardContent>

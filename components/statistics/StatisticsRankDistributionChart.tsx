@@ -202,7 +202,7 @@ export const StatisticsRankDistributionChart: React.FC<StatisticsRankDistributio
           <div>
             <CardTitle className="text-2xl font-bold">Rank Distribution</CardTitle>
             <CardDescription>
-              Distribution of players across all ranks for {formatVersion(selectedVersion)} • {selectedRegion === 'global' ? 'all regions' : selectedRegion}
+              Distribution of players across all ranks for {formatVersion(selectedVersion)} • {selectedRegion === 'global' ? 'All Regions' : selectedRegion} • Mains + Non-Mains
             </CardDescription>
           </div>
         </CardHeader>

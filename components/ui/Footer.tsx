@@ -66,8 +66,8 @@ export default function Footer() {
           <div className="md:col-span-1">
             <h3 className="text-sm font-semibold uppercase tracking-wider mb-3 text-blue-400">About</h3>
             <p className="text-xs text-gray-400 leading-relaxed">
-              ewgf.gg is an open-source TEKKEN® 8 Statistics website. Its goal is to measure and visualize Rank Distribution, Win Rates, 
-               Character popularity and other key data points. 
+              ewgf.gg is an unofficial TEKKEN® 8 Statistics website. Its goal is to highlight gameplay trends and broader metagame, and provide players with 
+              insights into their performance.
             </p>
           </div>
 

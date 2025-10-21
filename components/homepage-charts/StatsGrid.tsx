@@ -18,7 +18,7 @@ export const StatsGrid: React.FC = () => (
     />
     <WinRateTrends
       title="Win Rate Trends"
-      description="Current game version"
+      description="Across all ranks globally"
       delay={0.8}
     />
     <RegionDistributionChart />

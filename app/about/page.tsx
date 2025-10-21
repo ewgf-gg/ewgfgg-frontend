@@ -26,7 +26,7 @@ export default function AboutPage() {
               About ewgf.gg
             </h1>
             <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-              A free and open-source tool for deeper Tekken 8 gameplay insights
+              A free tool for Tekken 8 gameplay insights
             </p>
           </div>
 
@@ -50,9 +50,17 @@ export default function AboutPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-blue-300 mb-2">Our Mission</h3>
                     <p className="text-gray-300 text-sm leading-relaxed">
-                      <strong className="text-blue-300">ewgf.gg</strong> provides deeper insights into your Tekken 8 gameplay statistics. 
-                      Built and maintained by <strong className="text-blue-300">@the-beef-calculator</strong>, inspired by the monthly{' '}
-                      <em className="text-cyan-300">State of Tekken 8</em> Reddit posts by /u/NotQuiteFactual.
+                      <strong className="text-blue-300">ewgf.gg</strong> aims to highlight the state of the Tekken 8 metagame through gameplay statistics. 
+                      Built and maintained by <strong className="text-blue-300">@the-beef-calculator</strong>, it was inspired by the monthly{' '}
+                      <em className="text-cyan-300">State of Tekken 8</em> Reddit posts by{' '}
+                      <a
+                        href="https://www.reddit.com/user/NotQuiteFactual/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-cyan-400 hover:text-cyan-300 underline font-semibold transition-colors"
+                      >
+                        /u/NotQuiteFactual
+                      </a>.
                     </p>
                   </div>
 
@@ -70,7 +78,7 @@ export default function AboutPage() {
                       <div className="bg-gray-900/50 p-3 rounded-lg border border-blue-500/20">
                         <div className="flex items-center gap-2 mb-2">
                           <IoStatsChart className="w-5 h-5 text-blue-400" />
-                          <h4 className="text-sm font-semibold text-blue-300">Historical Battle Data</h4>
+                          <h4 className="text-sm font-semibold text-blue-300">Historical Ranked Battles</h4>
                         </div>
                         <p className="text-gray-300 text-sm">
                           Historical ranked data from{' '}
@@ -103,7 +111,11 @@ export default function AboutPage() {
                           </li>
                           <li className="flex items-center gap-2">
                             <FaChartBar className="w-3 h-3 text-cyan-400" />
-                            Match history
+                           Historical Unranked Battles
+                          </li>
+                            <li className="flex items-center gap-2">
+                            <IoStatsChart className="w-3 h-3 text-cyan-400" />
+                            Stat pentagon
                           </li>
                         </ul>
                       </div>
@@ -117,7 +129,7 @@ export default function AboutPage() {
                       <div>
                         <h3 className="text-sm font-semibold text-blue-300 mb-1">Analysis Scope</h3>
                         <p className="text-gray-300 text-sm">
-                          Only <strong className="text-blue-300">ranked battles</strong> are analyzed.
+                          Only <strong className="text-blue-300">ranked battles</strong> are used for all website analytics.
                         </p>
                       </div>
                     </div>
@@ -186,7 +198,8 @@ export default function AboutPage() {
                         <div>
                           <h4 className="font-semibold text-red-300 mb-1 text-sm">Regional Accuracy</h4>
                           <p className="text-gray-300 text-xs">
-                            Tekken's regional assignment could be better. If you're in the wrong region, let me know and I'll change it.
+                            The way Tekken determines your region isn't the best. If the wrong region is assigned to you, please let me know and I will 
+                            manually change it. 
                           </p>
                         </div>
                       </div>
@@ -198,7 +211,7 @@ export default function AboutPage() {
                         <div>
                           <h4 className="font-semibold text-red-300 mb-1 text-sm">Match Disconnections</h4>
                           <p className="text-gray-300 text-xs">
-                            Players can disconnect to avoid losses. Disconnected matches won't appear in match history or stats.
+                            Players can plug / disconnect to avoid losses. Since disconnected matches aren't recorded by Tekken, they won't appear in match history or stats.
                           </p>
                         </div>
                       </div>
@@ -224,7 +237,7 @@ export default function AboutPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-gray-300 text-center text-sm">
-                  This project wouldn't be possible without amazing community support:
+                  This project wouldn't be possible without the amazing community support:
                 </p>
 
                 {/* Three Column Grid */}
@@ -239,8 +252,8 @@ export default function AboutPage() {
                       <p>
                         🏆 MVPs <a href="https://x.com/6weetbix" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-semibold">@6weetbix</a> and <a href="https://x.com/kklaraz" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-semibold">@klaraz</a> for <a href="https://wank.wavu.wiki" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-semibold">Wavu Wiki</a>
                       </p>
-                      <p>💡 Gary, my mentor, for technical guidance and support</p>
-                      <p>👥 Friends Joe, Michael, Daniel, and others for feedback</p>
+                      <p>💡 Gary, my mentor, for technical guidance when this project first started</p>
+                      <p>👥 My friends Joe, Michael, Daniel, Diego, Cairo, and so, so many others for feedback and support</p>
                       <p>🎮 ewgf.gg and Tekken communities for ongoing support</p>
                     </div>
                   </div>
@@ -252,10 +265,10 @@ export default function AboutPage() {
                       <h3 className="text-base font-semibold text-pink-300">Donators</h3>
                     </div>
                     <p className="text-gray-300 text-xs mb-2">
-                      Thank you to all Ko-fi supporters who help keep this project running! 💖
+                      Thank you to all Ko-fi supporters who help keep this project running! 💖 I'm working to get all donators displayed here on this page.
                     </p>
                     <p className="text-gray-400 text-xs">
-                      Visit the <a href="/donate" className="text-pink-400 hover:text-pink-300 underline font-semibold">Donate page</a> to see top contributors.
+                      Visit the <a href="/donate" className="text-pink-400 hover:text-pink-300 underline font-semibold">Donate page</a> to see top and recent contributors.
                     </p>
                   </div>
 
@@ -266,7 +279,7 @@ export default function AboutPage() {
                       <h3 className="text-base font-semibold text-green-300">Translators</h3>
                     </div>
                     <p className="text-gray-300 text-xs">
-                      Looking for volunteers to help translate ewgf.gg! 🌍 Reach out via Discord or GitHub if interested.
+                      Looking for volunteers to help translate ewgf.gg! 🌍 Reach out via Discord if interested.
                     </p>
                   </div>
                 </div>
@@ -288,7 +301,7 @@ export default function AboutPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-gray-300 text-center text-sm">
-                  Have suggestions or found a bug? Join Discord or submit a GitHub issue!
+                  Have suggestions or found a bug? Let me know by reaching out on Discord.
                 </p>
                 <div className="flex justify-center gap-4">
                   <motion.a
