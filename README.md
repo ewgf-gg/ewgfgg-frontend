@@ -1,5 +1,10 @@
 # EWGF.GG - Tekken 8 Statistics Website (Frontend)
 
+## ⚠️ Repository Archived ⚠️
+
+As of October 16th, 2025, this repository has been archived and is now read-only. **EWGF.GG will continue operating as a closed-source project.**  The website isn't going anywhere, and development will continue! Thank you for your understanding :) 
+
+
 This is the front-end service that runs [ewgf.gg](https://www.ewgf.gg/). It is designed to visualize and display TEKKEN 8 data that has been collected from the Wavu Wank api.
 > **Note: To run this locally, you MUST have the backend server running at the configured API_URL before starting the frontend application. See the backend repository for setup instructions.**
 
