@@ -9,6 +9,13 @@ import { rankIconMap, circularCharacterIconMap, Regions, MainCharacterAndRank } 
 import { CalendarIcon, MapPinIcon } from 'lucide-react'
 import { usePolarisId } from '@/lib/hooks/usePolarisId' 
 
+interface FollowedUser {
+  polarisId: string
+  username: string
+  rank: string
+  characterImage: string
+}
+
 interface UserInfoCardProps {
   username: string
   regionId: number
@@ -65,9 +72,9 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
   const [isFollowing, setIsFollowing] = useState(false)
 
   useEffect(() => {
-    const following = JSON.parse(localStorage.getItem('following') || '[]')
-    setIsFollowing(following.includes(polarisId))
-  }, [polarisId])
+    const following = JSON.parse(localStorage.getItem('following') || '[]');
+    setIsFollowing((following as FollowedUser[]).some((user) => user.polarisId === polarisId));
+  }, [polarisId]);
 
   const isProfile = currentPolarisId === polarisId 
 
@@ -81,15 +88,27 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
 
   // eslint-disable-next-line
   const handleFollowToggle = () => {
-    let following = JSON.parse(localStorage.getItem('following') || '[]')
-    if (following.includes(polarisId)) {
-      following = following.filter((id: string) => id !== polarisId)
+    const existing = JSON.parse(localStorage.getItem('following') || '[]');
+  
+    const userObj = {
+      polarisId,
+      username,
+      rank: mainCharacterAndRank.danRank,
+      characterImage: circularCharacterIconMap[mainCharacterAndRank.characterName]
+    };
+  
+    const isAlreadyFollowing = (existing as FollowedUser[]).some((user) => user.polarisId === polarisId);
+  
+    let updatedFollowing;
+    if (isAlreadyFollowing) {
+      updatedFollowing = (existing as FollowedUser[]).filter((user) => user.polarisId !== polarisId);
     } else {
-      following.push(polarisId)
+      updatedFollowing = [...existing, userObj];
     }
-    localStorage.setItem('following', JSON.stringify(following))
-    setIsFollowing(!isFollowing)
-  }
+  
+    localStorage.setItem('following', JSON.stringify(updatedFollowing));
+    setIsFollowing(!isFollowing);
+  };
 
   return (
     <TooltipProvider>
@@ -152,7 +171,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
                 <p>{isProfile ? 'Remove this user from your Profile' : 'Set this user as your Profile user'}</p>
               </TooltipContent>
             </Tooltip>
-            {/* <Tooltip>
+            <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   onClick={handleFollowToggle}
@@ -164,7 +183,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = ({
               <TooltipContent>
                 <p>{isFollowing ? 'Unfollow this user' : 'Follow this user to easily access their page'}</p>
               </TooltipContent>
-            </Tooltip> */}
+            </Tooltip>
           </div>
             </div>
           </div>
